@@ -1,0 +1,83 @@
+# 11 - Modelado del Sistema — Casos de Uso
+
+## Actores
+
+| Actor | Descripción |
+|---|---|
+| **Administrativo** | Personal administrativo del hospital que gestiona documentos y traslados. Utiliza el sistema mediante autenticación con credenciales del sistema centralizado. |
+| **Paciente** | Usuario externo que accede a documentos mediante código QR y completa encuestas. No requiere autenticación. |
+| **Sistema Centralizado** | Sistema preexistente del hospital que provee autenticación y panel principal de acceso. |
+
+## Diagrama de Casos de Uso
+
+```
+                  ┌─────────────────────────────────────┐
+                  │           SISTEMA ELYRA              │
+                  ├─────────────────────────────────────┤
+                  │                                     │
+                  │   ┌─────────────────────────┐       │
+                  │   │ MÓDULO DOCUMENTACIÓN    │       │
+                  │   │                         │       │
+                  │   │  - Iniciar sesión       │◄──────┤── Sistema Centralizado
+                  │   │  - Subir documento      │       │
+                  │   │  - Editar documento     │       │
+                  │   │  - Eliminar documento   │       │
+      ┌───────────┤   │  - Categorizar doc.     │       │
+      │           │   │  - Visualizar QR        │       │
+      │  Admin    │   │  - Crear encuesta       │       │
+      │           │   │  - Ver resultados       │       │
+      └───────────┤   │  - Ver listado docs     │       │
+                  │   └─────────────────────────┘       │
+                  │                                     │
+                  │   ┌─────────────────────────┐       │
+                  │   │ MÓDULO AMBULANCIAS      │       │
+      ┌───────────┤   │                         │       │
+      │           │   │  - Registrar traslado   │       │
+      │  Admin    │   │  - Actualizar estado    │       │
+      │           │   │  - Consultar traslados  │       │
+      └───────────┤   │  - Gestionar rutas      │       │
+                  │   │  - Ver historial        │       │
+                  │   └─────────────────────────┘       │
+                  │                                     │
+                  │   ┌─────────────────────────┐       │
+                  │   │ ACCESO PÚBLICO          │       │
+                  │   │                         │       │
+  ┌───────────┐   │   │  - Ver documento (QR)  │       │
+  │           ├───┤   │  - Responder encuesta   │       │
+  │ Paciente  │   │   └─────────────────────────┘       │
+  └───────────┘   │                                     │
+                  └─────────────────────────────────────┘
+```
+
+## Especificación de Casos de Uso
+
+### Módulo de Documentación
+
+| ID | Caso de Uso | Actor | Descripción |
+|---|---|---|---|
+| CU-01 | Iniciar sesión | Administrativo | El administrativo ingresa con usuario y contraseña del sistema centralizado. |
+| CU-02 | Subir documento | Administrativo | El administrativo carga un archivo PDF al sistema, asignándole título, descripción y categoría. |
+| CU-03 | Editar documento | Administrativo | El administrativo modifica el título, descripción o categoría de un documento existente. |
+| CU-04 | Eliminar documento | Administrativo | El administrativo elimina un documento del sistema. |
+| CU-05 | Categorizar documento | Administrativo | El administrativo asigna o cambia la categoría de un documento. |
+| CU-06 | Visualizar QR | Administrativo | El administrativo visualiza e imprime el código QR asociado a un documento. |
+| CU-07 | Listar documentos | Administrativo | El administrativo visualiza el listado completo de documentos con filtros por categoría. |
+| CU-08 | Crear encuesta | Administrativo | El administrativo crea una encuesta con preguntas de distintos tipos. |
+| CU-09 | Ver resultados | Administrativo | El administrativo consulta estadísticas y respuestas de las encuestas. |
+| CU-10 | Acceder a documento | Paciente | El paciente escanea un código QR y visualiza el documento en su dispositivo. |
+| CU-11 | Responder encuesta | Paciente | El paciente completa y envía una encuesta de satisfacción. |
+
+### Módulo de Ambulancias
+
+| ID | Caso de Uso | Actor | Descripción |
+|---|---|---|---|
+| CU-12 | Registrar traslado | Administrativo | El administrativo da de alta un nuevo traslado con todos sus datos. |
+| CU-13 | Actualizar estado | Administrativo | El administrativo actualiza el estado del traslado (salida, en ruta, llegada, retorno, finalizado). |
+| CU-14 | Consultar traslados | Administrativo | El administrativo visualiza la lista de traslados con su estado actual. |
+| CU-15 | Gestionar rutas | Administrativo | El administrativo registra y administra rutas del circuito nacional. |
+| CU-16 | Ver historial | Administrativo | El administrativo consulta el historial de traslados con filtros por fecha, conductor o estado. |
+
+## Próximos pasos en el modelado
+
+- **Diagramas de Flujo**: procesos de alta de documento, registro de traslado, ciclo de vida del traslado.
+- **Modelo Entidad Relación (MER)**: definir entidades, atributos y relaciones para la base de datos MySQL.
