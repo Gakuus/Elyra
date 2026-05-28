@@ -11,7 +11,8 @@ Sistema de gestión hospitalaria para el **Hospital de Clínicas**.
 
 - PHP ≥ 8.1
 - MySQL
-- HTML / CSS / JavaScript
+- HTML5 / CSS3 / JavaScript (ES6+)
+- Bootstrap 5
 
 ## Arquitectura
 
