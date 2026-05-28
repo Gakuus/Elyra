@@ -16,7 +16,7 @@ jobs:
         with:
           php-version: '8.1'
       - name: Validar sintaxis PHP
-        run: find . -name "*.php" -not -path "./vendor/*" -exec php -l {} \;
+        run: find . -name "*.php" -not -path "./vendor/*" -not -path "./node_modules/*" -exec php -l {} \;
 
   frontend-lint:
     runs-on: ubuntu-latest
@@ -29,6 +29,6 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
       - name: Lint JavaScript
-        run: npx eslint . --ext .js --ignore-pattern vendor --ignore-pattern node_modules || true
+        run: npx eslint "public/js/**/*.js" "src/**/*.js" --no-error-on-unmatched-pattern || true
       - name: Lint CSS
-        run: npx stylelint "**/*.css" --ignore-pattern vendor --ignore-pattern node_modules || true
+        run: npx stylelint "public/css/**/*.css" "src/**/*.css" --allow-empty-input || true
