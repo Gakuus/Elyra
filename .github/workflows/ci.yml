@@ -6,29 +6,61 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  PHP_VERSION: '8.1'
+  NODE_VERSION: '20'
+
 jobs:
-  php-lint:
+  php:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: elyra_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
+          php-version: ${{ env.PHP_VERSION }}
+          tools: composer, phpstan, phpunit
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: vendor/
+          key: composer-${{ hashFiles('composer.json') }}
+          restore-keys: composer-
+
+      - name: Instalar dependencias PHP
+        run: composer install --no-interaction --prefer-dist
+        continue-on-error: true
+
       - name: Validar sintaxis PHP
         run: find . -name "*.php" -not -path "./vendor/*" -not -path "./node_modules/*" -exec php -l {} \;
 
-  frontend-lint:
+  frontend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
       - name: Instalar dependencias
         run: npm ci
+
       - name: Lint JavaScript
-        run: npx eslint "public/js/**/*.js" "src/**/*.js" --no-error-on-unmatched-pattern || true
+        run: npx eslint "public/js/**/*.js" "src/**/*.js" --no-error-on-unmatched-pattern
+
       - name: Lint CSS
-        run: npx stylelint "public/css/**/*.css" "src/**/*.css" --allow-empty-input || true
+        run: npx stylelint "public/css/**/*.css" "src/**/*.css" --allow-empty-input
