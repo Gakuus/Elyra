@@ -39,3 +39,4 @@ php migrations.php
 1. Crear rama desde `main`: `git checkout -b <nombre>-features`
 2. Trabajar en la rama correspondiente
 3. Al finalizar, abrir PR contra `main`
+
