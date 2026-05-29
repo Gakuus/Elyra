@@ -3,6 +3,5 @@
 .env
 .DS_Store
 *.log
-/composer.lock
 /.phpunit.result.cache
 *.pdf
