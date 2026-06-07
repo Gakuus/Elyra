@@ -1,32 +1,77 @@
-# 12 - Diseño de la Solución — Diseño de Base de Datos
+# 12 - Diseño de Solución — Diseño de Base de Datos
 
-## Modelo Relacional (MR)
+## Modelo Relacional — Esquema Completo
 
-A continuación se presentan las 13 tablas del sistema con sus claves primarias (PK), foráneas (FK) y restricciones.
+A continuación se detallan las **11 tablas** del sistema, organizadas por módulo.
 
-### Tablas Globales
+---
+
+### Tabla de Identidad
+
+**USUARIO** — almacena tanto a funcionarios (empleados con login) como a pacientes (acceso por QR). El campo `tipo` discrimina qué subtipo es.
 
 ```
-USUARIO (PK: id)
+USUARIO
 ├── id: INT (PK, AUTO_INCREMENT)
-├── username: VARCHAR(50) (UNIQUE, NOT NULL)
-├── password_hash: VARCHAR(255) (NOT NULL)
+├── tipo: ENUM('funcionario', 'paciente') (NOT NULL)
 ├── nombre: VARCHAR(100) (NOT NULL)
 ├── apellido: VARCHAR(100) (NOT NULL)
 ├── email: VARCHAR(150) (UNIQUE)
-├── rol: ENUM('admin', 'superadmin') (DEFAULT 'admin')
+├── username: VARCHAR(50) (UNIQUE)                   /* solo funcionario */
+├── password_hash: VARCHAR(255)                      /* solo funcionario */
+├── documento_identidad: VARCHAR(20) (UNIQUE)
+├── licencia: VARCHAR(50)                            /* solo conductor */
+├── telefono: VARCHAR(20)
+├── token_acceso: VARCHAR(64) (UNIQUE)               /* solo paciente */
+├── activo: BOOLEAN (DEFAULT TRUE)
+├── rol: ENUM('admin', 'superadmin', 'conductor')    /* solo funcionario */
 └── created_at: TIMESTAMP
 ```
 
-### Tablas del Módulo de Documentación
+---
+
+### Módulo de Documentación (5 tablas)
+
+**CATEGORIA** — clasificación de documentos por área médica
 
 ```
-CATEGORIA (PK: id)
+CATEGORIA
 ├── id: INT (PK, AUTO_INCREMENT)
 ├── nombre: VARCHAR(100) (UNIQUE, NOT NULL)
 └── descripcion: TEXT
+```
 
-DOCUMENTO (PK: id)
+**ENCUESTA** — formularios de satisfacción
+
+```
+ENCUESTA
+├── id: INT (PK, AUTO_INCREMENT)
+├── titulo: VARCHAR(200) (NOT NULL)
+├── descripcion: TEXT
+├── activa: BOOLEAN (DEFAULT TRUE)
+├── creada_por: INT (FK → USUARIO.id, NOT NULL)
+├── created_at: TIMESTAMP
+└── updated_at: TIMESTAMP
+```
+
+**PREGUNTA** — cada pregunta dentro de una encuesta
+
+```
+PREGUNTA
+├── id: INT (PK, AUTO_INCREMENT)
+├── encuesta_id: INT (FK → ENCUESTA.id, NOT NULL)
+├── tipo: ENUM('multiple_choice', 'escala', 'texto_libre') (NOT NULL)
+├── texto: VARCHAR(500) (NOT NULL)
+├── opciones: JSON (NULLABLE)
+├── requerida: BOOLEAN (DEFAULT TRUE)
+├── orden: INT (NOT NULL)
+└── created_at: TIMESTAMP
+```
+
+**DOCUMENTO** — archivos PDF informativos con código QR
+
+```
+DOCUMENTO
 ├── id: INT (PK, AUTO_INCREMENT)
 ├── titulo: VARCHAR(200) (NOT NULL)
 ├── descripcion: TEXT
@@ -34,73 +79,49 @@ DOCUMENTO (PK: id)
 ├── archivo_nombre: VARCHAR(100) (NOT NULL)
 ├── qr_codigo: VARCHAR(64) (UNIQUE, NOT NULL)
 ├── qr_path: VARCHAR(255)
-├── categoria_id: INT (FK → CATEGORIA.id) (NOT NULL)
-├── subido_por: INT (FK → USUARIO.id) (NOT NULL)
+├── categoria_id: INT (FK → CATEGORIA.id, NOT NULL)
+├── encuesta_id: INT (FK → ENCUESTA.id, NULLABLE, UNIQUE)
+├── subido_por: INT (FK → USUARIO.id, NOT NULL)
 ├── activo: BOOLEAN (DEFAULT TRUE)
 ├── created_at: TIMESTAMP
 └── updated_at: TIMESTAMP
+```
 
-ENCUESTA (PK: id)
-├── id: INT (PK, AUTO_INCREMENT)
-├── titulo: VARCHAR(200) (NOT NULL)
-├── descripcion: TEXT
-├── activa: BOOLEAN (DEFAULT TRUE)
-├── creada_por: INT (FK → USUARIO.id) (NOT NULL)
-├── created_at: TIMESTAMP
-└── updated_at: TIMESTAMP
+**RESPUESTA** — respuestas de pacientes a encuestas, agrupadas por sesion_token
 
-PREGUNTA (PK: id)
+```
+RESPUESTA
 ├── id: INT (PK, AUTO_INCREMENT)
-├── encuesta_id: INT (FK → ENCUESTA.id) (NOT NULL)
-├── tipo: ENUM('multiple_choice', 'escala', 'texto_libre') (NOT NULL)
-├── texto: VARCHAR(500) (NOT NULL)
-├── requerida: BOOLEAN (DEFAULT TRUE)
-├── orden: INT (NOT NULL)
-└── created_at: TIMESTAMP
-
-OPCION (PK: id)
-├── id: INT (PK, AUTO_INCREMENT)
-├── pregunta_id: INT (FK → PREGUNTA.id) (NOT NULL)
-├── texto: VARCHAR(255) (NOT NULL)
-├── valor: INT
-└── orden: INT (NOT NULL)
-
-RESPUESTA_ENCUESTA (PK: id)
-├── id: INT (PK, AUTO_INCREMENT)
-├── encuesta_id: INT (FK → ENCUESTA.id) (NOT NULL)
+├── sesion_token: VARCHAR(64) (NOT NULL)
+├── encuesta_id: INT (FK → ENCUESTA.id, NOT NULL)
+├── pregunta_id: INT (FK → PREGUNTA.id, NOT NULL)
 ├── token_paciente: VARCHAR(64)
-├── completada: BOOLEAN (DEFAULT FALSE)
-├── created_at: TIMESTAMP
-└── updated_at: TIMESTAMP
-
-RESPUESTA_PREGUNTA (PK: id)
-├── id: INT (PK, AUTO_INCREMENT)
-├── respuesta_encuesta_id: INT (FK → RESPUESTA_ENCUESTA.id) (NOT NULL)
-├── pregunta_id: INT (FK → PREGUNTA.id) (NOT NULL)
-├── opcion_id: INT (FK → OPCION.id) (NULL)
-├── valor_texto: TEXT (NULL)
-├── valor_numerico: INT (NULL)
+├── valor_opcion: INT (NULLABLE)
+├── valor_texto: TEXT (NULLABLE)
+├── valor_numerico: INT (NULLABLE)
+├── UNIQUE (sesion_token, pregunta_id)
 └── created_at: TIMESTAMP
-
-ENCUESTA_DOCUMENTO (PK: compuesta)
-├── encuesta_id: INT (FK → ENCUESTA.id) (NOT NULL)
-└── documento_id: INT (FK → DOCUMENTO.id) (NOT NULL)
 ```
 
-### Tablas del Módulo de Ambulancias
+---
+
+### Módulo de Ambulancias (5 tablas)
+
+**VEHICULO** — flota de ambulancias
 
 ```
-CONDUCTOR (PK: id)
+VEHICULO
 ├── id: INT (PK, AUTO_INCREMENT)
-├── nombre: VARCHAR(100) (NOT NULL)
-├── apellido: VARCHAR(100) (NOT NULL)
-├── documento_identidad: VARCHAR(20) (UNIQUE)
-├── licencia: VARCHAR(50)
-├── telefono: VARCHAR(20)
-├── activo: BOOLEAN (DEFAULT TRUE)
+├── patente: VARCHAR(20) (UNIQUE, NOT NULL)
+├── modelo: VARCHAR(100)
+├── anio: YEAR
 └── created_at: TIMESTAMP
+```
 
-RUTA (PK: id)
+**RUTA** — rutas predefinidas del circuito nacional
+
+```
+RUTA
 ├── id: INT (PK, AUTO_INCREMENT)
 ├── nombre: VARCHAR(150) (NOT NULL)
 ├── origen: VARCHAR(200) (NOT NULL)
@@ -108,103 +129,115 @@ RUTA (PK: id)
 ├── distancia_km: DECIMAL(10,2)
 ├── descripcion: TEXT
 └── created_at: TIMESTAMP
+```
 
-TRASLADO (PK: id)
+**TRASLADO** — cada solicitud de viaje en ambulancia
+
+```
+TRASLADO
 ├── id: INT (PK, AUTO_INCREMENT)
 ├── codigo: VARCHAR(20) (UNIQUE, NOT NULL)
-├── conductor_id: INT (FK → CONDUCTOR.id) (NOT NULL)
-├── copiloto_nombre: VARCHAR(150)
-├── elemento_trasladado: VARCHAR(200) (NOT NULL)
-├── tipo_elemento: ENUM('paciente','equipamiento','insumo') (NOT NULL)
+├── conductor_id: INT (FK → USUARIO.id, NOT NULL)
+├── copiloto_id: INT (FK → USUARIO.id, NULLABLE)
+├── vehiculo_id: INT (FK → VEHICULO.id, NULLABLE)
+├── ruta_id: INT (FK → RUTA.id, NULLABLE)
 ├── origen: VARCHAR(200) (NOT NULL)
 ├── destino: VARCHAR(200) (NOT NULL)
-├── ruta_id: INT (FK → RUTA.id) (NULL)
 ├── hora_salida_estimada: DATETIME
 ├── hora_salida_efectiva: DATETIME
 ├── hora_llegada_destino: DATETIME
 ├── hora_inicio_retorno: DATETIME
 ├── hora_llegada_hospital: DATETIME
-├── estado: ENUM('pendiente','en_curso','en_destino','en_retorno','completado','cancelado') (DEFAULT 'pendiente')
+├── estado: ENUM('pendiente','en_curso','en_destino','en_retorno','completado','cancelado')
 ├── motivo_cancelacion: TEXT (NULL)
-├── registrado_por: INT (FK → USUARIO.id) (NOT NULL)
+├── registrado_por: INT (FK → USUARIO.id, NOT NULL)
 ├── observaciones: TEXT
 ├── created_at: TIMESTAMP
 └── updated_at: TIMESTAMP
+```
 
-HISTORIAL_ESTADO (PK: id)
+**ELEMENTO_TRASLADO** — tabla polimórfica: qué se traslada en cada viaje. Una sola tabla reemplaza los 4 catálogos (órgano, equipo, insumo) y las 4 tablas puente de la versión anterior.
+
+```
+ELEMENTO_TRASLADO
 ├── id: INT (PK, AUTO_INCREMENT)
-├── traslado_id: INT (FK → TRASLADO.id) (NOT NULL)
-├── estado_anterior: VARCHAR(20)
-├── estado_nuevo: VARCHAR(20) (NOT NULL)
-├── observacion: TEXT
-├── actualizado_por: INT (FK → USUARIO.id)
+├── traslado_id: INT (FK → TRASLADO.id, NOT NULL)
+├── tipo: ENUM('paciente', 'organo', 'equipamiento', 'insumo') (NOT NULL)
+├── paciente_id: INT (FK → USUARIO.id, NULLABLE)     /* solo si tipo=paciente */
+├── descripcion: VARCHAR(255)                         /* órgano, equipo o insumo */
+├── cantidad: INT (DEFAULT 1)                         /* para equipos e insumos */
 └── created_at: TIMESTAMP
 ```
 
-## Diagrama de Relaciones
+**HISTORIAL_ESTADO** — bitácora de cambios de estado del traslado
 
 ```
-┌──────────┐     ┌──────────────┐     ┌──────────────┐
-│ USUARIO  │     │  CATEGORIA   │     │  CONDUCTOR   │
-├──────────┤     ├──────────────┤     ├──────────────┤
-│ id (PK)  │1──<N│ id (PK)      │     │ id (PK)      │
-└──────────┘     │ nombre       │1──<N│ nombre       │
-       │         └──────────────┘     │ apellido     │
-       │1               │             └──────────────┘
-       │                │1                   │1
-       ├────────────────┤                    │
-       │                │                    │
-       ▼                ▼                    ▼
-┌──────────┐     ┌──────────────┐     ┌──────────────┐
-│ ENCUESTA │     │  DOCUMENTO   │     │   TRASLADO   │
-├──────────┤     ├──────────────┤     ├──────────────┤
-│ id (PK)  │     │ id (PK)      │     │ id (PK)      │
-└────┬─────┘     │ (FK)         │     │ (FK)         │
-     │1          └──────────────┘     └──────┬───────┘
-     │                M┼─────N               │1
-     ▼                 │                     │
-┌──────────┐     ┌──────────────┐            │
-│ PREGUNTA │     │ ENCUESTA_DOC │            │
-├──────────┤     ├──────────────┤            ▼
-│ id (PK)  │     │ (PK compuesta)│    ┌──────────────┐
-└────┬─────┘     └──────────────┘    │HISTORIAL_    │
-     │1                              │   ESTADO     │
-     ▼                               ├──────────────┤
-┌──────────┐                         │ id (PK)      │
-│  OPCION  │                         └──────────────┘
-├──────────┤
-│ id (PK)  │
-└──────────┘
-
-         N
-         │
-         ▼
-┌──────────────────┐
-│RESPUESTA_ENCUESTA│
-├──────────────────┤
-│ id (PK)          │1──<N
-└──────────────────┘
-         │1
-         ▼
-┌──────────────────┐
-│RESPUESTA_PREGUNTA│
-├──────────────────┤
-│ id (PK)          │
-└──────────────────┘
-
-Además: RUTA (1)──<N TRASLADO
+HISTORIAL_ESTADO
+├── id: INT (PK, AUTO_INCREMENT)
+├── traslado_id: INT (FK → TRASLADO.id, NOT NULL)
+├── estado_anterior: VARCHAR(20)
+├── estado_nuevo: VARCHAR(20) (NOT NULL)
+├── observacion: TEXT
+├── actualizado_por: INT (FK → USUARIO.id, NOT NULL)
+└── created_at: TIMESTAMP
 ```
+
+---
+
+## Índices
+
+| Índice | Tabla | Columnas | ¿Para qué consulta? |
+|---|---|---|---|
+| idx_documento_categoria | DOCUMENTO | categoria_id | Filtrar documentos por categoría |
+| idx_documento_activo | DOCUMENTO | activo | Mostrar solo documentos activos |
+| idx_documento_qr | DOCUMENTO | qr_codigo | Buscar documento por QR (escaneo) |
+| idx_encuesta_activa | ENCUESTA | activa | Mostrar encuestas disponibles |
+| idx_encuesta_creada_por | ENCUESTA | creada_por | Filtrar encuestas por funcionario |
+| idx_pregunta_encuesta | PREGUNTA | encuesta_id | Obtener preguntas de una encuesta |
+| idx_respuesta_sesion | RESPUESTA | sesion_token | Agrupar respuestas de una entrega |
+| idx_respuesta_pregunta | RESPUESTA | pregunta_id | Filtrar respuestas por pregunta |
+| uk_respuesta_sesion_pregunta | RESPUESTA | (sesion_token, pregunta_id) | Evitar doble respuesta |
+| idx_traslado_estado | TRASLADO | estado | Filtrar traslados por estado |
+| idx_traslado_conductor | TRASLADO | conductor_id | Buscar traslados de un conductor |
+| idx_traslado_vehiculo | TRASLADO | vehiculo_id | Historial de uso de un vehículo |
+| idx_traslado_fecha | TRASLADO | created_at | Ordenar/filtrar por fecha |
+| idx_traslado_codigo | TRASLADO | codigo | Búsqueda exacta por código |
+| idx_elemento_traslado | ELEMENTO_TRASLADO | traslado_id | Qué lleva un traslado |
+| idx_elemento_paciente | ELEMENTO_TRASLADO | paciente_id | Historial de viajes de un paciente |
+| idx_historial_timeline | HISTORIAL_ESTADO | (traslado_id, created_at) | Línea de tiempo del viaje |
+
+---
+
+## Política de Borrado (CASCADE)
+
+| Tabla | FK | Al borrar el padre... |
+|---|---|---|
+| ENCUESTA | creada_por → USUARIO | RESTRICT |
+| PREGUNTA | encuesta_id → ENCUESTA | CASCADE |
+| DOCUMENTO | categoria_id → CATEGORIA | RESTRICT |
+| DOCUMENTO | encuesta_id → ENCUESTA | SET NULL |
+| DOCUMENTO | subido_por → USUARIO | RESTRICT |
+| RESPUESTA | encuesta_id → ENCUESTA | CASCADE |
+| RESPUESTA | pregunta_id → PREGUNTA | CASCADE |
+| TRASLADO | conductor_id → USUARIO | RESTRICT |
+| TRASLADO | copiloto_id → USUARIO | SET NULL |
+| TRASLADO | vehiculo_id → VEHICULO | SET NULL |
+| TRASLADO | ruta_id → RUTA | SET NULL |
+| TRASLADO | registrado_por → USUARIO | RESTRICT |
+| ELEMENTO_TRASLADO | traslado_id → TRASLADO | CASCADE |
+| ELEMENTO_TRASLADO | paciente_id → USUARIO | SET NULL |
+| HISTORIAL_ESTADO | traslado_id → TRASLADO | CASCADE |
+| HISTORIAL_ESTADO | actualizado_por → USUARIO | RESTRICT |
+
+> **Regla general**: RESTRICT protege datos históricos (no se borra un conductor con viajes). CASCADE limpia datos hijos (si se borra un traslado, también sus elementos e historial). SET NULL conserva el registro aunque el padre se borre.
+
+---
 
 ## DDL
 
-El script SQL completo para crear la base de datos se encuentra en:
+El script SQL completo se encuentra en `database/schema.sql`. Contiene:
 
-```
-database/schema.sql
-```
-
-Incluye:
-- Creación de la base de datos `elyra`
-- 13 tablas con tipos, constraints, claves foráneas
-- Índices para optimizar consultas frecuentes
-- Engine InnoDB con charset utf8mb4
+- 11 tablas con todos los campos, tipos y constraints
+- Claves foráneas con las políticas de borrado definidas arriba
+- 17 índices optimizados para las consultas más frecuentes
+- Base de datos `elyra` con charset utf8mb4
