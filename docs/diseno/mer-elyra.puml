@@ -1,0 +1,222 @@
+@startuml
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 11
+skinparam linetype ortho
+
+title <b>Modelo Entidad-Relacion</b>\nSistema Elyra - Hospital de Clinicas
+
+left to right direction
+
+' ============================================================
+' MODULO DE IDENTIDAD
+' Contiene a todas las personas del sistema:
+' FUNCIONARIO (empleados con login) y PACIENTE (acceso por QR)
+' ============================================================
+package "Identidad" as ID_MOD {
+
+    entity "USUARIO" as USUARIO {
+        * PK : id
+        --
+        * tipo : funcionario / paciente
+        nombre
+        apellido
+        email
+        documento_identidad
+    }
+
+    entity "FUNCIONARIO" as FUNC {
+        username
+        password_hash
+        licencia
+        telefono
+        activo
+        * rol : admin / superadmin / conductor
+    }
+
+    entity "PACIENTE" as PAC {
+        token_acceso
+    }
+
+    FUNC --|> USUARIO : es un
+    PAC --|> USUARIO : es un
+}
+
+' ============================================================
+' MODULO DE DOCUMENTACION
+' Flujo: Categoria → Documento (con QR) → Paciente lee
+'        Encuesta → Preguntas → Paciente responde
+' ============================================================
+package "Documentacion para Pacientes" as DOC_MOD {
+
+    together {
+        entity "CATEGORIA" as CAT {
+            * PK : id
+            --
+            nombre
+            descripcion
+        }
+
+        entity "DOCUMENTO" as DOCUMENTO {
+            * PK : id
+            --
+            titulo
+            descripcion
+            archivo (PDF)
+            codigo QR
+            * FK : categoria
+            * FK : subido_por (funcionario)
+            FK : encuesta
+            activo
+        }
+    }
+
+    together {
+        entity "ENCUESTA" as ENCUESTA {
+            * PK : id
+            --
+            titulo
+            descripcion
+            * FK : creada_por (funcionario)
+            activa
+        }
+
+        entity "PREGUNTA" as PREGUNTA {
+            * PK : id
+            --
+            * FK : encuesta
+            texto
+            tipo : multiple / escala / libre
+            opciones (JSON)
+            orden
+        }
+    }
+
+    entity "RESPUESTA" as RESPUESTA {
+        * PK : id
+        --
+        * sesion_token
+        * FK : encuesta
+        * FK : pregunta
+        token_paciente
+        valor_opcion
+        valor_texto
+        valor_numerico
+    }
+}
+
+' ============================================================
+' MODULO DE AMBULANCIAS
+' Flujo: Catalogos (Vehiculo, Ruta)
+'      → Traslado (con conductor, copiloto)
+'      → Elemento_Traslado (que carga lleva, con tipo)
+'      → Historial (cambios de estado del viaje)
+' ============================================================
+package "Trazabilidad de Ambulancias" as AMB_MOD {
+
+    together {
+        entity "VEHICULO" as VEHICULO {
+            * PK : id
+            --
+            * patente
+            modelo
+            anio
+        }
+
+        entity "RUTA" as RUTA {
+            * PK : id
+            --
+            nombre
+            origen
+            destino
+            distancia_km
+            descripcion
+        }
+    }
+
+    entity "TRASLADO" as TRASLADO {
+        * PK : id
+        --
+        codigo unico
+        * FK : conductor (funcionario)
+        FK : copiloto (funcionario)
+        FK : vehiculo
+        * FK : registrado_por (funcionario)
+        origen
+        destino
+        FK : ruta
+        estado : pendiente / en_curso / en_destino / en_retorno / completado / cancelado
+        hora_salida_estimada
+        hora_salida_efectiva
+        hora_llegada_destino
+        hora_inicio_retorno
+        hora_llegada_hospital
+        motivo_cancelacion
+        observaciones
+    }
+
+    entity "ELEMENTO_TRASLADO" as ELEMENTO {
+        * PK : id
+        --
+        * FK : traslado
+        * tipo : paciente / organo / equipamiento / insumo
+        FK : paciente
+        descripcion
+        cantidad
+    }
+
+    entity "HISTORIAL_ESTADO" as HISTORIAL_ESTADO {
+        * PK : id
+        --
+        * FK : traslado
+        estado_anterior
+        * estado_nuevo
+        * FK : actualizado_por (funcionario)
+    }
+}
+
+' ============================================================
+' RELACIONES DEL MODULO DE DOCUMENTACION
+' ============================================================
+
+CATEGORIA         "1" -- "0..*" DOCUMENTO   : clasifica
+FUNC              "1" -- "0..*" DOCUMENTO   : sube
+FUNC              "1" -- "0..*" ENCUESTA    : crea
+ENCUESTA          "1" -- "1..*" PREGUNTA    : contiene
+ENCUESTA          "0..1" -- "0..1" DOCUMENTO   : evalua
+ENCUESTA          "1" -- "0..*" RESPUESTA   : recibe
+PREGUNTA          "1" -- "0..*" RESPUESTA   : es respondida en
+PAC               "1" -- "0..*" RESPUESTA   : completa
+
+' ============================================================
+' RELACIONES DEL MODULO DE AMBULANCIAS
+' ============================================================
+
+' -- Quien registra, conduce y acompania --
+FUNC              "1" -- "0..*" TRASLADO   : registra
+FUNC              "1" -- "0..*" TRASLADO   : conduce
+FUNC              "1" -- "0..*" TRASLADO   : copilota
+VEHICULO          "1" -- "0..*" TRASLADO   : se usa en
+RUTA              "1" -- "0..*" TRASLADO   : referencia
+
+' -- Que elementos se trasladan (tabla polimorfica) --
+TRASLADO          "1" -- "0..*" ELEMENTO   : contiene
+PAC               "1" -- "0..*" ELEMENTO   : es trasladado como
+
+' -- Trazabilidad de estados --
+TRASLADO          "1" -- "0..*" HISTORIAL_ESTADO : registra cambios
+FUNC              "1" -- "0..*" HISTORIAL_ESTADO : actualiza estado
+
+' ============================================================
+' LEYENDA
+' ============================================================
+legend bottom
+  |= Simbolo |= Significado |
+  | <b>V</b> | Herencia: subtipo ES UN tipo de usuario |
+  | 1 -- 0..* | Uno a muchos (opcional) |
+  | 1 -- 1..* | Uno a muchos (obligatorio) |
+  | 0..1 -- 0..1 | Uno a uno (opcional en ambos lados) |
+  | <b>tipo</b> | Discriminador: una columna que indica la variante |
+endlegend
+
+@enduml
