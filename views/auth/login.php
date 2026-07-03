@@ -1,22 +1,30 @@
 <?php $titulo = 'Iniciar sesión'; ?>
 <?php ob_start(); ?>
-<div class="row justify-content-center mt-5">
-    <div class="col-md-4">
-        <h3 class="text-center mb-4">Hospital de Clínicas</h3>
-        <h4 class="text-center mb-4">Elyra — Iniciar sesión</h4>
+<div class="login-wrapper">
+    <div class="login-card">
+        <div class="login-logo">
+            <span>Elyra</span>
+        </div>
+        <h2 class="login-title">Hospital de Clínicas</h2>
+        <p class="login-subtitle">Sistema de Gestión Hospitalaria</p>
+
         <?php if (isset($error)): ?>
-            <div class="alert alert-danger"><?= $error ?></div>
+            <div class="login-alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span><?= htmlspecialchars($error) ?></span>
+            </div>
         <?php endif; ?>
+
         <form method="post">
-            <div class="mb-3">
-                <label class="form-label">Usuario</label>
-                <input type="text" name="username" class="form-control" required>
+            <div class="login-input-group">
+                <i class="bi bi-person input-icon"></i>
+                <input type="text" id="username" name="username" class="form-control" required autocomplete="username" placeholder="Usuario" aria-label="Usuario" autofocus>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Contraseña</label>
-                <input type="password" name="password" class="form-control" required>
+            <div class="login-input-group">
+                <i class="bi bi-lock input-icon"></i>
+                <input type="password" id="password" name="password" class="form-control" required autocomplete="current-password" placeholder="Contraseña" aria-label="Contraseña">
             </div>
-            <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+            <button type="submit" class="btn btn-primary w-100 login-btn">Iniciar Sesión</button>
         </form>
     </div>
 </div>
