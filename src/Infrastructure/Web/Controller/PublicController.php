@@ -6,6 +6,14 @@ namespace Elyra\Infrastructure\Web\Controller;
 
 class PublicController extends BaseController
 {
+    public function home(): void
+    {
+        if (isset($_SESSION['user'])) {
+            $this->redirect('/dashboard');
+        }
+        require __DIR__ . '/../../../../views/publico/home.php';
+    }
+
     public function verDocumento(): void
     {
         $codigo = $_GET['qr'] ?? '';

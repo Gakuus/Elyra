@@ -37,7 +37,7 @@ foreach ($publicRoutes as $pr) {
     }
 }
 
-$noAuthRoutes = ['/', '/logout'];
+$noAuthRoutes = ['/', '/login', '/logout'];
 
 $routes = require __DIR__ . '/../src/Infrastructure/Web/Routes/web.php';
 

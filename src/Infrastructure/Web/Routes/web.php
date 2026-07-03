@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 return [
-    '/' => ['AuthController', 'login'],
+    '/' => ['PublicController', 'home'],
+    '/login' => ['AuthController', 'login'],
+    '/dashboard' => ['DashboardController', 'index'],
     '/logout' => ['AuthController', 'logout'],
 
     '/documentos' => ['DocumentoController', 'index'],

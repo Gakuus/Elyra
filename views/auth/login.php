@@ -3,7 +3,7 @@
 <div class="login-wrapper">
     <div class="login-card">
         <div class="login-logo">
-            <span>Elyra</span>
+            <img src="/img/elyralogo.png" alt="Elyra">
         </div>
         <h2 class="login-title">Hospital de Clínicas</h2>
         <p class="login-subtitle">Sistema de Gestión Hospitalaria</p>

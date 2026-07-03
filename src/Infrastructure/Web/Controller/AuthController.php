@@ -8,13 +8,17 @@ class AuthController extends BaseController
 {
     public function login(): void
     {
+        if (isset($_SESSION['user'])) {
+            $this->redirect('/dashboard');
+        }
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = $_POST['username'] ?? '';
             $password = $_POST['password'] ?? '';
 
             if ($username === 'admin' && $password === 'admin') {
                 $_SESSION['user'] = ['username' => $username, 'nombre' => 'Administrador'];
-                $this->redirect('/documentos');
+                $this->redirect('/dashboard');
             }
 
             $this->render('auth/login', ['error' => 'Credenciales inválidas']);
