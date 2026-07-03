@@ -1,7 +1,4 @@
 :root {
-    --sidebar-bg: #1a1f36;
-    --sidebar-hover: #2d3250;
-    --sidebar-width: 250px;
     --primary: #0d6efd;
     --primary-dark: #0a5ed7;
     --primary-light: #cfe2ff;
@@ -18,7 +15,6 @@
     --danger-bg: #f8d7da;
     --info: #0dcaf0;
     --info-bg: #cfe2ff;
-    --topbar-height: 56px;
 }
 
 html, body {
@@ -29,148 +25,11 @@ html, body {
     color: var(--text);
 }
 
-#wrapper {
-    display: flex;
-    min-height: 100vh;
-}
-
-/* ===================== SIDEBAR ===================== */
-.sidebar {
-    width: var(--sidebar-width);
-    min-width: var(--sidebar-width);
-    background: var(--sidebar-bg);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    z-index: 1020;
-    transition: transform 0.3s ease;
-}
-
-.sidebar-logo {
-    padding: 1.25rem;
-    border-bottom: 1px solid rgb(255 255 255 / 10%);
-}
-
-.sidebar-logo h5 {
-    color: #fff;
-    margin: 0;
-    font-weight: 700;
-    font-size: 1.25rem;
-    letter-spacing: 0.5px;
-}
-
-.sidebar-nav {
-    padding: 0.5rem 0;
-    flex: 1;
-    overflow-y: auto;
-}
-
-.sidebar-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.7rem 1.25rem;
-    color: rgb(255 255 255 / 65%);
-    text-decoration: none;
-    transition: all 0.2s;
-    font-size: 0.9rem;
-    border-left: 3px solid transparent;
-}
-
-.sidebar-item:hover {
-    background: var(--sidebar-hover);
-    color: #fff;
-}
-
-.sidebar-item.active {
-    background: var(--sidebar-hover);
-    color: #fff;
-    border-left-color: var(--primary);
-}
-
-.sidebar-item i {
-    font-size: 1.2rem;
-    width: 1.5rem;
-    text-align: center;
-}
-
-.sidebar-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgb(0 0 0 / 50%);
-    z-index: 1010;
-}
-
-/* ===================== PAGE CONTENT ===================== */
-#page-content-wrapper {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    background: var(--page-bg);
-}
-
-/* ===================== TOPBAR ===================== */
-.topbar {
-    background: var(--white);
-    border-bottom: 1px solid var(--border);
-    padding: 0 1.5rem;
-    height: var(--topbar-height);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 1010;
-}
-
-.topbar-left {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.topbar-title {
-    font-weight: 600;
-    font-size: 1rem;
-    color: var(--text);
-}
-
-.topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.topbar-user {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-}
-
-.btn-topbar-logout {
-    font-size: 0.85rem;
-    padding: 0.35rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text-muted);
-    text-decoration: none;
-    transition: all 0.2s;
-}
-
-.btn-topbar-logout:hover {
-    background: var(--danger);
-    color: #fff;
-    border-color: var(--danger);
-}
-
 /* ===================== MAIN CONTENT ===================== */
 .main-content {
-    flex: 1;
+    min-height: calc(100vh - 56px);
     padding: 1.5rem;
+    background: var(--page-bg);
 }
 
 /* ===================== FOOTER ===================== */
@@ -181,18 +40,6 @@ html, body {
     text-align: center;
     font-size: 0.8rem;
     color: var(--text-muted);
-}
-
-/* ===================== HAMBURGER ===================== */
-.sidebar-toggle {
-    display: none;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: var(--text);
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
 }
 
 /* ===================== ACTION BAR ===================== */
@@ -379,9 +226,18 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #0a5ed7 0%, #1a1f36 100%);
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     padding: 1rem;
     position: relative;
+}
+
+.login-wrapper::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('/img/hospital-de-clinicas.jpg') center / cover no-repeat;
+    opacity: 0.15;
+    pointer-events: none;
 }
 
 .login-wrapper::before {
@@ -402,26 +258,19 @@ html, body {
     box-shadow: 0 25px 80px rgb(0 0 0 / 35%);
     position: relative;
     z-index: 1;
-    border-top: 4px solid var(--primary);
+    border-top: 4px solid #475569;
 }
 
 .login-logo {
-    width: 64px;
-    height: 64px;
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 1.25rem;
-    box-shadow: 0 4px 12px rgb(13 110 253 / 30%);
+    margin: 0 auto 1.5rem;
 }
 
-.login-logo span {
-    color: #fff;
-    font-weight: 800;
-    font-size: 1.35rem;
-    letter-spacing: 1px;
+.login-logo img {
+    max-height: 100px;
+    width: auto;
 }
 
 .login-title {
@@ -474,7 +323,7 @@ html, body {
     border-radius: 10px;
     font-weight: 600;
     font-size: 0.95rem;
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    background: linear-gradient(135deg, #475569, #1e293b);
     border: none;
     color: #fff;
     transition: transform 0.15s, box-shadow 0.15s;
@@ -483,7 +332,7 @@ html, body {
 
 .login-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgb(13 110 253 / 35%);
+    box-shadow: 0 6px 20px rgb(30 41 59 / 35%);
 }
 
 .login-btn:active {
@@ -520,6 +369,42 @@ html, body {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* ===================== PUBLIC HOMEPAGE ===================== */
+.hero-section {
+    min-height: 85vh;
+    position: relative;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    overflow: hidden;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: url('/img/hospital-de-clinicas.jpg') center / cover no-repeat;
+    opacity: 0.12;
+    pointer-events: none;
+}
+
+.news-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.news-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgb(0 0 0 / 10%);
+}
+
+.service-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.service-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgb(0 0 0 / 12%) !important;
 }
 
 /* ===================== RESPONSIVE ===================== */

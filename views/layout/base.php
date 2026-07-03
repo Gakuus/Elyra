@@ -12,76 +12,69 @@
 
 <?php if (isset($_SESSION['user'])): ?>
 
-<div id="wrapper">
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<?php $currentUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH); ?>
 
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-logo">
-            <h5>Elyra</h5>
-        </div>
-        <nav class="sidebar-nav">
-            <?php
-            $currentUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-            $sidebarItems = [
-                '/documentos' => ['icon' => 'bi-file-text', 'label' => 'Documentos'],
-                '/encuestas'  => ['icon' => 'bi-bar-chart',  'label' => 'Encuestas'],
-                '/traslados'  => ['icon' => 'bi-truck',      'label' => 'Ambulancias'],
-                '/conductores'=> ['icon' => 'bi-people',     'label' => 'Conductores'],
-                '/rutas'      => ['icon' => 'bi-map',        'label' => 'Rutas'],
-            ];
-            foreach ($sidebarItems as $url => $item):
-                $active = str_starts_with($currentUri, $url) ? ' active' : '';
-            ?>
-                <a href="<?= $url ?>" class="sidebar-item<?= $active ?>">
-                    <i class="bi <?= $item['icon'] ?>"></i>
-                    <span><?= $item['label'] ?></span>
-                </a>
-            <?php endforeach; ?>
-        </nav>
-    </div>
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: #1a1f36;">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand fw-bold" href="/dashboard">Elyra</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Abrir menú">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-    <div id="page-content-wrapper">
-        <header class="topbar">
-            <div class="topbar-left">
-                <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Abrir menú" aria-expanded="false">
-                    <i class="bi bi-list"></i>
-                </button>
-                <span class="topbar-title">Hospital de Clínicas</span>
-            </div>
-            <div class="topbar-right">
-                <span class="topbar-user">
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link<?= $currentUri === '/dashboard' ? ' active' : '' ?>" href="/dashboard">
+                        <i class="bi bi-house-door me-1"></i> Inicio
+                    </a>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle<?= str_starts_with($currentUri, '/documentos') || str_starts_with($currentUri, '/encuestas') ? ' active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-file-text me-1"></i> Documentaci&oacute;n
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/documentos"><i class="bi bi-list-ul me-2"></i>Documentos</a></li>
+                        <li><a class="dropdown-item" href="/documentos/subir"><i class="bi bi-upload me-2"></i>Subir documento</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/encuestas"><i class="bi bi-bar-chart me-2"></i>Encuestas</a></li>
+                        <li><a class="dropdown-item" href="/encuestas/crear"><i class="bi bi-plus-square me-2"></i>Crear encuesta</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle<?= str_starts_with($currentUri, '/traslados') || str_starts_with($currentUri, '/conductores') || str_starts_with($currentUri, '/rutas') ? ' active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-truck me-1"></i> Ambulancias
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/traslados"><i class="bi bi-list-ul me-2"></i>Traslados activos</a></li>
+                        <li><a class="dropdown-item" href="/traslados/nuevo"><i class="bi bi-plus-circle me-2"></i>Nuevo traslado</a></li>
+                        <li><a class="dropdown-item" href="/traslados/historial"><i class="bi bi-clock-history me-2"></i>Historial</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/rutas"><i class="bi bi-map me-2"></i>Rutas</a></li>
+                        <li><a class="dropdown-item" href="/conductores"><i class="bi bi-people me-2"></i>Conductores</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-light-emphasis small">
                     <i class="bi bi-person-circle"></i> <?= htmlspecialchars($_SESSION['user']['nombre']) ?>
                 </span>
-                <a href="/logout" class="btn-topbar-logout">
+                <a href="/logout" class="btn btn-outline-light btn-sm">
                     <i class="bi bi-box-arrow-right"></i> Salir
                 </a>
             </div>
-        </header>
-
-        <main class="main-content">
-            <?= $contenido ?? '' ?>
-        </main>
-
-        <footer class="footer">
-            &copy; 2026 Hospital de Clínicas &mdash; Elyra v1.0
-        </footer>
+        </div>
     </div>
-</div>
+</nav>
 
-<script>
-(function() {
-    var sidebar = document.getElementById('sidebar');
-    var overlay = document.getElementById('sidebarOverlay');
-    var toggleBtn = document.querySelector('.sidebar-toggle');
+<main class="main-content">
+    <?= $contenido ?? '' ?>
+</main>
 
-    window.toggleSidebar = function() {
-        var isOpen = sidebar.classList.toggle('open');
-        overlay.classList.toggle('open');
-        toggleBtn.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
-        toggleBtn.setAttribute('aria-expanded', isOpen);
-    };
-})();
-</script>
+<footer class="footer">
+    &copy; 2026 Hospital de Clínicas &mdash; Elyra v1.0
+</footer>
 
 <?php else: ?>
 
