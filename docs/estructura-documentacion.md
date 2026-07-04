@@ -1,244 +1,208 @@
-# Estructura sugerida para la Documentación
+# Estructura de la Documentación — Elyra
 
-## Portada
+## 📁 Estructura de Archivos
 
+```
+docs/
+├── analisis/                           # Secciones 1-12
+│   ├── 03-introduccion.md
+│   ├── 04-marco-contextual.md
+│   ├── 05-planteamiento-problema.md
+│   ├── 06-justificacion.md
+│   ├── 07-objetivos.md
+│   ├── 07.1-utulab-mer.md              ← MER del sistema (13 tablas)
+│   ├── 07.2-utulab-diagrama-tabla.md   ← Diagrama de tabla UTULAB
+│   ├── 07.3-utulab-equipo.md           ← FODA del equipo de UTULAB
+│   ├── 08-marco-teorico.md
+│   ├── 08.1-sistemas-operativos.md     ← SO: relevamiento, justificación, manual Debian
+│   ├── 08.2-programacion-ventanas.md   ← Bosquejo de estructuras de ventanas
+│   ├── 09-metodologia.md               ← FODA, roles, herramientas, cómo realizamos tareas
+│   ├── 10-requerimientos.md
+│   ├── 11.1-casos-de-uso.md
+│   ├── 11.2-diagramas-flujo.md
+│   ├── 11.3-modelo-entidad-relacion.md
+│   └── 12-historias-de-usuario.md
+│
+
+├── diseno/                             # Sección 12 - Diseño
+│   ├── 01-diseno-interfaz.md
+│   ├── 02-arquitectura-sistema.md
+│   ├── 03-diseno-base-datos.md
+│   └── mer-elyra.puml
+│
+├── desarrollo/                         # Secciones 13-18
+│   ├── 01-desarrollo-implementacion.md
+│   ├── 02-pruebas.md
+│   ├── 03-recomendaciones.md
+│   └── 04-bibliografia.md
+│
+├── estructura-documentacion.md         ← Este archivo
+├── guia-apa-7ma-edicion.md
+└── letra-proyecto.md
+```
+
+---
+
+## 📝 Índice General del Documento
+
+| Nº | Sección | Archivo | Materias |
+|----|---------|---------|----------|
+| 1 | Índice | — | — |
+| 2 | Abstract | — | — |
+| 3 | Introducción | `analisis/03-introduccion.md` | General |
+| 4 | Marco Contextual | `analisis/04-marco-contextual.md` | General |
+| 5 | Planteamiento del Problema | `analisis/05-planteamiento-problema.md` | General |
+| 6 | Justificación | `analisis/06-justificacion.md` | General |
+| 7 | Objetivos | `analisis/07-objetivos.md` | General |
+| 7.1 | **MER del Sistema** | `analisis/07.1-utulab-mer.md` | General |
+| 7.2 | **Diagrama de Tabla UTULAB** | `analisis/07.2-utulab-diagrama-tabla.md` | General |
+| 7.3 | **FODA del Equipo UTULAB** | `analisis/07.3-utulab-equipo.md` | General |
+| 8 | Marco Teórico | `analisis/08-marco-teorico.md` | General |
+| 8.1 | **Sistemas Operativos** | `analisis/08.1-sistemas-operativos.md` | **Sistemas Operativos** |
+| 8.2 | **Programación — Ventanas** | `analisis/08.2-programacion-ventanas.md` | **Programación** |
+| 9 | Metodología de Trabajo | `analisis/09-metodologia.md` | **Ing. de Software** |
+| 10 | Relevamiento y Análisis | `analisis/10-requerimientos.md` | General |
+| 11 | Modelado del Sistema | `analisis/11.1-casos-de-uso.md`, `11.2-diagramas-flujo.md`, `11.3-modelo-entidad-relacion.md` | General |
+| 12 | Diseño de la Solución | `diseno/01-diseno-interfaz.md`, `02-arquitectura-sistema.md`, `03-diseno-base-datos.md` | General |
+| 13 | Desarrollo e Implementación | `desarrollo/01-desarrollo-implementacion.md` | General |
+| 14 | Pruebas del Sistema | `desarrollo/02-pruebas.md` | General |
+| 15 | Resultados | — | General |
+| 16 | Conclusiones | — | General |
+| 17 | Recomendaciones | `desarrollo/03-recomendaciones.md` | General |
+| 18 | Bibliografía | `desarrollo/04-bibliografia.md` | General |
+| 19 | Anexos | — | General |
+
+
+---
+
+## 📋 Detalle por Sección
+
+### Portada
 - Nombre de la institución
-- Nombre del proyecto
-- Integrantes
+- Nombre del proyecto: **Elyra**
+- Integrantes: Alan, Kevin, Tom
 - Docentes
-- Año
+- Año: 2026
 - Curso
 
-## 1 - Índice
+### 1 — Índice
+Generar automáticamente con el índice general de arriba.
 
-## 2 - Abstract
+### 2 — Abstract
+Resumen ejecutivo del proyecto (máx. 250 palabras).
 
-## 3 - Introducción
-
-Aquí explican:
-
+### 3 — Introducción (`analisis/03-introduccion.md`)
 - Qué es el proyecto
 - Por qué surge
 - Qué necesidad intenta resolver
 - Breve descripción del sistema/producto
 
-Debe ser general y entendible para cualquier lector.
-
-## 4 - Marco Contextual
-
-Describe el contexto donde aparece el problema.
-
-Ejemplos:
-
-- Centro educativo
-- Empresa
-- Biblioteca
-- Comercio
-- Comunidad
-
-Debe incluir:
-
-- Situación actual
+### 4 — Marco Contextual (`analisis/04-marco-contextual.md`)
+- Situación actual del Hospital de Clínicas
 - Cómo trabajan actualmente
 - Qué dificultades existen
 - Quiénes son los usuarios
 
-## 5 - Planteamiento del Problema
-
-Aquí se define claramente el problema.
-
-Debe responder:
-
+### 5 — Planteamiento del Problema (`analisis/05-planteamiento-problema.md`)
 - ¿Qué ocurre?
 - ¿Por qué es un problema?
 - ¿A quién afecta?
 - ¿Qué consecuencias tiene?
 
-Ejemplo: "El liceo no posee un sistema digital para registrar préstamos de materiales, lo que genera pérdida de información y demoras administrativas."
-
-## 6 - Justificación
-
-Explica:
-
+### 6 — Justificación (`analisis/06-justificacion.md`)
 - Por qué vale la pena hacer el proyecto
-- Qué beneficios aporta
-- Qué impacto tendrá
+- Beneficios: educativos, sociales, organizacionales, tecnológicos
 
-Puede incluir:
+### 7 — Objetivos (`analisis/07-objetivos.md`)
+- Objetivo General
+- Objetivos Específicos
 
-- Beneficios educativos
-- Sociales
-- Organizacionales
-- Tecnológicos
+### 7.1 — MER del Sistema (`analisis/07.1-utulab-mer.md`)
+- Modelo Entidad Relación del sistema Elyra (13 tablas)
+- Módulos: Identidad, Documentación, Ambulancias
+- Relaciones entre entidades
 
-## 7 - Objetivos
+### 7.2 — Diagrama de Tabla UTULAB (`analisis/07.2-utulab-diagrama-tabla.md`)
+- Modelado 3D del logo de UTULAB en Blender
+- Metodología de trabajo: modelado, materiales, iluminación, renderizado
 
-### Objetivo General
+### 7.3 — FODA del Equipo UTULAB (`analisis/07.3-utulab-equipo.md`)
+- Descripción del equipo (Alan, Kevin, Tom) y sus roles
+- Matriz FODA enfocada en el equipo (Fortalezas, Debilidades, Oportunidades, Amenazas)
+- Estrategias derivadas (FO, DO, FA, DA)
+- Conclusión del análisis
 
-Qué pretende lograr el proyecto.
-
-Ejemplo: "Desarrollar un sistema web para gestionar préstamos de materiales educativos."
-
-### Objetivos Específicos
-
-Acciones concretas.
-
-Ejemplo:
-
-- Analizar necesidades del usuario
-- Diseñar interfaz
-- Crear base de datos
-- Implementar autenticación
-- Realizar pruebas
-
-## 8 - Marco Teórico
-
-Aquí entran los conceptos teóricos.
-
-Dependiendo de las materias:
-
-- Ingeniería de software
-- Programación
-- Bases de datos
-- Administración de S.O
-- Ciberseguridad
-- Metodologías ágiles
-
-Ejemplos de temas:
-
-- Qué es un sistema de información
-- Ciclo de vida del software
-- Bases de datos relacionales
-- HTML/CSS/JS
+### 8 — Marco Teórico (`analisis/08-marco-teorico.md`)
+- Sistemas de Información
+- Ciclo de Vida del Software
+- Metodologías Ágiles
+- Bases de Datos Relacionales
+- Arquitectura Hexagonal
+- Desarrollo Web (HTML5, CSS3, Bootstrap 5, JavaScript ES6+)
+- Códigos QR
 - Ciberseguridad
 
-## 9 - Metodología de Trabajo
+### 8.1 — Sistemas Operativos (`analisis/08.1-sistemas-operativos.md`)
+- Relevamiento de SO para servidor y terminales
+- Justificación de Debian 12
+- Manual de instalación paso a paso de Debian 12 (Bookworm)
+- Configuración post-instalación (LAMP)
 
-Aquí explican:
+### 8.2 — Programación: Estructuras de Ventanas (`analisis/08.2-programacion-ventanas.md`)
+- Árbol de navegación del Módulo de Documentación
+- Árbol de navegación del Módulo de Ambulancias
+- Diagramas de flujo de ventanas
+- Mapa de navegación general
+- Convenciones de la interfaz
 
-- Cómo trabajaron
-- Qué metodología usaron
-
-Por ejemplo:
-
-- Scrum
-- Cascada
-- Kanban
-
-También:
-
-- Roles del equipo
+### 9 — Metodología de Trabajo (`analisis/09-metodologia.md`) — *Ingeniería de Software*
+- Marco de trabajo (Scrum)
+- Roles del equipo con responsabilidades detalladas
+- Herramientas utilizadas (con versiones)
+- Cómo realizamos las tareas hasta ahora (etapas)
+- Organización del trabajo
 - Cronograma
-- Herramientas utilizadas
-- Organización de tareas
+- Flujo de trabajo
+- Análisis FODA completo (Fortalezas, Debilidades, Oportunidades, Amenazas)
+- Estrategias derivadas del FODA
 
-## 10 - Relevamiento y Análisis
+### 10 — Relevamiento y Análisis (`analisis/10-requerimientos.md`)
+- Requerimientos Funcionales — Módulo Documentación (RF-01 a RF-13)
+- Requerimientos Funcionales — Módulo Ambulancias (RF-14 a RF-21)
+- Requerimientos No Funcionales (RNF-01 a RNF-10)
+- Restricciones (RES-01 a RES-03)
 
-Especificación de Requerimientos de Software
+### 11 — Modelado del Sistema
+- **Casos de Uso** (`analisis/11.1-casos-de-uso.md`)
+- **Diagramas de Flujo** (`analisis/11.2-diagramas-flujo.md`)
+- **MER del Sistema** (`analisis/11.3-modelo-entidad-relacion.md`): 13 tablas, relaciones, índices
 
-## 11 - Modelado del Sistema
+### 12 — Diseño de la Solución
+- **Diseño de Interfaz** (`diseno/01-diseno-interfaz.md`): 10 pantallas, diseño responsive, paleta de colores
+- **Arquitectura del Sistema** (`diseno/02-arquitectura-sistema.md`): Hexagonal, cliente-servidor
+- **Diseño de Base de Datos** (`diseno/03-diseno-base-datos.md`): MR completo, DDL, índices, políticas CASCADE
 
-### Casos de Uso
-
-- Diagrama de casos de uso
-
-### Diagramas de Flujo
-
-- Procesos principales
-
-### Modelo Entidad Relación (MER)
-
-## 12 - Diseño de la Solución
-
-### Diseño de interfaz
-
-- Bocetos
-
-### Arquitectura del sistema
-
-- Cliente-servidor
-- Web
-
-### Diseño de Base de Datos
-
-- Tablas - Relaciones (MR: Modelo Relacional)
-
-## 13 - Desarrollo e Implementación
-
-Aquí explican:
-
-- Tecnologías utilizadas
-- Lenguajes
-- Frameworks
-- Herramientas
-
-Ejemplo:
-
-- HTML
-- CSS
-- JavaScript
-- Python
-- MySQL
-
-También:
-
-- Capturas del sistema
+### 13 — Desarrollo e Implementación (`desarrollo/01-desarrollo-implementacion.md`)
+- Tecnologías (PHP, MySQL, HTML, CSS, JS, Bootstrap)
+- Estructura del proyecto
 - Explicación de módulos
 
-## 14 - Pruebas del Sistema
+### 14 — Pruebas del Sistema (`desarrollo/02-pruebas.md`)
+- Pruebas funcionales y de caja negra
 
-- Pruebas funcionales
-- Pruebas de caja negra
-- Casos de prueba
+### 15 — Resultados
+- *(A completar al finalizar el desarrollo)*
 
-Pueden usar tablas: Caso | Entrada | Resultado esperado
+### 16 — Conclusiones
+- *(A completar al finalizar el desarrollo)*
 
-También:
+### 17 — Recomendaciones (`desarrollo/03-recomendaciones.md`)
+- Posibles mejoras futuras
 
-- Validación con usuarios
-- Corrección de errores
+### 18 — Bibliografía (`desarrollo/04-bibliografia.md`)
+- Referencias APA 7ª edición
 
-## 15 - Resultados
+### 19 — Anexos
+- *(Según sea necesario: entrevistas, código, capturas, etc.)*
 
-Qué lograron.
 
-Por ejemplo:
-
-- Sistema funcionando
-- Automatización
-- Mejora de tiempos
-- Opinión de usuarios
-
-## 16 - Conclusiones
-
-Reflexión final:
-
-- Qué aprendieron
-- Qué salió bien
-- Dificultades
-- Posibles mejoras
-- Resultado obtenido
-
-## 17 - Recomendaciones
-
-Qué se podría hacer a futuro.
-
-Ejemplo:
-
-- Aplicación móvil
-- Integración con nube
-- Nuevos módulos
-
-## 18 - Bibliografía
-
-## 19 - Anexos
-
-Por ejemplo:
-
-- Entrevistas
-- Encuestas
-- Código
-- Capturas
-- Diagramas completos
-- Manual de usuario
-- Cronograma detallado

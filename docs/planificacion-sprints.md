@@ -6,6 +6,17 @@
 
 ---
 
+## ⚠️ REGLA FUNDAMENTAL
+
+> **El frontend NUNCA contiene secretos, tokens de API, credenciales ni lógica de autenticación.**
+> **El backend SIEMPRE valida todo, aunque el frontend ya lo haya validado.**
+> **No hay contraseñas en texto plano. No hay tokens en JS. No hay secrets en `.env` commiteado.**
+> **Si se vulnera una de estas reglas, la tarea se rechaza en code review.**
+
+Ver checklist completo en `docs/pendientes-backend.md` (secciones X.1–X.10 y S.1–S.12).
+
+---
+
 ## Arquitectura de Seguridad (transversal a todos los sprints)
 
 | Medida | Implementación | Sprint |

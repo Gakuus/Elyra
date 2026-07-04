@@ -2,30 +2,42 @@
 
 ## Modelo Relacional — Esquema Completo
 
-A continuación se detallan las **11 tablas** del sistema, organizadas por módulo.
+A continuación se detallan las **14 tablas** del sistema, organizadas por módulo.
 
 ---
 
-### Tabla de Identidad
+### Módulo de Identidad (4 tablas con herencia)
 
-**USUARIO** — almacena tanto a funcionarios (empleados con login) como a pacientes (acceso por QR). El campo `tipo` discrimina qué subtipo es.
+El modelo sigue el patrón **table-per-class**: una tabla base `USUARIO` con los campos comunes, y dos subtablas `FUNCIONARIO` y `PACIENTE` para los campos específicos de cada rol. Ambas subtablas comparten el mismo `id` que la tabla base.
 
 ```
 USUARIO
-├── id: INT (PK, AUTO_INCREMENT)
+├── id: INT (PK, AUTO_INCREMENT)                     /* compartido con subtabla */
 ├── tipo: ENUM('funcionario', 'paciente') (NOT NULL)
 ├── nombre: VARCHAR(100) (NOT NULL)
 ├── apellido: VARCHAR(100) (NOT NULL)
 ├── email: VARCHAR(150) (UNIQUE)
-├── username: VARCHAR(50) (UNIQUE)                   /* solo funcionario */
-├── password_hash: VARCHAR(255)                      /* solo funcionario */
 ├── documento_identidad: VARCHAR(20) (UNIQUE)
-├── licencia: VARCHAR(50)                            /* solo conductor */
-├── telefono: VARCHAR(20)
-├── token_acceso: VARCHAR(64) (UNIQUE)               /* solo paciente */
-├── activo: BOOLEAN (DEFAULT TRUE)
-├── rol: ENUM('admin', 'superadmin', 'conductor')    /* solo funcionario */
 └── created_at: TIMESTAMP
+
+FUNCIONARIO
+├── id: INT (PK, FK → USUARIO.id)                   /* mismo id que usuario */
+├── username: VARCHAR(50) (UNIQUE)
+├── password_hash: VARCHAR(255)
+├── licencia: VARCHAR(50)                            /* solo conductores */
+├── telefono: VARCHAR(20)
+├── activo: BOOLEAN (DEFAULT TRUE)
+└── rol: ENUM('admin', 'superadmin', 'conductor')
+
+CODIGO_QR
+├── id: INT (PK, AUTO_INCREMENT)
+├── nombre: VARCHAR(100) (UNIQUE, NOT NULL)
+└── descripcion: TEXT
+
+PACIENTE
+├── id: INT (PK, FK → USUARIO.id)                   /* mismo id que usuario */
+├── token_acceso: VARCHAR(64) (UNIQUE)
+└── codigo_qr_id: INT (FK → CODIGO_QR.id)           /* QR que escaneó */
 ```
 
 ---
@@ -49,7 +61,7 @@ ENCUESTA
 ├── titulo: VARCHAR(200) (NOT NULL)
 ├── descripcion: TEXT
 ├── activa: BOOLEAN (DEFAULT TRUE)
-├── creada_por: INT (FK → USUARIO.id, NOT NULL)
+├── creada_por: INT (FK → FUNCIONARIO.id, NOT NULL)
 ├── created_at: TIMESTAMP
 └── updated_at: TIMESTAMP
 ```
@@ -77,11 +89,11 @@ DOCUMENTO
 ├── descripcion: TEXT
 ├── archivo_path: VARCHAR(255) (NOT NULL)
 ├── archivo_nombre: VARCHAR(100) (NOT NULL)
-├── qr_codigo: VARCHAR(64) (UNIQUE, NOT NULL)
+├── codigo_qr_id: INT (FK → CODIGO_QR.id, NOT NULL)
 ├── qr_path: VARCHAR(255)
 ├── categoria_id: INT (FK → CATEGORIA.id, NOT NULL)
 ├── encuesta_id: INT (FK → ENCUESTA.id, NULLABLE, UNIQUE)
-├── subido_por: INT (FK → USUARIO.id, NOT NULL)
+├── subido_por: INT (FK → FUNCIONARIO.id, NOT NULL)
 ├── activo: BOOLEAN (DEFAULT TRUE)
 ├── created_at: TIMESTAMP
 └── updated_at: TIMESTAMP
@@ -137,8 +149,8 @@ RUTA
 TRASLADO
 ├── id: INT (PK, AUTO_INCREMENT)
 ├── codigo: VARCHAR(20) (UNIQUE, NOT NULL)
-├── conductor_id: INT (FK → USUARIO.id, NOT NULL)
-├── copiloto_id: INT (FK → USUARIO.id, NULLABLE)
+├── conductor_id: INT (FK → FUNCIONARIO.id, NOT NULL)
+├── copiloto_id: INT (FK → FUNCIONARIO.id, NULLABLE)
 ├── vehiculo_id: INT (FK → VEHICULO.id, NULLABLE)
 ├── ruta_id: INT (FK → RUTA.id, NULLABLE)
 ├── origen: VARCHAR(200) (NOT NULL)
@@ -150,7 +162,7 @@ TRASLADO
 ├── hora_llegada_hospital: DATETIME
 ├── estado: ENUM('pendiente','en_curso','en_destino','en_retorno','completado','cancelado')
 ├── motivo_cancelacion: TEXT (NULL)
-├── registrado_por: INT (FK → USUARIO.id, NOT NULL)
+├── registrado_por: INT (FK → FUNCIONARIO.id, NOT NULL)
 ├── observaciones: TEXT
 ├── created_at: TIMESTAMP
 └── updated_at: TIMESTAMP
@@ -163,7 +175,7 @@ ELEMENTO_TRASLADO
 ├── id: INT (PK, AUTO_INCREMENT)
 ├── traslado_id: INT (FK → TRASLADO.id, NOT NULL)
 ├── tipo: ENUM('paciente', 'organo', 'equipamiento', 'insumo') (NOT NULL)
-├── paciente_id: INT (FK → USUARIO.id, NULLABLE)     /* solo si tipo=paciente */
+├── paciente_id: INT (FK → PACIENTE.id, NULLABLE)     /* solo si tipo=paciente */
 ├── descripcion: VARCHAR(255)                         /* órgano, equipo o insumo */
 ├── cantidad: INT (DEFAULT 1)                         /* para equipos e insumos */
 └── created_at: TIMESTAMP
@@ -178,7 +190,7 @@ HISTORIAL_ESTADO
 ├── estado_anterior: VARCHAR(20)
 ├── estado_nuevo: VARCHAR(20) (NOT NULL)
 ├── observacion: TEXT
-├── actualizado_por: INT (FK → USUARIO.id, NOT NULL)
+├── actualizado_por: INT (FK → FUNCIONARIO.id, NOT NULL)
 └── created_at: TIMESTAMP
 ```
 
@@ -187,7 +199,10 @@ HISTORIAL_ESTADO
 ## Índices
 
 | Índice | Tabla | Columnas | ¿Para qué consulta? |
-|---|---|---|---|
+|---|---|---|---|---|
+| idx_funcionario_rol | FUNCIONARIO | rol | Filtrar funcionarios por rol |
+| idx_funcionario_activo | FUNCIONARIO | activo | Mostrar solo funcionarios activos |
+| idx_funcionario_username | FUNCIONARIO | username | Búsqueda exacta por username (login) |
 | idx_documento_categoria | DOCUMENTO | categoria_id | Filtrar documentos por categoría |
 | idx_documento_activo | DOCUMENTO | activo | Mostrar solo documentos activos |
 | idx_documento_qr | DOCUMENTO | qr_codigo | Buscar documento por QR (escaneo) |
@@ -212,22 +227,26 @@ HISTORIAL_ESTADO
 
 | Tabla | FK | Al borrar el padre... |
 |---|---|---|
-| ENCUESTA | creada_por → USUARIO | RESTRICT |
+| FUNCIONARIO | id → USUARIO | CASCADE |
+| PACIENTE | id → USUARIO | CASCADE |
+| PACIENTE | codigo_qr_id → CODIGO_QR | SET NULL |
+| ENCUESTA | creada_por → FUNCIONARIO | RESTRICT |
 | PREGUNTA | encuesta_id → ENCUESTA | CASCADE |
+| DOCUMENTO | codigo_qr_id → CODIGO_QR | RESTRICT |
 | DOCUMENTO | categoria_id → CATEGORIA | RESTRICT |
 | DOCUMENTO | encuesta_id → ENCUESTA | SET NULL |
-| DOCUMENTO | subido_por → USUARIO | RESTRICT |
+| DOCUMENTO | subido_por → FUNCIONARIO | RESTRICT |
 | RESPUESTA | encuesta_id → ENCUESTA | CASCADE |
 | RESPUESTA | pregunta_id → PREGUNTA | CASCADE |
-| TRASLADO | conductor_id → USUARIO | RESTRICT |
-| TRASLADO | copiloto_id → USUARIO | SET NULL |
+| TRASLADO | conductor_id → FUNCIONARIO | RESTRICT |
+| TRASLADO | copiloto_id → FUNCIONARIO | SET NULL |
 | TRASLADO | vehiculo_id → VEHICULO | SET NULL |
 | TRASLADO | ruta_id → RUTA | SET NULL |
-| TRASLADO | registrado_por → USUARIO | RESTRICT |
+| TRASLADO | registrado_por → FUNCIONARIO | RESTRICT |
 | ELEMENTO_TRASLADO | traslado_id → TRASLADO | CASCADE |
-| ELEMENTO_TRASLADO | paciente_id → USUARIO | SET NULL |
+| ELEMENTO_TRASLADO | paciente_id → PACIENTE | SET NULL |
 | HISTORIAL_ESTADO | traslado_id → TRASLADO | CASCADE |
-| HISTORIAL_ESTADO | actualizado_por → USUARIO | RESTRICT |
+| HISTORIAL_ESTADO | actualizado_por → FUNCIONARIO | RESTRICT |
 
 > **Regla general**: RESTRICT protege datos históricos (no se borra un conductor con viajes). CASCADE limpia datos hijos (si se borra un traslado, también sus elementos e historial). SET NULL conserva el registro aunque el padre se borre.
 
@@ -237,7 +256,7 @@ HISTORIAL_ESTADO
 
 El script SQL completo se encuentra en `database/schema.sql`. Contiene:
 
-- 11 tablas con todos los campos, tipos y constraints
+- 14 tablas con todos los campos, tipos y constraints (4 de identidad + 5 de documentación + 5 de ambulancias)
 - Claves foráneas con las políticas de borrado definidas arriba
-- 17 índices optimizados para las consultas más frecuentes
+- 20 índices optimizados para las consultas más frecuentes
 - Base de datos `elyra` con charset utf8mb4
