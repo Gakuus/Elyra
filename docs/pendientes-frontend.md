@@ -4,6 +4,23 @@
 
 ---
 
+## ⚠️ REGLAS DE SEGURIDAD EN FRONTEND
+
+> **El frontend NUNCA debe contener secretos, tokens de API, credenciales ni lógica sensible.**
+> Todo lo que se pone en el frontend es público. El backend es el único responsable de la seguridad.
+
+| # | Regla | Explicación |
+|---|-------|-------------|
+| F-S.1 | **No hay tokens de API en JS** | No `const API_KEY = '...'`, no secrets en `<script>` |
+| F-S.2 | **No hay credenciales en localStorage** | No guardar `{user: "admin", pass: "..."}` en el cliente |
+| F-S.3 | **No hay lógica de autenticación en JS** | Validar tokens y sesiones es del backend |
+| F-S.4 | **No hay validación crítica en frontend** | El backend valida SIEMPRE, lo del frontend es UX |
+| F-S.5 | **No hay URLs sensibles expuestas** | No exponer `/admin/delete-user?id=` que el backend no proteja |
+| F-S.6 | **CSRF token en todo fetch POST/PUT/DELETE** | Header `X-CSRF-Token` incluido por JS, no en URL |
+| F-S.7 | **Escapar todo texto del backend** | `htmlspecialchars()` en PHP, no confiar en que el frontend escape |
+
+---
+
 ## Épica 1 — Identidad
 
 | # | Vista | Prioridad | Dependencia |
