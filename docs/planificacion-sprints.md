@@ -1,6 +1,6 @@
 # Planificación de Sprints — Elyra
 
-> **Contexto:** Proyecto universitario — UTULAB. Arquitectura hexagonal, PHP 8.4 + MySQL, Bootstrap 5 vanilla JS.
+> **Contexto:** Proyecto de egreso. Arquitectura hexagonal, PHP 8.4 + MySQL, Bootstrap 5 vanilla JS.
 > **Estado actual:** Login + Homepage pública + Dashboard admin. Controladores stub. Sin dominio, sin persistencia, sin seguridad real.
 > **Enfoque:** Security-first. Cada sprint incluye medidas de seguridad explícitas.
 
