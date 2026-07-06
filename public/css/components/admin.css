@@ -179,6 +179,68 @@
     border-radius: 0 0.25rem 0.25rem 0;
 }
 
+.public-encuesta-wrapper {
+    max-width: 640px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.public-pregunta {
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--card-bg);
+}
+
+.escala-group {
+    justify-content: center;
+}
+
+.escala-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+
+.escala-label input {
+    position: absolute;
+    opacity: 0;
+}
+
+.escala-label span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    font-weight: 600;
+    transition: all 0.15s;
+}
+
+.escala-label input:checked + span {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+    transform: scale(1.1);
+}
+
+.escala-label input:focus + span {
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.25);
+}
+
+.mc-label {
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.mc-label:has(input:checked) {
+    background: color-mix(in srgb, var(--primary) 8%, var(--card-bg)) !important;
+    border-color: var(--primary) !important;
+}
+
 @media (width <= 575.98px) {
     .action-bar .form-control,
     .action-bar .form-select {
