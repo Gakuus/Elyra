@@ -26,7 +26,12 @@
 | X.9 | **Nunca subir archivos a webroot** | Los PDFs van a `storage/docs/` (fuera de `public/`), no a `public/uploads/` |
 | X.10 | **Nunca usar `extract()` en producción** | Ya está en BaseController, hay que eliminarlo |
 
-### Checklist de Seguridad Global (aplica a TODA tarea)
+### Ajustes Sprint 0
+- **Argon2id no disponible** → se usa `PASSWORD_BCRYPT` (PHP compilado sin `--with-password-argon2`)
+- **PDO MySQL habilitado** vía USE flag `mysql` en PHP 8.5.6 (requiere php8.5 binary)
+- **Socket MySQL** no disponible para root → se creó usuario `elyra`/`elyra_pass`
+
+## Checklist de Seguridad Global (aplica a TODA tarea)
 
 | # | Medida | Obligatorio | Verificación |
 |---|--------|-------------|--------------|

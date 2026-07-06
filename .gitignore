@@ -6,3 +6,8 @@
 /.phpunit.result.cache
 *.pdf
 /composer.lock
+/storage/uploads/
+
+# Storage content (not structure)
+/storage/uploads/
+/storage/encuestas/

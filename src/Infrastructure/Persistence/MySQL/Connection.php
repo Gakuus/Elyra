@@ -16,8 +16,13 @@ class Connection
             $database = $_ENV['DB_DATABASE'] ?? 'elyra';
             $username = $_ENV['DB_USERNAME'] ?? 'root';
             $password = $_ENV['DB_PASSWORD'] ?? '';
+            $unixSocket = $_ENV['DB_SOCKET'] ?? null;
 
-            $dsn = "mysql:host={$host};port={$port};dbname={$database};charset=utf8mb4";
+            if ($unixSocket) {
+                $dsn = "mysql:unix_socket={$unixSocket};dbname={$database};charset=utf8mb4";
+            } else {
+                $dsn = "mysql:host={$host};port={$port};dbname={$database};charset=utf8mb4";
+            }
 
             self::$instance = new \PDO($dsn, $username, $password, [
                 \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
@@ -27,5 +32,10 @@ class Connection
         }
 
         return self::$instance;
+    }
+
+    public static function reset(): void
+    {
+        self::$instance = null;
     }
 }
