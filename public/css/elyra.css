@@ -15,6 +15,90 @@
     --danger-bg: #f8d7da;
     --info: #0dcaf0;
     --info-bg: #cfe2ff;
+    --card-bg: #fff;
+    --card-header-bg: #fff;
+    --navbar-bg: #1a1f36;
+    --hover-bg: #f8f9fa;
+    --input-bg: #fff;
+    --input-border: #dee2e6;
+    --shadow-sm: 0 1px 3px rgb(0 0 0 / 8%);
+    --shadow-hover: 0 4px 12px rgb(0 0 0 / 10%);
+}
+
+[data-theme="dark"] {
+    --page-bg: #0f172a;
+    --white: #1e293b;
+    --border: #334155;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --primary-light: #1e3a5f;
+    --success-bg: #14532d;
+    --warning-bg: #713f12;
+    --danger-bg: #7f1d1d;
+    --info-bg: #164e63;
+    --card-bg: #1e293b;
+    --card-header-bg: #1e293b;
+    --navbar-bg: #020617;
+    --hover-bg: #334155;
+    --input-bg: #0f172a;
+    --input-border: #475569;
+    --shadow-sm: 0 1px 3px rgb(0 0 0 / 30%);
+    --shadow-hover: 0 4px 12px rgb(0 0 0 / 40%);
+}
+
+[data-theme="dark"] .bg-white,
+[data-theme="dark"] .card.border-0.shadow-sm,
+[data-theme="dark"] .card-header.bg-white {
+    background: var(--card-bg) !important;
+}
+
+[data-theme="dark"] .text-muted {
+    color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .dropdown-menu {
+    background: var(--card-bg);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .dropdown-item {
+    color: var(--text);
+}
+
+[data-theme="dark"] .dropdown-item:hover {
+    background: var(--hover-bg);
+    color: var(--text);
+}
+
+[data-theme="dark"] .dropdown-divider {
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .btn-outline-primary {
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+[data-theme="dark"] .btn-outline-primary:hover {
+    background: var(--primary);
+    color: #fff;
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+    background: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--text);
+}
+
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+    background: var(--input-bg);
+    color: var(--text);
+}
+
+[data-theme="dark"] .form-control::placeholder {
+    color: var(--text-muted);
 }
 
 html, body {
@@ -23,6 +107,12 @@ html, body {
     font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
     font-size: 16px;
     color: var(--text);
+    background: var(--page-bg);
+    transition: background 0.3s, color 0.3s;
+}
+
+body {
+    background: var(--page-bg);
 }
 
 @keyframes fade-in {

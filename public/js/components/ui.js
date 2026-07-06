@@ -33,4 +33,33 @@
             callback();
         }
     };
+
+    var theme = (function () {
+        var stored = localStorage.getItem('elyra-theme');
+        if (stored) return stored;
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    })();
+
+    function applyTheme(t) {
+        document.documentElement.setAttribute('data-theme', t);
+        localStorage.setItem('elyra-theme', t);
+        var btn = document.getElementById('darkModeToggle');
+        if (btn) {
+            btn.innerHTML = t === 'dark'
+                ? '<i class="bi bi-sun-fill"></i>'
+                : '<i class="bi bi-moon-stars-fill"></i>';
+        }
+    }
+
+    applyTheme(theme);
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var btn = document.getElementById('darkModeToggle');
+        if (btn) {
+            btn.addEventListener('click', function () {
+                var current = document.documentElement.getAttribute('data-theme') || 'light';
+                applyTheme(current === 'dark' ? 'light' : 'dark');
+            });
+        }
+    });
 })();

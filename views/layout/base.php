@@ -18,7 +18,7 @@
 
 <?php $currentUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH); ?>
 
-<nav class="navbar navbar-expand-lg navbar-dark" style="background: #1a1f36;">
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: var(--navbar-bg); transition: background 0.3s;">
     <div class="container-fluid px-4">
         <a class="navbar-brand fw-bold" href="/dashboard">Elyra</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Abrir menú">
@@ -61,6 +61,9 @@
                 </li>
             </ul>
             <div class="d-flex align-items-center gap-3">
+                <button id="darkModeToggle" class="btn btn-outline-light btn-sm" aria-label="Alternar modo oscuro">
+                    <i class="bi bi-moon-stars-fill"></i>
+                </button>
                 <span class="text-light-emphasis small">
                     <i class="bi bi-person-circle"></i> <?= htmlspecialchars($_SESSION['user']['nombre']) ?>
                 </span>
