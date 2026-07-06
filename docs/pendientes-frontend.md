@@ -1,6 +1,6 @@
 # Pendientes — Frontend Elyra
 
-> **Hecho:** Login + Layout base (navbar con dropdowns) + Homepage pública + Dashboard admin
+> **Hecho:** Login + Layout base (navbar con dropdowns) + Homepage pública + Dashboard admin + CSS/JS separados en componentes
 
 ---
 
@@ -142,6 +142,36 @@ Pendiente → En curso → En destino → En retorno → Completado
 | 4 | Unificar modales: confirmación (small), formulario (medium), QR (medium) | Should |
 | 5 | Responsive: probar todas las vistas en mobile (<576px), tablet, desktop | Must |
 | 6 | Accesibilidad: contraste 4.5:1, navegación teclado, aria-labels en inputs sin label visible | Should |
+
+---
+
+## Estructura de Archivos Frontend
+
+```
+public/
+├── css/
+│   ├── elyra.css                 # variables CSS, reset, keyframes globales
+│   └── components/
+│       ├── login.css             # login: wrapper, card, inputs, btn, alert
+│       ├── admin.css             # layout admin: .main-content, footer, action-bar, breadcrumbs
+│       ├── tables.css            # .table-elyra, badges, .card-list-view (mobile)
+│       ├── stats.css             # .stat-card, .stat-card-number, .stat-card-label
+│       └── homepage.css          # hero-section, news-card, service-card
+├── js/
+│   ├── elyra.js                  # core: namespace Elyra, CSRF auto-inject en forms
+│   └── components/
+│       └── ui.js                 # Elyra.toast(), Elyra.confirm()
+└── img/
+    ├── elyralogo.png
+    └── hospital-de-clinicas.jpg
+```
+
+**Reglas:**
+- Cada archivo JS/CSS tiene una única responsabilidad
+- No mezclar estilos de distintos módulos en el mismo archivo
+- Los JS se cargan con `defer` para no bloquear el renderizado
+- Los CSS específicos de página se cargan solo en esa página (ej: `homepage.css` solo en `/`)
+- Para añadir un nuevo componente JS/CSS, crear archivo en `components/`
 
 ---
 
