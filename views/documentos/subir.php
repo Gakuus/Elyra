@@ -28,7 +28,7 @@
                         <select name="categoria" id="categoria" class="form-select" required>
                             <option value="">Seleccionar categor&iacute;a...</option>
                             <?php foreach ($categorias as $cat): ?>
-                                <option value="<?= $cat['nombre'] ?>"<?= ($_POST['categoria'] ?? '') === $cat['nombre'] ? ' selected' : '' ?>>
+                                <option value="<?= $cat['id'] ?>"<?= ($_POST['categoria'] ?? '') == $cat['id'] ? ' selected' : '' ?>>
                                     <?= htmlspecialchars($cat['nombre']) ?>
                                 </option>
                             <?php endforeach; ?>

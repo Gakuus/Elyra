@@ -33,14 +33,14 @@
 
                     <div class="mb-3">
                         <label for="categoria" class="form-label">Categor&iacute;a <span class="text-danger">*</span></label>
-                        <select name="categoria" id="categoria" class="form-select" required>
-                            <option value="">Seleccionar categor&iacute;a...</option>
-                            <?php foreach ($categorias as $cat): ?>
-                                <option value="<?= $cat['nombre'] ?>"<?= $doc['categoria'] === $cat['nombre'] ? ' selected' : '' ?>>
-                                    <?= htmlspecialchars($cat['nombre']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                    <select name="categoria" id="categoria" class="form-select" required>
+                        <option value="">Seleccionar categor&iacute;a...</option>
+                        <?php foreach ($categorias as $cat): ?>
+                            <option value="<?= $cat['id'] ?>"<?= ($doc['categoria_id'] ?? '') == $cat['id'] ? ' selected' : '' ?>>
+                                <?= htmlspecialchars($cat['nombre']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                     </div>
 
                     <div class="mb-4">
