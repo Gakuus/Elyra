@@ -12,7 +12,7 @@
                         <i class="bi bi-file-text fs-4 text-primary"></i>
                     </div>
                     <div>
-                        <div class="fs-3 fw-bold">0</div>
+                        <div class="fs-3 fw-bold"><?= $totalDocs ?></div>
                         <div class="text-muted small">Documentos</div>
                     </div>
                 </div>
@@ -27,7 +27,7 @@
                         <i class="bi bi-bar-chart fs-4 text-success"></i>
                     </div>
                     <div>
-                        <div class="fs-3 fw-bold">0</div>
+                        <div class="fs-3 fw-bold"><?= $totalEncuestas ?></div>
                         <div class="text-muted small">Encuestas</div>
                     </div>
                 </div>
@@ -42,7 +42,7 @@
                         <i class="bi bi-truck fs-4 text-info"></i>
                     </div>
                     <div>
-                        <div class="fs-3 fw-bold">0</div>
+                        <div class="fs-3 fw-bold"><?= $totalTraslados ?></div>
                         <div class="text-muted small">Traslados activos</div>
                     </div>
                 </div>
@@ -57,7 +57,7 @@
                         <i class="bi bi-people fs-4 text-warning"></i>
                     </div>
                     <div>
-                        <div class="fs-3 fw-bold">0</div>
+                        <div class="fs-3 fw-bold"><?= $totalConductores ?></div>
                         <div class="text-muted small">Conductores</div>
                     </div>
                 </div>
@@ -72,8 +72,21 @@
             <div class="card-header border-bottom py-3">
                 <h5 class="mb-0">Actividad reciente</h5>
             </div>
-            <div class="card-body text-muted small py-4">
-                <p class="mb-0">No hay actividad reciente para mostrar.</p>
+            <div class="card-body p-0 list-group list-group-flush">
+                <?php if (empty($recientes)): ?>
+                    <p class="text-muted small py-4 px-3 mb-0">No hay actividad reciente para mostrar.</p>
+                <?php else: ?>
+                    <?php foreach ($recientes as $r): ?>
+                        <div class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3 px-3">
+                            <i class="bi bi-file-earmark-text text-primary fs-5"></i>
+                            <div class="flex-grow-1 min-w-0">
+                                <a href="/documentos/editar?id=<?= $r['id'] ?>" class="text-decoration-none fw-semibold text-truncate d-block"><?= htmlspecialchars($r['titulo']) ?></a>
+                                <small class="text-muted"><?= htmlspecialchars($r['categoria']) ?> &middot; Subido el <?= htmlspecialchars($r['subido']) ?></small>
+                            </div>
+                            <a href="/documentos/editar?id=<?= $r['id'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>
