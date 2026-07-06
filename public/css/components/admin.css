@@ -281,10 +281,6 @@
     opacity: 1;
 }
 
-.timeline-step.active .timeline-dot {
-    box-shadow: 0 0 0 4px rgba(var(--bs-primary-rgb), 0.15);
-}
-
 .timeline-dot {
     width: 1.5rem;
     height: 1.5rem;
@@ -293,6 +289,10 @@
     margin-top: 0.15rem;
     position: relative;
     z-index: 1;
+}
+
+.timeline-step.active .timeline-dot {
+    box-shadow: 0 0 0 4px rgba(var(--bs-primary-rgb), 0.15);
 }
 
 .timeline-step.completed .timeline-dot::after {
