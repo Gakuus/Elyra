@@ -32,3 +32,21 @@
     color: var(--text-muted);
     margin-top: 0.25rem;
 }
+
+.stat-card-warning .rounded-3 { background: rgba(var(--bs-warning-rgb), 0.1); }
+.stat-card-warning .fs-4 { color: var(--bs-warning); }
+
+.stat-card-primary .rounded-3 { background: rgba(var(--bs-primary-rgb), 0.1); }
+.stat-card-primary .fs-4 { color: var(--bs-primary); }
+
+.stat-card-success .rounded-3 { background: rgba(var(--bs-success-rgb), 0.1); }
+.stat-card-success .fs-4 { color: var(--bs-success); }
+
+.stat-card-info .rounded-3 { background: rgba(var(--bs-info-rgb), 0.1); }
+.stat-card-info .fs-4 { color: var(--bs-info); }
+
+.stat-card-active {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+    transform: translateY(-2px);
+}
