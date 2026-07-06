@@ -162,6 +162,23 @@
     transform: none;
 }
 
+.question-item .card-body {
+    padding: 0.75rem 1rem;
+}
+
+.opcion-item .form-control {
+    border-radius: 0;
+
+}
+
+.opcion-item:first-child .form-control {
+    border-radius: 0.25rem 0 0 0.25rem;
+}
+
+.opcion-item .btn {
+    border-radius: 0 0.25rem 0.25rem 0;
+}
+
 @media (width <= 575.98px) {
     .action-bar .form-control,
     .action-bar .form-select {
