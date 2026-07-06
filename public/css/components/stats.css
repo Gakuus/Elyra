@@ -1,9 +1,9 @@
 .stat-card {
-    background: var(--white);
+    background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 1.25rem;
-    transition: all 0.2s;
+    transition: all 0.2s, background 0.3s, border-color 0.3s;
     cursor: pointer;
     text-decoration: none;
     display: block;
@@ -12,7 +12,7 @@
 
 .stat-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgb(0 0 0 / 10%);
+    box-shadow: var(--shadow-hover);
     color: var(--text);
 }
 

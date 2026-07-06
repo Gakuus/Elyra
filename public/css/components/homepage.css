@@ -1,3 +1,20 @@
+[data-theme="dark"] .bg-light {
+    background: var(--page-bg) !important;
+}
+
+[data-theme="dark"] .bg-white.shadow-sm.border-bottom {
+    background: var(--navbar-bg) !important;
+    border-bottom-color: var(--border) !important;
+}
+
+[data-theme="dark"] .bg-white.shadow-sm.border-bottom .nav-link {
+    color: var(--text) !important;
+}
+
+[data-theme="dark"] .bg-white.shadow-sm.border-bottom .navbar-brand {
+    color: var(--primary) !important;
+}
+
 .hero-section {
     min-height: 85vh;
     position: relative;
@@ -16,7 +33,8 @@
 .news-card {
     border: 1px solid var(--border);
     border-radius: 12px;
-    transition: transform 0.2s, box-shadow 0.2s;
+    background: var(--card-bg);
+    transition: transform 0.2s, box-shadow 0.2s, background 0.3s, border-color 0.3s;
 }
 
 .news-card:hover {
@@ -25,7 +43,8 @@
 }
 
 .service-card {
-    transition: transform 0.2s, box-shadow 0.2s;
+    background: var(--card-bg);
+    transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
 }
 
 .service-card:hover {

@@ -69,7 +69,7 @@
 <div class="row g-4 mt-2">
     <div class="col-md-8">
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-bottom py-3">
+            <div class="card-header border-bottom py-3">
                 <h5 class="mb-0">Actividad reciente</h5>
             </div>
             <div class="card-body text-muted small py-4">
@@ -79,7 +79,7 @@
     </div>
     <div class="col-md-4">
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-bottom py-3">
+            <div class="card-header border-bottom py-3">
                 <h5 class="mb-0">Accesos r&aacute;pidos</h5>
             </div>
             <div class="card-body p-3">

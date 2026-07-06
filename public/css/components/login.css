@@ -27,7 +27,7 @@
 }
 
 .login-card {
-    background: var(--white);
+    background: var(--card-bg);
     border-radius: 16px;
     padding: 2.5rem 2rem 2rem;
     width: 100%;
@@ -36,6 +36,7 @@
     position: relative;
     z-index: 1;
     border-top: 4px solid #475569;
+    transition: background 0.3s;
 }
 
 .login-logo {
@@ -74,9 +75,11 @@
     padding-left: 2.5rem;
     height: 46px;
     border-radius: 10px;
-    border: 2px solid #e9ecef;
+    border: 2px solid var(--input-border);
     font-size: 0.9rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    background: var(--input-bg);
+    color: var(--text);
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.3s, color 0.3s;
 }
 
 .login-input-group .form-control:focus {
@@ -84,12 +87,16 @@
     box-shadow: 0 0 0 4px rgb(13 110 253 / 12%);
 }
 
+.login-input-group .form-control::placeholder {
+    color: var(--text-muted);
+}
+
 .login-input-group .input-icon {
     position: absolute;
     left: 0.85rem;
     top: 50%;
     transform: translateY(-50%);
-    color: #adb5bd;
+    color: var(--text-muted);
     font-size: 1.1rem;
     z-index: 10;
     pointer-events: none;
