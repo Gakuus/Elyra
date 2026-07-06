@@ -15,7 +15,7 @@
 </head>
 <body>
 
-<?php if (isset($_SESSION['user'])): ?>
+<?php if (\Elyra\Infrastructure\Service\SessionManager::isAuthenticated()): ?>
 
 <?php
 $currentUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -100,9 +100,9 @@ function renderBreadcrumbs(string $uri, array $map): void {
                 <button id="darkModeToggle" class="btn btn-outline-light btn-sm" aria-label="Alternar modo oscuro">
                     <i class="bi bi-moon-stars-fill"></i>
                 </button>
-                <span class="text-light-emphasis small">
-                    <i class="bi bi-person-circle"></i> <?= htmlspecialchars($_SESSION['user']['nombre']) ?>
-                </span>
+<span class="text-light-emphasis small">
+    <i class="bi bi-person-circle"></i> <?= htmlspecialchars($_SESSION['user_nombre'] ?? 'Usuario') ?>
+</span>
                 <a href="/logout" class="btn btn-outline-light btn-sm">
                     <i class="bi bi-box-arrow-right"></i> Salir
                 </a>

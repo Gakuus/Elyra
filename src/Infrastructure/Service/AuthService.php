@@ -53,7 +53,7 @@ class AuthService
 
         RateLimiter::resetLoginAttempts($ip);
 
-        SessionManager::login($funcionario->getId(), $funcionario->getRol()->value());
+        SessionManager::login($funcionario->getId(), $funcionario->getRol()->value(), $funcionario->getNombreCompleto());
 
         return [
             'success' => true,

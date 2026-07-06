@@ -8,7 +8,7 @@ class PublicController extends BaseController
 {
     public function home(): void
     {
-        if (isset($_SESSION['user'])) {
+        if (\Elyra\Infrastructure\Service\SessionManager::isAuthenticated()) {
             $this->redirect('/dashboard');
         }
         require __DIR__ . '/../../../../views/publico/home.php';

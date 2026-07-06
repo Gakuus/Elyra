@@ -112,11 +112,12 @@ class SessionManager
         $_SESSION['_created_at'] = time();
     }
 
-    public static function login(int $userId, string $role): void
+    public static function login(int $userId, string $role, string $nombre = ''): void
     {
         self::regenerate();
         $_SESSION['user_id'] = $userId;
         $_SESSION['user_role'] = $role;
+        $_SESSION['user_nombre'] = $nombre;
     }
 
     public static function logout(): void

@@ -9,7 +9,7 @@
         <select name="categoria" class="form-select" onchange="this.form.submit()">
             <option value="">Todas las categor&iacute;as</option>
             <?php foreach ($categorias as $cat): ?>
-                <option value="<?= $cat['nombre'] ?>"<?= $categoriaFiltro === $cat['nombre'] ? ' selected' : '' ?>>
+                <option value="<?= $cat['id'] ?>"<?= $categoriaFiltro == $cat['id'] ? ' selected' : '' ?>>
                     <?= $cat['nombre'] ?>
                 </option>
             <?php endforeach; ?>
