@@ -1,0 +1,34 @@
+.hero-section {
+    min-height: 85vh;
+    position: relative;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    overflow: hidden;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: url('/img/hospital-de-clinicas.jpg') center / cover no-repeat;
+    opacity: 0.12;
+    pointer-events: none;
+}
+
+.news-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.news-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgb(0 0 0 / 10%);
+}
+
+.service-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.service-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgb(0 0 0 / 12%) !important;
+}
