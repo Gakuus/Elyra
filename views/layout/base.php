@@ -26,6 +26,7 @@ $breadcrumbs = [
     '/documentos/subir' => ['Subir documento', '/documentos'],
     '/documentos/editar' => ['Editar documento', '/documentos'],
     '/documentos/ver' => ['Detalle', '/documentos'],
+    '/documentos/eliminar' => ['Eliminar', '/documentos'],
     '/encuestas' => ['Encuestas', '/dashboard'],
     '/encuestas/crear' => ['Crear encuesta', '/encuestas'],
     '/encuestas/resultados' => ['Resultados', '/encuestas'],
@@ -117,6 +118,7 @@ function renderBreadcrumbs(string $uri, array $map): void {
 </main>
 
     <?php require __DIR__ . '/../documentos/_modal_qr.php'; ?>
+    <?php require __DIR__ . '/../documentos/_modal_eliminar.php'; ?>
     <div class="toast-container"></div>
 
     <footer class="footer">

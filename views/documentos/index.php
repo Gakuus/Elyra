@@ -76,7 +76,7 @@
                             <button type="button" class="btn btn-sm btn-outline-secondary border-0" title="Copiar enlace" onclick="Elyra.copiarEnlace(<?= $doc['id'] ?>, this)">
                                 <i class="bi bi-link-45deg"></i>
                             </button>
-                            <button type="button" class="btn btn-sm btn-outline-danger border-0" title="Eliminar" onclick="Elyra.confirm('&iquest;Eliminar &quot;<?= htmlspecialchars($doc['titulo'], ENT_QUOTES) ?>&quot;? El QR dejar&aacute; de funcionar.', function () { window.location.href='/documentos/eliminar?id=<?= $doc['id'] ?>'; })">
+                            <button type="button" class="btn btn-sm btn-outline-danger border-0" title="Eliminar" onclick="Elyra.confirm(<?= $doc['id'] ?>, '<?= htmlspecialchars($doc['titulo'], ENT_QUOTES) ?>')">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </div>
@@ -103,7 +103,7 @@
                 <a href="/documentos/ver?id=<?= $doc['id'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a>
                 <a href="/documentos/editar?id=<?= $doc['id'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
                 <button class="btn btn-sm btn-outline-secondary" onclick="Elyra.copiarEnlace(<?= $doc['id'] ?>, this)"><i class="bi bi-link-45deg"></i></button>
-                <button class="btn btn-sm btn-outline-danger" onclick="Elyra.confirm('&iquest;Eliminar &quot;<?= htmlspecialchars($doc['titulo'], ENT_QUOTES) ?>&quot;?', function () { window.location.href='/documentos/eliminar?id=<?= $doc['id'] ?>'; })"><i class="bi bi-trash"></i></button>
+                <button class="btn btn-sm btn-outline-danger" onclick="Elyra.confirm(<?= $doc['id'] ?>, '<?= htmlspecialchars($doc['titulo'], ENT_QUOTES) ?>')"><i class="bi bi-trash"></i></button>
             </div>
         </div>
     <?php endforeach; ?>

@@ -220,7 +220,27 @@ class DocumentoController extends BaseController
     public function eliminar(): void
     {
         $this->requireAuth();
-        $this->redirect('/documentos');
+
+        $id = (int) ($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            $this->redirect('/documentos');
+            return;
+        }
+
+        $metaFile = $this->storageDir . '/.meta.json';
+        if (is_file($metaFile)) {
+            $meta = json_decode(file_get_contents($metaFile), true) ?? [];
+            foreach ($meta as &$m) {
+                if ($m['id'] === $id) {
+                    $m['activo'] = false;
+                    break;
+                }
+            }
+            unset($m);
+            file_put_contents($metaFile, json_encode($meta, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+        }
+
+        $this->redirect('/documentos?eliminado=1');
     }
 
     private function handleEdit(int $id): void
