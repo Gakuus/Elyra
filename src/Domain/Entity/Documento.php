@@ -14,12 +14,14 @@ class Documento
     private ?int $codigoQrId;
     private ?string $qrPath;
     private int $categoriaId;
+    private ?int $especialidadId;
     private ?int $encuestaId;
     private int $subidoPor;
     private bool $activo;
     private ?string $createdAt;
     private ?string $updatedAt;
     private ?string $categoriaNombre;
+    private ?string $especialidadNombre;
 
     public function __construct(
         ?int $id,
@@ -31,11 +33,13 @@ class Documento
         int $subidoPor,
         ?string $descripcion = null,
         ?string $qrPath = null,
+        ?int $especialidadId = null,
         ?int $encuestaId = null,
         bool $activo = true,
         ?string $createdAt = null,
         ?string $updatedAt = null,
-        ?string $categoriaNombre = null
+        ?string $categoriaNombre = null,
+        ?string $especialidadNombre = null
     ) {
         $this->id = $id;
         $this->titulo = $titulo;
@@ -46,11 +50,13 @@ class Documento
         $this->subidoPor = $subidoPor;
         $this->descripcion = $descripcion;
         $this->qrPath = $qrPath;
+        $this->especialidadId = $especialidadId;
         $this->encuestaId = $encuestaId;
         $this->activo = $activo;
         $this->createdAt = $createdAt;
         $this->updatedAt = $updatedAt;
         $this->categoriaNombre = $categoriaNombre;
+        $this->especialidadNombre = $especialidadNombre;
     }
 
     public function getId(): ?int { return $this->id; }
@@ -61,6 +67,7 @@ class Documento
     public function getCodigoQrId(): ?int { return $this->codigoQrId; }
     public function getQrPath(): ?string { return $this->qrPath; }
     public function getCategoriaId(): int { return $this->categoriaId; }
+    public function getEspecialidadId(): ?int { return $this->especialidadId; }
     public function getEncuestaId(): ?int { return $this->encuestaId; }
     public function getSubidoPor(): int { return $this->subidoPor; }
     public function isActivo(): bool { return $this->activo; }
@@ -71,6 +78,7 @@ class Documento
     public function setActivo(bool $activo): void { $this->activo = $activo; }
 
     public function getCategoriaNombre(): ?string { return $this->categoriaNombre; }
+    public function getEspecialidadNombre(): ?string { return $this->especialidadNombre; }
 
     public function getExtension(): string
     {

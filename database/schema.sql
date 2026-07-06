@@ -59,7 +59,8 @@ CREATE TABLE paciente (
 CREATE TABLE categoria (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL UNIQUE,
-    descripcion TEXT
+    descripcion TEXT,
+    tipo ENUM('especialidad', 'tipo_documento') NOT NULL DEFAULT 'tipo_documento'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE encuesta (
@@ -94,6 +95,7 @@ CREATE TABLE documento (
     codigo_qr_id INT NULL,
     qr_path VARCHAR(255),
     categoria_id INT NOT NULL,
+    especialidad_id INT NULL,
     encuesta_id INT NULL UNIQUE,
     subido_por INT NOT NULL,
     activo BOOLEAN DEFAULT TRUE,
@@ -101,6 +103,7 @@ CREATE TABLE documento (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (codigo_qr_id) REFERENCES codigo_qr(id) ON DELETE SET NULL,
     FOREIGN KEY (categoria_id) REFERENCES categoria(id) ON DELETE RESTRICT,
+    FOREIGN KEY (especialidad_id) REFERENCES categoria(id) ON DELETE SET NULL,
     FOREIGN KEY (encuesta_id) REFERENCES encuesta(id) ON DELETE SET NULL,
     FOREIGN KEY (subido_por) REFERENCES funcionario(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

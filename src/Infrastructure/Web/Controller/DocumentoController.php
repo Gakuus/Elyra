@@ -36,11 +36,10 @@ class DocumentoController extends BaseController
         $documentos = $this->docRepo->findAll($categoriaId, $search ?: null, $page, $perPage);
         $total = $this->docRepo->count($categoriaId, $search ?: null);
         $totalPaginas = max(1, (int) ceil($total / $perPage));
-        $categorias = $this->categoriaRepo->findAll();
 
         $this->render('documentos/index', [
             'documentos' => array_map(fn (Documento $d) => $this->docToArray($d), $documentos),
-            'categorias' => $this->categoriaArray($categorias),
+            'tiposDocumento' => $this->categoriaArray($this->categoriaRepo->findByTipo('tipo_documento')),
             'total' => $total,
             'pagina' => $page,
             'totalPaginas' => $totalPaginas,
@@ -58,9 +57,7 @@ class DocumentoController extends BaseController
             return;
         }
 
-        $this->render('documentos/subir', [
-            'categorias' => $this->categoriaArray($this->categoriaRepo->findAll()),
-        ]);
+        $this->render('documentos/subir', $this->viewCategorias());
     }
 
     private function handleUpload(): void
@@ -71,12 +68,19 @@ class DocumentoController extends BaseController
         $v->required('titulo', $_POST['titulo'] ?? '', 'Título')
           ->minLength('titulo', $_POST['titulo'] ?? '', 3, 'Título')
           ->maxLength('titulo', $_POST['titulo'] ?? '', 200, 'Título')
-          ->numeric('categoria', $_POST['categoria'] ?? '', 'Categoría');
+          ->numeric('categoria', $_POST['categoria'] ?? '', 'Tipo de documento');
 
         $categoriaId = (int) ($_POST['categoria'] ?? 0);
-        $categoria = $this->categoriaRepo->findById($categoriaId);
-        if (!$categoria) {
-            $v->required('categoria', null, 'Categoría');
+        if (!$this->categoriaRepo->findById($categoriaId)) {
+            $v->required('categoria', null, 'Tipo de documento');
+        }
+
+        $especialidadId = null;
+        if (!empty($_POST['especialidad'])) {
+            $especialidadId = (int) $_POST['especialidad'];
+            if (!$this->categoriaRepo->findById($especialidadId)) {
+                $v->required('especialidad', null, 'Especialidad');
+            }
         }
 
         $archivo = $_FILES['archivo'] ?? null;
@@ -89,7 +93,7 @@ class DocumentoController extends BaseController
                 default => 'Error al subir el archivo.',
             };
             if ($isJson) { $this->json(['error' => $msg], 422); return; }
-            $this->render('documentos/subir', ['error' => $msg, 'categorias' => $this->categoriaArray($this->categoriaRepo->findAll())]);
+            $this->render('documentos/subir', ['error' => $msg] + $this->viewCategorias());
             return;
         }
 
@@ -97,7 +101,7 @@ class DocumentoController extends BaseController
         if ($mimeType !== 'application/pdf' || $archivo['size'] > 10 * 1024 * 1024) {
             $msg = $mimeType !== 'application/pdf' ? 'El archivo debe ser un PDF válido.' : 'El archivo supera el tamaño máximo de 10 MB.';
             if ($isJson) { $this->json(['error' => $msg], 422); return; }
-            $this->render('documentos/subir', ['error' => $msg, 'categorias' => $this->categoriaArray($this->categoriaRepo->findAll())]);
+            $this->render('documentos/subir', ['error' => $msg] + $this->viewCategorias());
             return;
         }
 
@@ -113,7 +117,7 @@ class DocumentoController extends BaseController
         if (!move_uploaded_file($archivo['tmp_name'], $destPath)) {
             $msg = 'Error al guardar el archivo. Verificá los permisos del servidor.';
             if ($isJson) { $this->json(['error' => $msg], 500); return; }
-            $this->render('documentos/subir', ['error' => $msg, 'categorias' => $this->categoriaArray($this->categoriaRepo->findAll())]);
+            $this->render('documentos/subir', ['error' => $msg] + $this->viewCategorias());
             return;
         }
 
@@ -126,6 +130,7 @@ class DocumentoController extends BaseController
             categoriaId: $categoriaId,
             subidoPor: SessionManager::getUserId() ?? 0,
             descripcion: Validator::sanitize($_POST['descripcion'] ?? ''),
+            especialidadId: $especialidadId,
             activo: true
         );
 
@@ -155,14 +160,13 @@ class DocumentoController extends BaseController
 
         $doc = $this->docRepo->findById($id);
         if (!$doc) {
-            $this->render('documentos/editar', ['error' => 'Documento no encontrado.', 'doc' => null, 'categorias' => $this->categoriaArray($this->categoriaRepo->findAll())]);
+            $this->render('documentos/editar', ['error' => 'Documento no encontrado.', 'doc' => null] + $this->viewCategorias());
             return;
         }
 
         $this->render('documentos/editar', [
             'doc' => $this->docToArray($doc),
-            'categorias' => $this->categoriaArray($this->categoriaRepo->findAll()),
-        ]);
+        ] + $this->viewCategorias());
     }
 
     private function handleEdit(int $id): void
@@ -174,17 +178,25 @@ class DocumentoController extends BaseController
           ->minLength('titulo', $_POST['titulo'] ?? '', 3, 'Título')
           ->maxLength('titulo', $_POST['titulo'] ?? '', 200, 'Título')
           ->maxLength('descripcion', $_POST['descripcion'] ?? '', 500, 'Descripción')
-          ->numeric('categoria', $_POST['categoria'] ?? '', 'Categoría');
+          ->numeric('categoria', $_POST['categoria'] ?? '', 'Tipo de documento');
 
         $categoriaId = (int) ($_POST['categoria'] ?? 0);
         if (!$this->categoriaRepo->findById($categoriaId)) {
-            $v->required('categoria', null, 'Categoría');
+            $v->required('categoria', null, 'Tipo de documento');
+        }
+
+        $especialidadId = null;
+        if (!empty($_POST['especialidad'])) {
+            $especialidadId = (int) $_POST['especialidad'];
+            if (!$this->categoriaRepo->findById($especialidadId)) {
+                $v->required('especialidad', null, 'Especialidad');
+            }
         }
 
         if (!$v->isValid()) {
             $msg = $v->getFirstError();
             if ($isJson) { $this->json(['error' => $msg], 422); return; }
-            $this->render('documentos/editar', ['error' => $msg, 'doc' => $this->docToArray($this->docRepo->findById($id)), 'categorias' => $this->categoriaArray($this->categoriaRepo->findAll())]);
+            $this->render('documentos/editar', ['error' => $msg, 'doc' => $this->docToArray($this->docRepo->findById($id))] + $this->viewCategorias());
             return;
         }
 
@@ -206,6 +218,7 @@ class DocumentoController extends BaseController
             subidoPor: $doc->getSubidoPor(),
             descripcion: Validator::sanitize($_POST['descripcion'] ?? ''),
             qrPath: $doc->getQrPath(),
+            especialidadId: $especialidadId,
             encuestaId: $doc->getEncuestaId(),
             activo: true,
             createdAt: $doc->getCreatedAt()
@@ -259,6 +272,16 @@ class DocumentoController extends BaseController
             'filename' => $d->getArchivoNombre(),
             'subido' => $created ? date('d/m/Y', strtotime($created)) : '',
             'activo' => $d->isActivo(),
+            'especialidad' => $d->getEspecialidadNombre() ?? '',
+            'especialidad_id' => $d->getEspecialidadId(),
+        ];
+    }
+
+    private function viewCategorias(): array
+    {
+        return [
+            'especialidades' => $this->categoriaArray($this->categoriaRepo->findByTipo('especialidad')),
+            'tiposDocumento' => $this->categoriaArray($this->categoriaRepo->findByTipo('tipo_documento')),
         ];
     }
 

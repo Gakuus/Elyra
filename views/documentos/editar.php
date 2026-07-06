@@ -31,16 +31,29 @@
                         <input type="text" name="titulo" id="titulo" class="form-control" required minlength="3" maxlength="200" value="<?= htmlspecialchars($doc['titulo']) ?>">
                     </div>
 
-                    <div class="mb-3">
-                        <label for="categoria" class="form-label">Categor&iacute;a <span class="text-danger">*</span></label>
-                    <select name="categoria" id="categoria" class="form-select" required>
-                        <option value="">Seleccionar categor&iacute;a...</option>
-                        <?php foreach ($categorias as $cat): ?>
-                            <option value="<?= $cat['id'] ?>"<?= ($doc['categoria_id'] ?? '') == $cat['id'] ? ' selected' : '' ?>>
-                                <?= htmlspecialchars($cat['nombre']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="especialidad" class="form-label">Especialidad</label>
+                            <select name="especialidad" id="especialidad" class="form-select">
+                                <option value="">Sin especialidad...</option>
+                                <?php foreach ($especialidades as $cat): ?>
+                                    <option value="<?= $cat['id'] ?>"<?= ($doc['especialidad_id'] ?? '') == $cat['id'] ? ' selected' : '' ?>>
+                                        <?= htmlspecialchars($cat['nombre']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label for="categoria" class="form-label">Tipo de documento <span class="text-danger">*</span></label>
+                            <select name="categoria" id="categoria" class="form-select" required>
+                                <option value="">Seleccionar tipo...</option>
+                                <?php foreach ($tiposDocumento as $cat): ?>
+                                    <option value="<?= $cat['id'] ?>"<?= ($doc['categoria_id'] ?? '') == $cat['id'] ? ' selected' : '' ?>>
+                                        <?= htmlspecialchars($cat['nombre']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="mb-4">
