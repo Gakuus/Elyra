@@ -73,6 +73,11 @@
     </div>
 </div>
 
+<div class="filter-active-bar alert alert-info d-none py-2 px-3 mb-3 d-flex align-items-center justify-content-between">
+    <span><i class="bi bi-funnel me-1"></i> Filtrando: <strong class="filter-label"></strong></span>
+    <button type="button" class="btn btn-sm btn-outline-secondary btn-clear-filter">Limpiar filtro</button>
+</div>
+
 <div class="card border-0 shadow-sm">
     <div class="card-header border-bottom py-3">
         <h5 class="mb-0"><i class="bi bi-truck me-2"></i>Traslados activos</h5>
@@ -97,7 +102,7 @@
                 </thead>
                 <tbody>
                     <?php foreach ($activos as $t): ?>
-                        <tr>
+                        <tr data-estado="<?= $t['estado'] ?>">
                             <td><span class="badge bg-secondary bg-opacity-10 text-secondary"><?= htmlspecialchars($t['codigo']) ?></span></td>
                             <td class="fw-semibold"><?= htmlspecialchars($t['paciente']) ?></td>
                             <td class="small"><?= htmlspecialchars($t['origen']) ?></td>
@@ -139,7 +144,7 @@
 
         <div class="card-list-view">
             <?php foreach ($activos as $t): ?>
-                <div class="card-item">
+                <div class="card-item" data-estado="<?= $t['estado'] ?>">
                     <div class="card-item-title d-flex align-items-center gap-2">
                         <span class="badge bg-secondary bg-opacity-10 text-secondary"><?= htmlspecialchars($t['codigo']) ?></span>
                         <?= htmlspecialchars($t['paciente']) ?>
