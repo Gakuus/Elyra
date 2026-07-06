@@ -29,6 +29,53 @@
     min-width: 200px;
 }
 
+.drop-zone {
+    position: relative;
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 2rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: var(--card-bg);
+}
+
+.drop-zone:hover,
+.drop-zone.drag-over {
+    border-color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 5%, var(--card-bg));
+}
+
+.drop-zone.has-file {
+    border-color: var(--success);
+    border-style: solid;
+    background: color-mix(in srgb, var(--success) 5%, var(--card-bg));
+}
+
+.drop-zone-input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.drop-zone.has-file .drop-zone-input {
+    display: none;
+}
+
+.drop-zone-content,
+.drop-zone-preview {
+    pointer-events: none;
+}
+
+.drop-zone.has-file .drop-zone-content {
+    display: none;
+}
+
+.drop-zone.has-file .drop-zone-preview {
+    display: block !important;
+}
+
 .toast-container {
     position: fixed;
     top: 1rem;

@@ -34,6 +34,139 @@
         }
     };
 
+    window.Elyra.verQR = function (id) {
+        var modal = document.getElementById('qrModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'qrModal';
+            modal.className = 'modal fade';
+            modal.setAttribute('tabindex', '-1');
+            modal.setAttribute('aria-hidden', 'true');
+            modal.innerHTML = '<div class="modal-dialog modal-sm modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h6 class="modal-title">C&oacute;digo QR</h6><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div><div class="modal-body text-center" id="qrModalBody"><p class="text-muted small mb-0">Cargando...</p></div></div></div>';
+            document.body.appendChild(modal);
+        }
+        var body = document.getElementById('qrModalBody');
+        body.innerHTML = '<div class="mb-3"><div id="qrcode"></div></div><p class="small text-muted mb-2">Escanear para ver el documento</p><button class="btn btn-sm btn-outline-primary me-1" onclick="Elyra.copiarEnlace(' + id + ', this)"><i class="bi bi-clipboard me-1"></i>Copiar enlace</button><button class="btn btn-sm btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer me-1"></i>Imprimir</button>';
+        var bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+        if (typeof window.QRCode !== 'undefined') {
+            document.getElementById('qrcode').innerHTML = '';
+            new window.QRCode(document.getElementById('qrcode'), { text: window.location.origin + '/publico/doc?id=' + id, width: 180, height: 180 });
+        } else {
+            var script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js';
+            script.onload = function () {
+                document.getElementById('qrcode').innerHTML = '';
+                new window.QRCode(document.getElementById('qrcode'), { text: window.location.origin + '/publico/doc?id=' + id, width: 180, height: 180 });
+            };
+            script.onerror = function () {
+                body.innerHTML = '<p class="text-muted small">No se pudo cargar el generador QR</p>' + body.innerHTML;
+            };
+            document.head.appendChild(script);
+        }
+    };
+
+    function initDropZone() {
+        var zone = document.getElementById('dropZone');
+        var input = document.getElementById('archivo');
+        var nameEl = document.getElementById('fileName');
+        var sizeEl = document.getElementById('fileSize');
+        var removeBtn = document.getElementById('removeFile');
+        var errorEl = document.getElementById('fileError');
+        if (!zone || !input) return;
+
+        function formatSize(bytes) {
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        function validate(file) {
+            if (!file) return 'Seleccion&aacute; un archivo PDF.';
+            if (file.type !== 'application/pdf') return 'Solo se permiten archivos PDF.';
+            if (file.size > 10 * 1024 * 1024) return 'El archivo supera los 10 MB.';
+            return '';
+        }
+
+        function showFile(file) {
+            var err = validate(file);
+            if (err) {
+                zone.classList.remove('has-file');
+                errorEl.textContent = err;
+                errorEl.style.display = 'block';
+                input.value = '';
+                return;
+            }
+            errorEl.style.display = 'none';
+            zone.classList.add('has-file');
+            nameEl.textContent = file.name;
+            sizeEl.textContent = formatSize(file.size);
+            document.getElementById('submitBtn').disabled = false;
+        }
+
+        input.addEventListener('change', function () {
+            if (this.files && this.files[0]) showFile(this.files[0]);
+        });
+
+        ['dragenter', 'dragover'].forEach(function (ev) {
+            zone.addEventListener(ev, function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                zone.classList.add('drag-over');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(function (ev) {
+            zone.addEventListener(ev, function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                zone.classList.remove('drag-over');
+            });
+        });
+
+        zone.addEventListener('drop', function (e) {
+            var files = e.dataTransfer.files;
+            if (files && files[0]) {
+                input.files = files;
+                showFile(files[0]);
+            }
+        });
+
+        if (removeBtn) {
+            removeBtn.addEventListener('click', function () {
+                zone.classList.remove('has-file');
+                input.value = '';
+                document.getElementById('submitBtn').disabled = false;
+            });
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', initDropZone);
+
+    window.Elyra.copiarEnlace = function (id, btn) {
+        var url = window.location.origin + '/publico/doc?id=' + id;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(function () {
+                var original = btn.innerHTML;
+                btn.innerHTML = '<i class="bi bi-check me-1"></i>Copiado';
+                btn.classList.remove('btn-outline-secondary');
+                btn.classList.add('btn-outline-success');
+                setTimeout(function () {
+                    btn.innerHTML = original;
+                    btn.classList.remove('btn-outline-success');
+                    btn.classList.add('btn-outline-secondary');
+                }, 2000);
+            });
+        } else {
+            var textarea = document.createElement('textarea');
+            textarea.value = url;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            window.Elyra.toast('Enlace copiado al portapapeles');
+        }
+    };
+
     var theme = (function () {
         var stored = localStorage.getItem('elyra-theme');
         if (stored) return stored;
