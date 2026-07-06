@@ -303,7 +303,53 @@ class TrasladoController extends BaseController
     public function historial(): void
     {
         $this->requireAuth();
-        $this->render('traslados/historial');
+
+        $traslados = $this->mockTraslados();
+
+        $estado = $_GET['estado'] ?? '';
+        $conductor = $_GET['conductor'] ?? '';
+        $buscar = $_GET['buscar'] ?? '';
+        $fecha = $_GET['fecha'] ?? '';
+
+        if ($estado !== '') {
+            $traslados = array_filter($traslados, fn($t) => $t['estado'] === $estado);
+        }
+        if ($conductor !== '') {
+            $traslados = array_filter($traslados, fn($t) => ($t['conductor'] ?? '') === $conductor);
+        }
+        if ($buscar !== '') {
+            $q = mb_strtolower($buscar);
+            $traslados = array_filter($traslados, fn($t) =>
+                mb_strpos(mb_strtolower($t['codigo'] ?? ''), $q) !== false ||
+                mb_strpos(mb_strtolower($t['paciente'] ?? $t['elemento'] ?? ''), $q) !== false ||
+                mb_strpos(mb_strtolower($t['origen'] ?? ''), $q) !== false ||
+                mb_strpos(mb_strtolower($t['destino'] ?? ''), $q) !== false
+            );
+        }
+        if ($fecha !== '') {
+            $traslados = array_filter($traslados, fn($t) => ($t['fecha'] ?? '') === $fecha);
+        }
+
+        usort($traslados, fn($a, $b) => ($b['id'] ?? 0) <=> ($a['id'] ?? 0));
+
+        $conductores = array_unique(array_column(array_merge($this->mockTraslados(), $this->storedTraslados()), 'conductor'));
+        sort($conductores);
+
+        $estadosList = [
+            'pendiente' => 'Pendiente',
+            'en_curso' => 'En curso',
+            'en_destino' => 'En destino',
+            'en_retorno' => 'En retorno',
+            'completado' => 'Completado',
+            'cancelado' => 'Cancelado',
+        ];
+
+        $this->render('traslados/historial', [
+            'traslados' => $traslados,
+            'estadosList' => $estadosList,
+            'conductores' => $conductores,
+            'filtros' => compact('estado', 'conductor', 'buscar', 'fecha'),
+        ]);
     }
 
     private function estadoLabel(string $estado): string
