@@ -256,7 +256,29 @@ class DocumentoController extends BaseController
 
         $this->render('documentos/ver', [
             'doc' => $doc ? $this->docToArray($doc) : null,
-        ]);
+        ] + $this->viewCategorias());
+    }
+
+    public function archivo(): void
+    {
+        $this->requireAuth();
+        $id = (int) ($_GET['id'] ?? 0);
+
+        $doc = $id > 0 ? $this->docRepo->findById($id) : null;
+        if (!$doc || !$doc->getArchivoPath() || !is_file($doc->getArchivoPath())) {
+            http_response_code(404);
+            exit;
+        }
+
+        $ext = strtolower(pathinfo($doc->getArchivoNombre(), PATHINFO_EXTENSION));
+        $mime = $ext === 'pdf' ? 'application/pdf' : mime_content_type($doc->getArchivoPath());
+
+        header('Content-Type: ' . $mime);
+        header('Content-Disposition: inline; filename="' . $doc->getArchivoNombre() . '"');
+        header('Content-Length: ' . filesize($doc->getArchivoPath()));
+        header('Cache-Control: private, max-age=3600');
+        readfile($doc->getArchivoPath());
+        exit;
     }
 
     private function docToArray(Documento $d): array
