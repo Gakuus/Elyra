@@ -28,10 +28,12 @@
         el.addEventListener('hidden.bs.toast', function () { el.remove(); });
     };
 
-    window.Elyra.confirm = function (message, callback) {
-        if (window.confirm(message)) {
-            callback();
-        }
+    window.Elyra.confirm = function (id, titulo) {
+        var modal = document.getElementById('eliminarModal');
+        if (!modal) return;
+        document.getElementById('eliminarMensaje').textContent = 'Eliminar "' + titulo + '"?';
+        document.getElementById('eliminarConfirmar').href = '/documentos/eliminar?id=' + id;
+        new bootstrap.Modal(modal).show();
     };
 
     window.Elyra.verQR = function (id) {
