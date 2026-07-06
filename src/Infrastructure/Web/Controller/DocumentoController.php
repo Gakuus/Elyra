@@ -17,11 +17,18 @@ class DocumentoController extends BaseController
         ['id' => 8, 'nombre' => 'Infectología'],
     ];
 
+    private string $storageDir;
+
+    public function __construct()
+    {
+        $this->storageDir = __DIR__ . '/../../../../storage/uploads/documents';
+    }
+
     public function index(): void
     {
         $this->requireAuth();
 
-        $documentos = $this->mockDocumentos();
+        $documentos = array_merge($this->mockDocumentos(), $this->uploadedDocs());
 
         $search = trim($_GET['q'] ?? '');
         $categoriaFiltro = trim($_GET['categoria'] ?? '');
@@ -73,13 +80,25 @@ class DocumentoController extends BaseController
 
     private function handleUpload(): void
     {
+        $isJson = str_starts_with($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
+
+        $csrf = trim($_POST['_csrf_token'] ?? '');
+        if ($csrf !== ($_SESSION['_csrf_token'] ?? '')) {
+            $msg = 'Sesi&oacute;n inv&aacute;lida. Recarg&aacute; e intent&aacute; de nuevo.';
+            if ($isJson) { $this->json(['error' => $msg], 403); return; }
+            $this->render('documentos/subir', ['error' => $msg, 'categorias' => $this->categorias]);
+            return;
+        }
+
         $titulo = trim($_POST['titulo'] ?? '');
         $categoria = trim($_POST['categoria'] ?? '');
         $descripcion = trim($_POST['descripcion'] ?? '');
         $archivo = $_FILES['archivo'] ?? null;
 
         if (strlen($titulo) < 3 || strlen($titulo) > 200) {
-            $this->render('documentos/subir', ['error' => 'El t&iacute;tulo debe tener entre 3 y 200 caracteres.', 'categorias' => $this->categorias]);
+            $msg = 'El t&iacute;tulo debe tener entre 3 y 200 caracteres.';
+            if ($isJson) { $this->json(['error' => $msg], 422); return; }
+            $this->render('documentos/subir', ['error' => $msg, 'categorias' => $this->categorias]);
             return;
         }
 
@@ -88,32 +107,87 @@ class DocumentoController extends BaseController
             if ($cat['nombre'] === $categoria) { $valida = true; break; }
         }
         if (!$valida) {
-            $this->render('documentos/subir', ['error' => 'Seleccion&aacute; una categor&iacute;a v&aacute;lida.', 'categorias' => $this->categorias]);
+            $msg = 'Seleccion&aacute; una categor&iacute;a v&aacute;lida.';
+            if ($isJson) { $this->json(['error' => $msg], 422); return; }
+            $this->render('documentos/subir', ['error' => $msg, 'categorias' => $this->categorias]);
             return;
         }
 
         if (!$archivo || $archivo['error'] !== UPLOAD_ERR_OK) {
-            $errorMsg = match ($archivo['error'] ?? UPLOAD_ERR_NO_FILE) {
+            $msg = match ($archivo['error'] ?? UPLOAD_ERR_NO_FILE) {
                 UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => 'El archivo supera el tama&ntilde;o m&aacute;ximo permitido.',
                 UPLOAD_ERR_NO_FILE => 'Seleccion&aacute; un archivo PDF para subir.',
                 default => 'Error al subir el archivo. Intentalo de nuevo.',
             };
-            $this->render('documentos/subir', ['error' => $errorMsg, 'categorias' => $this->categorias]);
+            if ($isJson) { $this->json(['error' => $msg], 422); return; }
+            $this->render('documentos/subir', ['error' => $msg, 'categorias' => $this->categorias]);
             return;
         }
 
         $mimeType = mime_content_type($archivo['tmp_name']);
         if ($mimeType !== 'application/pdf') {
-            $this->render('documentos/subir', ['error' => 'El archivo debe ser un PDF v&aacute;lido.', 'categorias' => $this->categorias]);
+            $msg = 'El archivo debe ser un PDF v&aacute;lido.';
+            if ($isJson) { $this->json(['error' => $msg], 422); return; }
+            $this->render('documentos/subir', ['error' => $msg, 'categorias' => $this->categorias]);
             return;
         }
 
         if ($archivo['size'] > 10 * 1024 * 1024) {
-            $this->render('documentos/subir', ['error' => 'El archivo supera el tama&ntilde;o m&aacute;ximo de 10 MB.', 'categorias' => $this->categorias]);
+            $msg = 'El archivo supera el tama&ntilde;o m&aacute;ximo de 10 MB.';
+            if ($isJson) { $this->json(['error' => $msg], 422); return; }
+            $this->render('documentos/subir', ['error' => $msg, 'categorias' => $this->categorias]);
             return;
         }
 
-        $this->redirect('/documentos?subido=1');
+        $ext = 'pdf';
+        $safeName = preg_replace('/[^a-zA-Z0-9_-]/', '_', pathinfo($archivo['name'], PATHINFO_FILENAME));
+        $safeName = mb_substr($safeName, 0, 80);
+        $filename = $safeName . '_' . time() . '.' . $ext;
+        $destPath = $this->storageDir . '/' . $filename;
+
+        if (!move_uploaded_file($archivo['tmp_name'], $destPath)) {
+            $msg = 'Error al guardar el archivo. Verific&aacute; los permisos del servidor.';
+            if ($isJson) { $this->json(['error' => $msg], 500); return; }
+            $this->render('documentos/subir', ['error' => $msg, 'categorias' => $this->categorias]);
+            return;
+        }
+
+        $metaFile = $this->storageDir . '/.meta.json';
+        $meta = [];
+        if (is_file($metaFile)) {
+            $meta = json_decode(file_get_contents($metaFile), true) ?? [];
+        }
+
+        $nextId = 1;
+        if (!empty($meta)) {
+            $ids = array_column($meta, 'id');
+            $nextId = max($ids) + 1;
+        }
+
+        $meta[] = [
+            'id' => $nextId,
+            'titulo' => $titulo,
+            'categoria' => $categoria,
+            'descripcion' => $descripcion,
+            'filename' => $filename,
+            'subido' => date('d/m/Y'),
+            'activo' => true,
+        ];
+
+        file_put_contents($metaFile, json_encode($meta, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+
+        if ($isJson) {
+            $this->json(['success' => true, 'redirect' => '/documentos']);
+        } else {
+            $this->redirect('/documentos?subido=1');
+        }
+    }
+
+    private function uploadedDocs(): array
+    {
+        $metaFile = $this->storageDir . '/.meta.json';
+        if (!is_file($metaFile)) return [];
+        return json_decode(file_get_contents($metaFile), true) ?? [];
     }
 
     public function editar(): void

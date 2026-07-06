@@ -66,14 +66,18 @@
         }
     };
 
-    function initDropZone() {
+    function initUploadForm() {
+        var form = document.getElementById('uploadForm');
         var zone = document.getElementById('dropZone');
         var input = document.getElementById('archivo');
         var nameEl = document.getElementById('fileName');
         var sizeEl = document.getElementById('fileSize');
         var removeBtn = document.getElementById('removeFile');
         var errorEl = document.getElementById('fileError');
-        if (!zone || !input) return;
+        var progressContainer = document.getElementById('progressContainer');
+        var progressBar = document.getElementById('progressBar');
+        var submitBtn = document.getElementById('submitBtn');
+        if (!form || !zone || !input) return;
 
         function formatSize(bytes) {
             if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
@@ -100,7 +104,7 @@
             zone.classList.add('has-file');
             nameEl.textContent = file.name;
             sizeEl.textContent = formatSize(file.size);
-            document.getElementById('submitBtn').disabled = false;
+            submitBtn.disabled = false;
         }
 
         input.addEventListener('change', function () {
@@ -135,12 +139,59 @@
             removeBtn.addEventListener('click', function () {
                 zone.classList.remove('has-file');
                 input.value = '';
-                document.getElementById('submitBtn').disabled = false;
+                submitBtn.disabled = false;
             });
         }
+
+        form.addEventListener('submit', function (e) {
+            if (!input.files || !input.files[0]) return;
+            if (!window.XMLHttpRequest) return;
+
+            e.preventDefault();
+
+            var fd = new FormData(form);
+            var xhr = new XMLHttpRequest();
+
+            xhr.upload.addEventListener('progress', function (ev) {
+                if (!ev.lengthComputable) return;
+                var pct = Math.round((ev.loaded / ev.total) * 100);
+                progressContainer.classList.remove('d-none');
+                progressBar.style.width = pct + '%';
+                progressBar.textContent = pct + '%';
+            });
+
+            xhr.addEventListener('load', function () {
+                progressContainer.classList.add('d-none');
+                progressBar.style.width = '0%';
+                progressBar.textContent = '0%';
+
+                var res = JSON.parse(xhr.responseText);
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    if (res.redirect) {
+                        window.location.href = res.redirect;
+                    }
+                } else {
+                    errorEl.textContent = res.error || 'Error al subir el archivo.';
+                    errorEl.style.display = 'block';
+                    submitBtn.disabled = false;
+                }
+            });
+
+            xhr.addEventListener('error', function () {
+                progressContainer.classList.add('d-none');
+                errorEl.textContent = 'Error de conexi&oacute;n al subir el archivo.';
+                errorEl.style.display = 'block';
+                submitBtn.disabled = false;
+            });
+
+            submitBtn.disabled = true;
+            xhr.open('POST', form.action);
+            xhr.setRequestHeader('Accept', 'application/json');
+            xhr.send(fd);
+        });
     }
 
-    document.addEventListener('DOMContentLoaded', initDropZone);
+    document.addEventListener('DOMContentLoaded', initUploadForm);
 
     window.Elyra.copiarEnlace = function (id, btn) {
         var url = window.location.origin + '/publico/doc?id=' + id;
