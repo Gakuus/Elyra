@@ -114,7 +114,7 @@ Ver checklist completo en `docs/pendientes-backend.md` (secciones X.1–X.10 y S
 
 | # | Tarea | Depende | Archivos destino |
 |---|-------|---------|------------------|
-| F1.1 | Listado documentos (tabla responsive + cards mobile, search, filter categoría, paginación) | — | `views/documentos/index.php` |
+| F1.1 | Listado documentos (tabla responsive + cards mobile, search, filter categoría, paginación) | — | `views/documentos/index.php` | ✅ |
 | F1.2 | Subir documento (drag & drop nativo, barra progreso, form con título/categoría/descripción) | — | `views/documentos/subir.php` |
 | F1.3 | Editar documento (formulario con datos precargados) | — | `views/documentos/editar.php` |
 | F1.4 | Modal QR (QRCode.js, botón copiar link, botón imprimir) | — | `views/documentos/_modal_qr.php` |
