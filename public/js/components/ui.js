@@ -165,13 +165,12 @@
                 progressBar.style.width = '0%';
                 progressBar.textContent = '0%';
 
+                var res = JSON.parse(xhr.responseText);
                 if (xhr.status >= 200 && xhr.status < 300) {
-                    var res = JSON.parse(xhr.responseText);
                     if (res.redirect) {
                         window.location.href = res.redirect;
                     }
                 } else {
-                    var res = JSON.parse(xhr.responseText);
                     errorEl.textContent = res.error || 'Error al subir el archivo.';
                     errorEl.style.display = 'block';
                     submitBtn.disabled = false;
