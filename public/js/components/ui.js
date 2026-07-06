@@ -66,6 +66,84 @@
         }
     };
 
+    function initDropZone() {
+        var zone = document.getElementById('dropZone');
+        var input = document.getElementById('archivo');
+        var content = document.getElementById('dropContent');
+        var preview = document.getElementById('dropPreview');
+        var nameEl = document.getElementById('fileName');
+        var sizeEl = document.getElementById('fileSize');
+        var removeBtn = document.getElementById('removeFile');
+        var errorEl = document.getElementById('fileError');
+        if (!zone || !input) return;
+
+        function formatSize(bytes) {
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        function validate(file) {
+            if (!file) return 'Seleccion&aacute; un archivo PDF.';
+            if (file.type !== 'application/pdf') return 'Solo se permiten archivos PDF.';
+            if (file.size > 10 * 1024 * 1024) return 'El archivo supera los 10 MB.';
+            return '';
+        }
+
+        function showFile(file) {
+            var err = validate(file);
+            if (err) {
+                zone.classList.remove('has-file');
+                errorEl.textContent = err;
+                errorEl.style.display = 'block';
+                input.value = '';
+                return;
+            }
+            errorEl.style.display = 'none';
+            zone.classList.add('has-file');
+            nameEl.textContent = file.name;
+            sizeEl.textContent = formatSize(file.size);
+            document.getElementById('submitBtn').disabled = false;
+        }
+
+        input.addEventListener('change', function () {
+            if (this.files && this.files[0]) showFile(this.files[0]);
+        });
+
+        ['dragenter', 'dragover'].forEach(function (ev) {
+            zone.addEventListener(ev, function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                zone.classList.add('drag-over');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(function (ev) {
+            zone.addEventListener(ev, function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                zone.classList.remove('drag-over');
+            });
+        });
+
+        zone.addEventListener('drop', function (e) {
+            var files = e.dataTransfer.files;
+            if (files && files[0]) {
+                input.files = files;
+                showFile(files[0]);
+            }
+        });
+
+        if (removeBtn) {
+            removeBtn.addEventListener('click', function () {
+                zone.classList.remove('has-file');
+                input.value = '';
+                document.getElementById('submitBtn').disabled = false;
+            });
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', initDropZone);
+
     window.Elyra.copiarEnlace = function (id, btn) {
         var url = window.location.origin + '/publico/doc?id=' + id;
         if (navigator.clipboard && navigator.clipboard.writeText) {
