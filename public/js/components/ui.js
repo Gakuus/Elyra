@@ -186,7 +186,24 @@
         });
     }
 
-    document.addEventListener('DOMContentLoaded', initUploadForm);
+    function initFeedback() {
+        var btns = document.querySelectorAll('.feedback-btn');
+        if (!btns.length) return;
+        btns.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var parent = this.closest('.public-doc-feedback');
+                var msg = parent.querySelector('#feedbackMsg');
+                btns.forEach(function (b) { b.disabled = true; });
+                msg.textContent = 'Gracias por tu opini&oacute;n.';
+                msg.classList.remove('d-none');
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        initUploadForm();
+        initFeedback();
+    });
 
     window.Elyra.copiarEnlace = function (id, btn) {
         var url = window.location.origin + '/publico/doc?id=' + id;
