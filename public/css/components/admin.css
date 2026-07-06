@@ -241,6 +241,14 @@
     border-color: var(--primary) !important;
 }
 
+.resultados-header {
+    margin-bottom: 1.5rem;
+}
+
+.resultados-charts .chart-container canvas {
+    max-width: 100%;
+}
+
 @media (width <= 575.98px) {
     .action-bar .form-control,
     .action-bar .form-select {
