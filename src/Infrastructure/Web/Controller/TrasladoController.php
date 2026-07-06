@@ -162,7 +162,82 @@ class TrasladoController extends BaseController
     public function ver(): void
     {
         $this->requireAuth();
-        $this->render('traslados/ver');
+
+        $id = (int) ($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            $this->redirect('/traslados');
+            return;
+        }
+
+        $traslado = $this->findTrasladoById($id);
+        if (!$traslado) {
+            $this->redirect('/traslados');
+            return;
+        }
+
+        $timeline = $this->buildTimeline($traslado);
+
+        $this->render('traslados/ver', [
+            't' => $traslado,
+            'timeline' => $timeline,
+        ]);
+    }
+
+    private function findTrasladoById(int $id): ?array
+    {
+        $all = $this->mockTraslados();
+        foreach ($all as $t) {
+            if ($t['id'] === $id) return $t;
+        }
+        return null;
+    }
+
+    private function buildTimeline(array $traslado): array
+    {
+        $estados = ['pendiente', 'en_curso', 'en_destino', 'en_retorno', 'completado'];
+        $timeline = [];
+
+        $fechaHora = ($traslado['fecha'] ?? '') . ' ' . ($traslado['hora'] ?? '');
+        $actual = $traslado['estado'];
+
+        foreach ($estados as $e) {
+            $completado = false;
+            $activo = false;
+
+            if ($e === $actual) {
+                $completado = true;
+                $activo = true;
+            } elseif (in_array($actual, ['pendiente', 'cancelado'], true) && $e === 'pendiente') {
+                $completado = true;
+                $activo = $actual === 'pendiente';
+            } else {
+                $idxActual = array_search($actual, $estados, true);
+                $idxE = array_search($e, $estados, true);
+                if ($idxActual !== false && $idxE < $idxActual) {
+                    $completado = true;
+                } elseif ($actual === 'cancelado' && $e === 'pendiente') {
+                    $completado = true;
+                }
+            }
+
+            $timeline[] = [
+                'estado' => $e,
+                'completado' => $completado,
+                'activo' => $activo,
+                'fecha' => $completado ? $fechaHora : '',
+            ];
+        }
+
+        if ($actual === 'cancelado') {
+            $timeline[] = [
+                'estado' => 'cancelado',
+                'completado' => true,
+                'activo' => true,
+                'fecha' => $fechaHora,
+            ];
+        }
+
+        return $timeline;
     }
 
     public function actualizarEstado(): void
