@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Elyra\Infrastructure\Web\Controller;
 
+use Elyra\Infrastructure\Service\SessionManager;
+
 abstract class BaseController
 {
     protected function render(string $view, array $data = []): void
@@ -25,15 +27,10 @@ abstract class BaseController
         exit;
     }
 
-    protected function user(): ?array
-    {
-        return $_SESSION['user'] ?? null;
-    }
-
     protected function requireAuth(): void
     {
-        if ($this->user() === null) {
-            $this->redirect('/');
+        if (!SessionManager::isAuthenticated()) {
+            $this->redirect('/login');
         }
     }
 }

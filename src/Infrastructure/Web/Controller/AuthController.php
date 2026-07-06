@@ -4,33 +4,53 @@ declare(strict_types=1);
 
 namespace Elyra\Infrastructure\Web\Controller;
 
+use Elyra\Infrastructure\Persistence\MySQL\UsuarioRepository;
+use Elyra\Infrastructure\Service\AuthService;
+
 class AuthController extends BaseController
 {
+    private AuthService $authService;
+
+    public function __construct()
+    {
+        $usuarioRepo = new UsuarioRepository();
+        $this->authService = new AuthService($usuarioRepo);
+    }
+
     public function login(): void
     {
-        if (isset($_SESSION['user'])) {
+        if ($this->authService->isAuthenticated()) {
             $this->redirect('/dashboard');
         }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = $_POST['username'] ?? '';
-            $password = $_POST['password'] ?? '';
+        $error = $_SESSION['error'] ?? null;
+        unset($_SESSION['error']);
 
-            if ($username === 'admin' && $password === 'admin') {
-                $_SESSION['user'] = ['username' => $username, 'nombre' => 'Administrador'];
-                $this->redirect('/dashboard');
-            }
+        $this->render('auth/login', ['error' => $error]);
+    }
 
-            $this->render('auth/login', ['error' => 'Credenciales inválidas']);
+    public function doLogin(): void
+    {
+        $username = trim($_POST['username'] ?? '');
+        $password = $_POST['password'] ?? '';
+
+        if (empty($username) || empty($password)) {
+            $this->render('auth/login', ['error' => 'Ingrese usuario y contraseña']);
             return;
         }
 
-        $this->render('auth/login');
+        $result = $this->authService->login($username, $password);
+
+        if ($result['success']) {
+            $this->redirect('/dashboard');
+        }
+
+        $this->render('auth/login', ['error' => $result['error']]);
     }
 
     public function logout(): void
     {
-        session_destroy();
-        $this->redirect('/');
+        $this->authService->logout();
+        $this->redirect('/login');
     }
 }

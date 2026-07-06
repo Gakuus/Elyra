@@ -16,6 +16,7 @@
         <?php endif; ?>
 
         <form method="post">
+            <input type="hidden" name="_csrf_token" value="<?= \Elyra\Infrastructure\Service\SessionManager::getCsrfToken() ?>">
             <div class="login-input-group">
                 <i class="bi bi-person input-icon"></i>
                 <input type="text" id="username" name="username" class="form-control" required autocomplete="username" placeholder="Usuario" aria-label="Usuario" autofocus>

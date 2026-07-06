@@ -1,7 +1,7 @@
 -- =============================================================
 -- ELYRA — Hospital de Clínicas
 -- Esquema de Base de Datos MySQL
--- Versión: 5.0 (simplificado: 11 tablas)
+-- Versión: 6.1 (herencia normalizada: 14 tablas + relación paciente escanea QR)
 -- =============================================================
 
 CREATE DATABASE IF NOT EXISTS elyra
@@ -11,9 +11,10 @@ CREATE DATABASE IF NOT EXISTS elyra
 USE elyra;
 
 -- =============================================================
--- TABLA DE IDENTIDAD (single-table inheritance)
--- tipo = 'funcionario' → tiene username, password, licencia, rol
--- tipo = 'paciente'    → tiene token_acceso (sin autenticación)
+-- MODULO DE IDENTIDAD
+-- Herencia: USUARIO (base) → FUNCIONARIO / PACIENTE
+--   - funcionario: empleado con login (admin, superadmin, conductor)
+--   - paciente: persona que viaja en ambulancia o accede a docs vía QR
 -- =============================================================
 
 CREATE TABLE usuario (
@@ -22,15 +23,33 @@ CREATE TABLE usuario (
     nombre VARCHAR(100) NOT NULL,
     apellido VARCHAR(100) NOT NULL,
     email VARCHAR(150) UNIQUE,
+    documento_identidad VARCHAR(20) UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE funcionario (
+    id INT PRIMARY KEY,
     username VARCHAR(50) UNIQUE,
     password_hash VARCHAR(255),
-    documento_identidad VARCHAR(20) UNIQUE,
     licencia VARCHAR(50),
     telefono VARCHAR(20),
-    token_acceso VARCHAR(64) UNIQUE,
     activo BOOLEAN DEFAULT TRUE,
     rol ENUM('admin', 'superadmin', 'conductor'),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    FOREIGN KEY (id) REFERENCES usuario(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE codigo_qr (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL UNIQUE,
+    descripcion TEXT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE paciente (
+    id INT PRIMARY KEY,
+    token_acceso VARCHAR(64) UNIQUE,
+    codigo_qr_id INT NULL,
+    FOREIGN KEY (id) REFERENCES usuario(id) ON DELETE CASCADE,
+    FOREIGN KEY (codigo_qr_id) REFERENCES codigo_qr(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================================
@@ -51,7 +70,7 @@ CREATE TABLE encuesta (
     creada_por INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (creada_por) REFERENCES usuario(id) ON DELETE RESTRICT
+    FOREIGN KEY (creada_por) REFERENCES funcionario(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE pregunta (
@@ -72,7 +91,7 @@ CREATE TABLE documento (
     descripcion TEXT,
     archivo_path VARCHAR(255) NOT NULL,
     archivo_nombre VARCHAR(100) NOT NULL,
-    qr_codigo VARCHAR(64) NOT NULL UNIQUE,
+    codigo_qr_id INT NOT NULL,
     qr_path VARCHAR(255),
     categoria_id INT NOT NULL,
     encuesta_id INT NULL UNIQUE,
@@ -80,9 +99,10 @@ CREATE TABLE documento (
     activo BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (codigo_qr_id) REFERENCES codigo_qr(id) ON DELETE RESTRICT,
     FOREIGN KEY (categoria_id) REFERENCES categoria(id) ON DELETE RESTRICT,
     FOREIGN KEY (encuesta_id) REFERENCES encuesta(id) ON DELETE SET NULL,
-    FOREIGN KEY (subido_por) REFERENCES usuario(id) ON DELETE RESTRICT
+    FOREIGN KEY (subido_por) REFERENCES funcionario(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE respuesta (
@@ -122,10 +142,6 @@ CREATE TABLE ruta (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- =============================================================
--- Entidad principal
--- =============================================================
-
 CREATE TABLE traslado (
     id INT AUTO_INCREMENT PRIMARY KEY,
     codigo VARCHAR(20) NOT NULL UNIQUE,
@@ -146,19 +162,12 @@ CREATE TABLE traslado (
     observaciones TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (conductor_id) REFERENCES usuario(id) ON DELETE RESTRICT,
-    FOREIGN KEY (copiloto_id) REFERENCES usuario(id) ON DELETE SET NULL,
+    FOREIGN KEY (conductor_id) REFERENCES funcionario(id) ON DELETE RESTRICT,
+    FOREIGN KEY (copiloto_id) REFERENCES funcionario(id) ON DELETE SET NULL,
     FOREIGN KEY (vehiculo_id) REFERENCES vehiculo(id) ON DELETE SET NULL,
     FOREIGN KEY (ruta_id) REFERENCES ruta(id) ON DELETE SET NULL,
-    FOREIGN KEY (registrado_por) REFERENCES usuario(id) ON DELETE RESTRICT
+    FOREIGN KEY (registrado_por) REFERENCES funcionario(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- =============================================================
--- Tabla polimorfica de elementos trasladados
--- tipo discrimina: paciente / organo / equipamiento / insumo
--- paciente_id solo se usa cuando tipo = 'paciente'
--- descripcion se usa para organo, equipamiento e insumo
--- =============================================================
 
 CREATE TABLE elemento_traslado (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -169,12 +178,8 @@ CREATE TABLE elemento_traslado (
     cantidad INT NOT NULL DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (traslado_id) REFERENCES traslado(id) ON DELETE CASCADE,
-    FOREIGN KEY (paciente_id) REFERENCES usuario(id) ON DELETE SET NULL
+    FOREIGN KEY (paciente_id) REFERENCES paciente(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- =============================================================
--- Trazabilidad
--- =============================================================
 
 CREATE TABLE historial_estado (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -185,17 +190,23 @@ CREATE TABLE historial_estado (
     actualizado_por INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (traslado_id) REFERENCES traslado(id) ON DELETE CASCADE,
-    FOREIGN KEY (actualizado_por) REFERENCES usuario(id) ON DELETE RESTRICT
+    FOREIGN KEY (actualizado_por) REFERENCES funcionario(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================================
 -- INDICES
 -- =============================================================
 
+-- Identidad
+CREATE INDEX idx_funcionario_rol ON funcionario(rol);
+CREATE INDEX idx_funcionario_activo ON funcionario(activo);
+CREATE INDEX idx_funcionario_username ON funcionario(username);
+CREATE INDEX idx_paciente_qr ON paciente(codigo_qr_id);
+
 -- Documentacion
 CREATE INDEX idx_documento_categoria ON documento(categoria_id);
 CREATE INDEX idx_documento_activo ON documento(activo);
-CREATE INDEX idx_documento_qr ON documento(qr_codigo);
+CREATE INDEX idx_documento_qr ON documento(codigo_qr_id);
 CREATE INDEX idx_encuesta_activa ON encuesta(activa);
 CREATE INDEX idx_encuesta_creada_por ON encuesta(creada_por);
 CREATE INDEX idx_pregunta_encuesta ON pregunta(encuesta_id);
