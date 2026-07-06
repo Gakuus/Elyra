@@ -30,6 +30,7 @@ $breadcrumbs = [
     '/encuestas' => ['Encuestas', '/dashboard'],
     '/encuestas/crear' => ['Crear encuesta', '/encuestas'],
     '/encuestas/resultados' => ['Resultados', '/encuestas'],
+    '/encuestas/editar' => ['Editar encuesta', '/encuestas'],
     '/traslados' => ['Traslados', '/dashboard'],
     '/traslados/nuevo' => ['Nuevo traslado', '/traslados'],
     '/traslados/ver' => ['Detalle traslado', '/traslados'],

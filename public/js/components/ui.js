@@ -203,6 +203,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         initUploadForm();
         initFeedback();
+        initEncuestaToggles();
     });
 
     window.Elyra.copiarEnlace = function (id, btn) {
@@ -229,6 +230,46 @@
             window.Elyra.toast('Enlace copiado al portapapeles');
         }
     };
+
+    window.Elyra.copiarEnlaceEncuesta = function (id, btn) {
+        var url = window.location.origin + '/publico/encuesta?id=' + id;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(function () {
+                var original = btn.innerHTML;
+                btn.innerHTML = '<i class="bi bi-check me-1"></i>Copiado';
+                btn.classList.remove('btn-outline-secondary');
+                btn.classList.add('btn-outline-success');
+                setTimeout(function () {
+                    btn.innerHTML = original;
+                    btn.classList.remove('btn-outline-success');
+                    btn.classList.add('btn-outline-secondary');
+                }, 2000);
+            });
+        } else {
+            var textarea = document.createElement('textarea');
+            textarea.value = url;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            window.Elyra.toast('Enlace copiado al portapapeles');
+        }
+    };
+
+    function initEncuestaToggles() {
+        var toggles = document.querySelectorAll('[data-encuesta-id]');
+        toggles.forEach(function (t) {
+            t.addEventListener('change', function () {
+                var label = this.nextElementSibling;
+                if (this.checked) {
+                    label.textContent = 'Activa';
+                    this.closest('tr').querySelector('.bg-success') || this.closest('.card-item').querySelector('.bg-success');
+                } else {
+                    label.textContent = 'Inactiva';
+                }
+            });
+        });
+    }
 
     var theme = (function () {
         var stored = localStorage.getItem('elyra-theme');
