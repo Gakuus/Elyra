@@ -49,15 +49,15 @@
         body.innerHTML = '<div class="mb-3"><div id="qrcode"></div></div><p class="small text-muted mb-2">Escanear para ver el documento</p><button class="btn btn-sm btn-outline-primary me-1" onclick="Elyra.copiarEnlace(' + id + ', this)"><i class="bi bi-clipboard me-1"></i>Copiar enlace</button><button class="btn btn-sm btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer me-1"></i>Imprimir</button>';
         var bsModal = new bootstrap.Modal(modal);
         bsModal.show();
-        if (typeof QRCode !== 'undefined') {
+        if (typeof window.QRCode !== 'undefined') {
             document.getElementById('qrcode').innerHTML = '';
-            new QRCode(document.getElementById('qrcode'), { text: window.location.origin + '/publico/doc?id=' + id, width: 180, height: 180 });
+            new window.QRCode(document.getElementById('qrcode'), { text: window.location.origin + '/publico/doc?id=' + id, width: 180, height: 180 });
         } else {
             var script = document.createElement('script');
             script.src = 'https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js';
             script.onload = function () {
                 document.getElementById('qrcode').innerHTML = '';
-                new QRCode(document.getElementById('qrcode'), { text: window.location.origin + '/publico/doc?id=' + id, width: 180, height: 180 });
+                new window.QRCode(document.getElementById('qrcode'), { text: window.location.origin + '/publico/doc?id=' + id, width: 180, height: 180 });
             };
             script.onerror = function () {
                 body.innerHTML = '<p class="text-muted small">No se pudo cargar el generador QR</p>' + body.innerHTML;
@@ -69,8 +69,6 @@
     function initDropZone() {
         var zone = document.getElementById('dropZone');
         var input = document.getElementById('archivo');
-        var content = document.getElementById('dropContent');
-        var preview = document.getElementById('dropPreview');
         var nameEl = document.getElementById('fileName');
         var sizeEl = document.getElementById('fileSize');
         var removeBtn = document.getElementById('removeFile');
@@ -165,7 +163,7 @@
             textarea.select();
             document.execCommand('copy');
             document.body.removeChild(textarea);
-            Elyra.toast('Enlace copiado al portapapeles');
+            window.Elyra.toast('Enlace copiado al portapapeles');
         }
     };
 
