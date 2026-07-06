@@ -18,6 +18,10 @@ if (file_exists($envFile)) {
 
 session_start();
 
+if (empty($_SESSION['_csrf_token'])) {
+    $_SESSION['_csrf_token'] = bin2hex(random_bytes(32));
+}
+
 error_reporting($_ENV['APP_DEBUG'] ?? false ? E_ALL : 0);
 ini_set('display_errors', $_ENV['APP_DEBUG'] ?? false ? '1' : '0');
 
@@ -70,5 +74,5 @@ if (isset($routes[$uri])) {
     $controller->$method();
 } else {
     http_response_code(404);
-    echo "404 - Página no encontrada";
+    require __DIR__ . '/../views/errors/404.php';
 }

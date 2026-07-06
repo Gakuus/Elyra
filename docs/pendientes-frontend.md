@@ -136,12 +136,13 @@ Pendiente → En curso → En destino → En retorno → Completado
 
 | # | Tarea | Prioridad |
 |---|-------|-----------|
-| 1 | **Página 404 personalizada** (acorde al diseño) | Must |
-| 2 | Sistema de notificaciones toast (copiar link, operaciones exitosas) | Should |
-| 3 | Breadcrumbs en todas las páginas internas | Should |
-| 4 | Unificar modales: confirmación (small), formulario (medium), QR (medium) | Should |
-| 5 | Responsive: probar todas las vistas en mobile (<576px), tablet, desktop | Must |
-| 6 | Accesibilidad: contraste 4.5:1, navegación teclado, aria-labels en inputs sin label visible | Should |
+| 1 | **Página 404 personalizada** (acorde al diseño) | [x] |
+| 2 | Sistema de notificaciones toast (copiar link, operaciones exitosas) | [x] |
+| 3 | Breadcrumbs en todas las páginas internas | [x] |
+| 4 | CSRF token en fetch() (helper JS con header X-CSRF-Token) | [x] |
+| 5 | Unificar modales: confirmación (small), formulario (medium), QR (medium) | Should |
+| 6 | Responsive: probar todas las vistas en mobile (<576px), tablet, desktop | Must |
+| 7 | Accesibilidad: contraste 4.5:1, navegación teclado, aria-labels en inputs sin label visible | Should |
 
 ---
 
