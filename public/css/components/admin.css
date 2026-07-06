@@ -1,0 +1,51 @@
+.main-content {
+    min-height: calc(100vh - 56px);
+    padding: 1.5rem;
+    background: var(--page-bg);
+}
+
+.footer {
+    padding: 0.75rem 1.5rem;
+    background: var(--white);
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.action-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+
+.action-bar .form-control,
+.action-bar .form-select {
+    width: auto;
+    min-width: 200px;
+}
+
+.breadcrumb-custom {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.breadcrumb-custom a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.breadcrumb-custom a:hover {
+    text-decoration: underline;
+}
+
+@media (width <= 575.98px) {
+    .action-bar .form-control,
+    .action-bar .form-select {
+        width: 100%;
+        min-width: unset;
+    }
+}

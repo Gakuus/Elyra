@@ -1,0 +1,117 @@
+.badge-estado {
+    font-size: 0.8rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.badge-pendiente {
+    background: var(--warning-bg);
+    color: #856404;
+}
+
+.badge-en-curso {
+    background: var(--info-bg);
+    color: #055160;
+}
+
+.badge-en-destino {
+    background: var(--primary-light);
+    color: #084298;
+}
+
+.badge-en-retorno {
+    background: var(--primary-light);
+    color: #084298;
+}
+
+.badge-completado {
+    background: var(--success-bg);
+    color: #0f5132;
+}
+
+.badge-cancelado {
+    background: var(--danger-bg);
+    color: #842029;
+}
+
+.badge-activa {
+    background: var(--success-bg);
+    color: #0f5132;
+}
+
+.badge-inactiva {
+    background: #e9ecef;
+    color: #495057;
+}
+
+.table-elyra {
+    background: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 8%);
+}
+
+.table-elyra thead th {
+    background: #f8f9fa;
+    border-bottom: 2px solid var(--border);
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0.75rem 1rem;
+}
+
+.table-elyra tbody tr {
+    transition: background 0.15s;
+}
+
+.table-elyra tbody td {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+    font-size: 0.9rem;
+}
+
+.table-elyra tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.card-list-view {
+    display: none;
+}
+
+.card-item {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.card-item-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+}
+
+.card-item-meta {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.card-item-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+@media (width <= 575.98px) {
+    .table-elyra {
+        display: none;
+    }
+
+    .card-list-view {
+        display: block;
+    }
+}

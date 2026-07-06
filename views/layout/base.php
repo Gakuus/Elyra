@@ -7,6 +7,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="/css/elyra.css" rel="stylesheet">
+    <link href="/css/components/login.css" rel="stylesheet">
+    <link href="/css/components/admin.css" rel="stylesheet">
+    <link href="/css/components/tables.css" rel="stylesheet">
+    <link href="/css/components/stats.css" rel="stylesheet">
 </head>
 <body>
 
@@ -85,5 +89,6 @@
 <?php endif; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/elyra.js" defer></script>
 </body>
 </html>
