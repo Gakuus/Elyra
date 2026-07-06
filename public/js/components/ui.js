@@ -231,6 +231,10 @@
         }
     };
 
+    window.Elyra.actualizarEstado = function (id, estadoActual) {
+        window.location.href = '/traslados/actualizar-estado?id=' + id + '&estado=' + estadoActual;
+    };
+
     window.Elyra.copiarEnlaceEncuesta = function (id, btn) {
         var url = window.location.origin + '/publico/encuesta?id=' + id;
         if (navigator.clipboard && navigator.clipboard.writeText) {
