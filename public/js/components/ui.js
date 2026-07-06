@@ -36,28 +36,21 @@
 
     window.Elyra.verQR = function (id) {
         var modal = document.getElementById('qrModal');
-        if (!modal) {
-            modal = document.createElement('div');
-            modal.id = 'qrModal';
-            modal.className = 'modal fade';
-            modal.setAttribute('tabindex', '-1');
-            modal.setAttribute('aria-hidden', 'true');
-            modal.innerHTML = '<div class="modal-dialog modal-sm modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h6 class="modal-title">C&oacute;digo QR</h6><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div><div class="modal-body text-center" id="qrModalBody"><p class="text-muted small mb-0">Cargando...</p></div></div></div>';
-            document.body.appendChild(modal);
-        }
+        if (!modal) return;
         var body = document.getElementById('qrModalBody');
+        var url = window.location.origin + '/publico/doc?id=' + id;
         body.innerHTML = '<div class="mb-3"><div id="qrcode"></div></div><p class="small text-muted mb-2">Escanear para ver el documento</p><button class="btn btn-sm btn-outline-primary me-1" onclick="Elyra.copiarEnlace(' + id + ', this)"><i class="bi bi-clipboard me-1"></i>Copiar enlace</button><button class="btn btn-sm btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer me-1"></i>Imprimir</button>';
         var bsModal = new bootstrap.Modal(modal);
         bsModal.show();
         if (typeof window.QRCode !== 'undefined') {
             document.getElementById('qrcode').innerHTML = '';
-            new window.QRCode(document.getElementById('qrcode'), { text: window.location.origin + '/publico/doc?id=' + id, width: 180, height: 180 });
+            new window.QRCode(document.getElementById('qrcode'), { text: url, width: 180, height: 180 });
         } else {
             var script = document.createElement('script');
             script.src = 'https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js';
             script.onload = function () {
                 document.getElementById('qrcode').innerHTML = '';
-                new window.QRCode(document.getElementById('qrcode'), { text: window.location.origin + '/publico/doc?id=' + id, width: 180, height: 180 });
+                new window.QRCode(document.getElementById('qrcode'), { text: url, width: 180, height: 180 });
             };
             script.onerror = function () {
                 body.innerHTML = '<p class="text-muted small">No se pudo cargar el generador QR</p>' + body.innerHTML;

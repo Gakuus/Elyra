@@ -116,6 +116,7 @@ function renderBreadcrumbs(string $uri, array $map): void {
     <?= $contenido ?? '' ?>
 </main>
 
+    <?php require __DIR__ . '/../documentos/_modal_qr.php'; ?>
     <div class="toast-container"></div>
 
     <footer class="footer">
