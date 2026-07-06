@@ -11,3 +11,4 @@
 # Storage content (not structure)
 /storage/uploads/
 /storage/encuestas/
+storage/rate-limit/

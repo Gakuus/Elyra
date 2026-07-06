@@ -7,8 +7,8 @@
     </a>
     <form method="get" class="d-flex gap-2 flex-wrap" id="filterForm">
         <select name="categoria" class="form-select" onchange="this.form.submit()">
-            <option value="">Todas las categor&iacute;as</option>
-            <?php foreach ($categorias as $cat): ?>
+            <option value="">Todos los tipos</option>
+            <?php foreach ($tiposDocumento as $cat): ?>
                 <option value="<?= $cat['id'] ?>"<?= $categoriaFiltro == $cat['id'] ? ' selected' : '' ?>>
                     <?= $cat['nombre'] ?>
                 </option>
@@ -63,7 +63,12 @@
                             <span class="badge bg-secondary ms-2">Inactivo</span>
                         <?php endif; ?>
                     </td>
-                    <td><span class="badge bg-primary bg-opacity-10 text-primary"><?= htmlspecialchars($doc['categoria']) ?></span></td>
+                    <td>
+                        <?php if ($doc['especialidad']): ?>
+                            <span class="badge bg-info bg-opacity-10 text-info me-1"><?= htmlspecialchars($doc['especialidad']) ?></span>
+                        <?php endif; ?>
+                        <span class="badge bg-primary bg-opacity-10 text-primary"><?= htmlspecialchars($doc['categoria']) ?></span>
+                    </td>
                     <td class="text-muted small"><?= htmlspecialchars($doc['subido']) ?></td>
                     <td>
                         <div class="d-flex gap-1">
@@ -92,6 +97,9 @@
         <div class="card-item">
             <div class="card-item-title"><?= htmlspecialchars($doc['titulo']) ?></div>
             <div class="card-item-meta">
+                <?php if ($doc['especialidad']): ?>
+                    <span class="badge bg-info bg-opacity-10 text-info me-1"><?= htmlspecialchars($doc['especialidad']) ?></span>
+                <?php endif; ?>
                 <span class="badge bg-primary bg-opacity-10 text-primary me-2"><?= htmlspecialchars($doc['categoria']) ?></span>
                 <?= htmlspecialchars($doc['subido']) ?>
                 <?php if (!$doc['activo']): ?>

@@ -16,9 +16,13 @@ class DocumentoRepository implements DocumentoRepositoryInterface
         $this->pdo = Connection::get();
     }
 
+    private const JOIN_CATEGORIA = ' JOIN categoria c ON c.id = d.categoria_id';
+    private const JOIN_ESPECIALIDAD = ' LEFT JOIN categoria e ON e.id = d.especialidad_id';
+    private const SELECT_COLS = 'd.*, c.nombre as categoria_nombre, e.nombre as especialidad_nombre';
+
     public function findById(int $id): ?Documento
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM documento WHERE id = ?");
+        $stmt = $this->pdo->prepare("SELECT " . self::SELECT_COLS . " FROM documento d" . self::JOIN_CATEGORIA . self::JOIN_ESPECIALIDAD . " WHERE d.id = ?");
         $stmt->execute([$id]);
         $row = $stmt->fetch();
 
@@ -29,7 +33,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
 
     public function findByCodigoQr(int $codigoQrId): ?Documento
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM documento WHERE codigo_qr_id = ?");
+        $stmt = $this->pdo->prepare("SELECT " . self::SELECT_COLS . " FROM documento d" . self::JOIN_CATEGORIA . self::JOIN_ESPECIALIDAD . " WHERE d.codigo_qr_id = ?");
         $stmt->execute([$codigoQrId]);
         $row = $stmt->fetch();
 
@@ -40,7 +44,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
 
     public function findByEncuesta(int $encuestaId): ?Documento
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM documento WHERE encuesta_id = ?");
+        $stmt = $this->pdo->prepare("SELECT " . self::SELECT_COLS . " FROM documento d" . self::JOIN_CATEGORIA . self::JOIN_ESPECIALIDAD . " WHERE d.encuesta_id = ?");
         $stmt->execute([$encuestaId]);
         $row = $stmt->fetch();
 
@@ -51,7 +55,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
 
     public function findAll(?int $categoriaId = null, ?string $busqueda = null, int $page = 1, int $perPage = 20): array
     {
-        $sql = "SELECT d.*, c.nombre as categoria_nombre FROM documento d JOIN categoria c ON c.id = d.categoria_id WHERE 1=1";
+        $sql = "SELECT " . self::SELECT_COLS . " FROM documento d" . self::JOIN_CATEGORIA . self::JOIN_ESPECIALIDAD . " WHERE 1=1";
         $params = [];
 
         if ($categoriaId !== null) {
@@ -73,11 +77,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
         $stmt->execute($params);
         $rows = $stmt->fetchAll();
 
-        $result = [];
-        foreach ($rows as $row) {
-            $result[] = $this->hydrate($row);
-        }
-        return $result;
+        return array_map(fn (array $row) => $this->hydrate($row), $rows);
     }
 
     public function count(?int $categoriaId = null, ?string $busqueda = null): int
@@ -116,8 +116,8 @@ class DocumentoRepository implements DocumentoRepositoryInterface
     public function save(Documento $documento): Documento
     {
         $stmt = $this->pdo->prepare("
-            INSERT INTO documento (titulo, descripcion, archivo_path, archivo_nombre, codigo_qr_id, qr_path, categoria_id, encuesta_id, subido_por, activo)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO documento (titulo, descripcion, archivo_path, archivo_nombre, codigo_qr_id, qr_path, categoria_id, especialidad_id, encuesta_id, subido_por, activo)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         $stmt->execute([
             $documento->getTitulo(),
@@ -127,6 +127,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
             $documento->getCodigoQrId(),
             $documento->getQrPath(),
             $documento->getCategoriaId(),
+            $documento->getEspecialidadId(),
             $documento->getEncuestaId(),
             $documento->getSubidoPor(),
             $documento->isActivo() ? 1 : 0,
@@ -138,13 +139,14 @@ class DocumentoRepository implements DocumentoRepositoryInterface
     public function update(Documento $documento): void
     {
         $stmt = $this->pdo->prepare("
-            UPDATE documento SET titulo = ?, descripcion = ?, categoria_id = ?, activo = ?
+            UPDATE documento SET titulo = ?, descripcion = ?, categoria_id = ?, especialidad_id = ?, activo = ?
             WHERE id = ?
         ");
         $stmt->execute([
             $documento->getTitulo(),
             $documento->getDescripcion(),
             $documento->getCategoriaId(),
+            $documento->getEspecialidadId(),
             $documento->isActivo() ? 1 : 0,
             $documento->getId(),
         ]);
@@ -163,15 +165,18 @@ class DocumentoRepository implements DocumentoRepositoryInterface
             titulo: $row['titulo'],
             archivoPath: $row['archivo_path'],
             archivoNombre: $row['archivo_nombre'],
-            codigoQrId: (int) $row['codigo_qr_id'],
+            codigoQrId: $row['codigo_qr_id'] !== null ? (int) $row['codigo_qr_id'] : null,
             categoriaId: (int) $row['categoria_id'],
             subidoPor: (int) $row['subido_por'],
             descripcion: $row['descripcion'],
             qrPath: $row['qr_path'],
+            especialidadId: $row['especialidad_id'] !== null ? (int) $row['especialidad_id'] : null,
             encuestaId: $row['encuesta_id'] !== null ? (int) $row['encuesta_id'] : null,
             activo: (bool) $row['activo'],
             createdAt: $row['created_at'],
-            updatedAt: $row['updated_at']
+            updatedAt: $row['updated_at'],
+            categoriaNombre: $row['categoria_nombre'] ?? null,
+            especialidadNombre: $row['especialidad_nombre'] ?? null
         );
     }
 }

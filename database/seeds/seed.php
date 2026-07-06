@@ -42,8 +42,32 @@ if (!$stmt->fetch()) {
     echo "  - Admin ya existe\n";
 }
 
-// Categories
-$categorias = [
+// Categories — especialidades
+$especialidades = [
+    ['Cardiología', 'Documentos del área de cardiología'],
+    ['Cirugía', 'Documentos del área de cirugía'],
+    ['Enfermería', 'Documentos del área de enfermería'],
+    ['Ginecología', 'Documentos del área de ginecología'],
+    ['Imagenología', 'Documentos del área de imagenología'],
+    ['Infectología', 'Documentos del área de infectología'],
+    ['Nefrología', 'Documentos del área de nefrología'],
+    ['Nutrición', 'Documentos del área de nutrición'],
+];
+
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM categoria WHERE tipo = 'especialidad'");
+$stmt->execute();
+if ((int) $stmt->fetchColumn() === 0) {
+    $insert = $pdo->prepare("INSERT INTO categoria (nombre, descripcion, tipo) VALUES (?, ?, 'especialidad')");
+    foreach ($especialidades as [$nombre, $desc]) {
+        $insert->execute([$nombre, $desc]);
+        echo "  ✓ Especialidad '{$nombre}' creada\n";
+    }
+} else {
+    echo "  - Especialidades ya existen\n";
+}
+
+// Categories — tipos de documento
+$tiposDocumento = [
     ['Protocolos', 'Protocolos médicos y procedimientos'],
     ['Formularios', 'Formularios administrativos'],
     ['Informes', 'Informes y reportes'],
@@ -52,18 +76,16 @@ $categorias = [
     ['Otros', 'Otros documentos'],
 ];
 
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM categoria");
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM categoria WHERE tipo = 'tipo_documento'");
 $stmt->execute();
-$count = (int) $stmt->fetchColumn();
-
-if ($count === 0) {
-    $insert = $pdo->prepare("INSERT INTO categoria (nombre, descripcion) VALUES (?, ?)");
-    foreach ($categorias as [$nombre, $desc]) {
+if ((int) $stmt->fetchColumn() === 0) {
+    $insert = $pdo->prepare("INSERT INTO categoria (nombre, descripcion, tipo) VALUES (?, ?, 'tipo_documento')");
+    foreach ($tiposDocumento as [$nombre, $desc]) {
         $insert->execute([$nombre, $desc]);
-        echo "  ✓ Categoría '{$nombre}' creada\n";
+        echo "  ✓ Tipo '{$nombre}' creado\n";
     }
 } else {
-    echo "  - Categorías ya existen ({$count} encontradas)\n";
+    echo "  - Tipos de documento ya existen\n";
 }
 
 // Basic routes
