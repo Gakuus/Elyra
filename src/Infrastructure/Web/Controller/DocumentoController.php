@@ -193,13 +193,118 @@ class DocumentoController extends BaseController
     public function editar(): void
     {
         $this->requireAuth();
-        $this->render('documentos/editar');
+
+        $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
+        if ($id <= 0) {
+            $this->redirect('/documentos');
+            return;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->handleEdit($id);
+            return;
+        }
+
+        $doc = $this->findDocById($id);
+        if (!$doc) {
+            $this->render('documentos/editar', ['error' => 'Documento no encontrado.', 'doc' => ['id' => 0, 'titulo' => '', 'categoria' => '', 'descripcion' => '', 'filename' => '', 'subido' => ''], 'categorias' => $this->categorias]);
+            return;
+        }
+
+        $this->render('documentos/editar', [
+            'doc' => $doc,
+            'categorias' => $this->categorias,
+        ]);
     }
 
     public function eliminar(): void
     {
         $this->requireAuth();
         $this->redirect('/documentos');
+    }
+
+    private function handleEdit(int $id): void
+    {
+        $isJson = str_starts_with($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
+
+        $csrf = trim($_POST['_csrf_token'] ?? '');
+        if ($csrf !== ($_SESSION['_csrf_token'] ?? '')) {
+            $msg = 'Sesi&oacute;n inv&aacute;lida. Recarg&aacute; e intent&aacute; de nuevo.';
+            if ($isJson) { $this->json(['error' => $msg], 403); return; }
+            $this->render('documentos/editar', ['error' => $msg, 'doc' => $this->docFallback($id), 'categorias' => $this->categorias]);
+            return;
+        }
+
+        $titulo = trim($_POST['titulo'] ?? '');
+        $categoria = trim($_POST['categoria'] ?? '');
+        $descripcion = trim($_POST['descripcion'] ?? '');
+
+        if (strlen($titulo) < 3 || strlen($titulo) > 200) {
+            $msg = 'El t&iacute;tulo debe tener entre 3 y 200 caracteres.';
+            if ($isJson) { $this->json(['error' => $msg], 422); return; }
+            $this->render('documentos/editar', ['error' => $msg, 'doc' => $this->docFallback($id), 'categorias' => $this->categorias]);
+            return;
+        }
+
+        if (strlen($descripcion) > 500) {
+            $msg = 'La descripci&oacute;n no puede superar los 500 caracteres.';
+            if ($isJson) { $this->json(['error' => $msg], 422); return; }
+            $this->render('documentos/editar', ['error' => $msg, 'doc' => $this->docFallback($id), 'categorias' => $this->categorias]);
+            return;
+        }
+
+        $valida = false;
+        foreach ($this->categorias as $cat) {
+            if ($cat['nombre'] === $categoria) { $valida = true; break; }
+        }
+        if (!$valida) {
+            $msg = 'Seleccion&aacute; una categor&iacute;a v&aacute;lida.';
+            if ($isJson) { $this->json(['error' => $msg], 422); return; }
+            $this->render('documentos/editar', ['error' => $msg, 'doc' => $this->docFallback($id), 'categorias' => $this->categorias]);
+            return;
+        }
+
+        $metaFile = $this->storageDir . '/.meta.json';
+        $meta = [];
+        $updated = false;
+
+        if (is_file($metaFile)) {
+            $meta = json_decode(file_get_contents($metaFile), true) ?? [];
+            foreach ($meta as &$m) {
+                if ($m['id'] === $id) {
+                    $m['titulo'] = $titulo;
+                    $m['categoria'] = $categoria;
+                    $m['descripcion'] = $descripcion;
+                    $updated = true;
+                    break;
+                }
+            }
+            unset($m);
+        }
+
+        if ($updated) {
+            file_put_contents($metaFile, json_encode($meta, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+        }
+
+        if ($isJson) {
+            $this->json(['success' => true, 'redirect' => '/documentos']);
+        } else {
+            $this->redirect('/documentos?editado=1');
+        }
+    }
+
+    private function findDocById(int $id): ?array
+    {
+        $all = array_merge($this->mockDocumentos(), $this->uploadedDocs());
+        foreach ($all as $d) {
+            if ($d['id'] === $id) return $d;
+        }
+        return null;
+    }
+
+    private function docFallback(int $id): array
+    {
+        return ['id' => $id, 'titulo' => '', 'categoria' => '', 'descripcion' => '', 'filename' => '', 'subido' => ''];
     }
 
     public function ver(): void

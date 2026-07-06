@@ -5,3 +5,4 @@
 *.log
 /.phpunit.result.cache
 *.pdf
+/composer.lock
