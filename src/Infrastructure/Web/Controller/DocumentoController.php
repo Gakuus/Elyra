@@ -29,7 +29,7 @@ class DocumentoController extends BaseController
         $this->requireAuth();
 
         $search = trim($_GET['q'] ?? '');
-        $categoriaId = $_GET['categoria'] !== '' ? (int) ($_GET['categoria'] ?? 0) : null;
+        $categoriaId = isset($_GET['categoria']) && $_GET['categoria'] !== '' ? (int) $_GET['categoria'] : null;
         $page = max(1, (int) ($_GET['pagina'] ?? 1));
         $perPage = 5;
 
@@ -65,7 +65,7 @@ class DocumentoController extends BaseController
 
     private function handleUpload(): void
     {
-        $isJson = str_starts_with($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
+        $isJson = str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
 
         $v = new Validator();
         $v->required('titulo', $_POST['titulo'] ?? '', 'Título')
@@ -122,7 +122,7 @@ class DocumentoController extends BaseController
             titulo: Validator::sanitize($_POST['titulo']),
             archivoPath: $destPath,
             archivoNombre: $filename,
-            codigoQrId: 0,
+            codigoQrId: null,
             categoriaId: $categoriaId,
             subidoPor: SessionManager::getUserId() ?? 0,
             descripcion: Validator::sanitize($_POST['descripcion'] ?? ''),
@@ -167,7 +167,7 @@ class DocumentoController extends BaseController
 
     private function handleEdit(int $id): void
     {
-        $isJson = str_starts_with($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
+        $isJson = str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
 
         $v = new Validator();
         $v->required('titulo', $_POST['titulo'] ?? '', 'Título')
@@ -248,13 +248,12 @@ class DocumentoController extends BaseController
 
     private function docToArray(Documento $d): array
     {
-        $cat = $this->categoriaRepo->findById($d->getCategoriaId());
         $created = $d->getCreatedAt();
 
         return [
             'id' => $d->getId(),
             'titulo' => $d->getTitulo(),
-            'categoria' => $cat?->getNombre() ?? '',
+            'categoria' => $d->getCategoriaNombre() ?? '',
             'categoria_id' => $d->getCategoriaId(),
             'descripcion' => $d->getDescripcion() ?? '',
             'filename' => $d->getArchivoNombre(),

@@ -18,7 +18,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
 
     public function findById(int $id): ?Documento
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM documento WHERE id = ?");
+        $stmt = $this->pdo->prepare("SELECT d.*, c.nombre as categoria_nombre FROM documento d JOIN categoria c ON c.id = d.categoria_id WHERE d.id = ?");
         $stmt->execute([$id]);
         $row = $stmt->fetch();
 
@@ -29,7 +29,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
 
     public function findByCodigoQr(int $codigoQrId): ?Documento
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM documento WHERE codigo_qr_id = ?");
+        $stmt = $this->pdo->prepare("SELECT d.*, c.nombre as categoria_nombre FROM documento d JOIN categoria c ON c.id = d.categoria_id WHERE d.codigo_qr_id = ?");
         $stmt->execute([$codigoQrId]);
         $row = $stmt->fetch();
 
@@ -40,7 +40,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
 
     public function findByEncuesta(int $encuestaId): ?Documento
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM documento WHERE encuesta_id = ?");
+        $stmt = $this->pdo->prepare("SELECT d.*, c.nombre as categoria_nombre FROM documento d JOIN categoria c ON c.id = d.categoria_id WHERE d.encuesta_id = ?");
         $stmt->execute([$encuestaId]);
         $row = $stmt->fetch();
 
@@ -163,7 +163,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
             titulo: $row['titulo'],
             archivoPath: $row['archivo_path'],
             archivoNombre: $row['archivo_nombre'],
-            codigoQrId: (int) $row['codigo_qr_id'],
+            codigoQrId: $row['codigo_qr_id'] !== null ? (int) $row['codigo_qr_id'] : null,
             categoriaId: (int) $row['categoria_id'],
             subidoPor: (int) $row['subido_por'],
             descripcion: $row['descripcion'],
@@ -171,7 +171,8 @@ class DocumentoRepository implements DocumentoRepositoryInterface
             encuestaId: $row['encuesta_id'] !== null ? (int) $row['encuesta_id'] : null,
             activo: (bool) $row['activo'],
             createdAt: $row['created_at'],
-            updatedAt: $row['updated_at']
+            updatedAt: $row['updated_at'],
+            categoriaNombre: $row['categoria_nombre'] ?? null
         );
     }
 }

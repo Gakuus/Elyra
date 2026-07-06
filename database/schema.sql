@@ -91,7 +91,7 @@ CREATE TABLE documento (
     descripcion TEXT,
     archivo_path VARCHAR(255) NOT NULL,
     archivo_nombre VARCHAR(100) NOT NULL,
-    codigo_qr_id INT NOT NULL,
+    codigo_qr_id INT NULL,
     qr_path VARCHAR(255),
     categoria_id INT NOT NULL,
     encuesta_id INT NULL UNIQUE,
@@ -99,7 +99,7 @@ CREATE TABLE documento (
     activo BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (codigo_qr_id) REFERENCES codigo_qr(id) ON DELETE RESTRICT,
+    FOREIGN KEY (codigo_qr_id) REFERENCES codigo_qr(id) ON DELETE SET NULL,
     FOREIGN KEY (categoria_id) REFERENCES categoria(id) ON DELETE RESTRICT,
     FOREIGN KEY (encuesta_id) REFERENCES encuesta(id) ON DELETE SET NULL,
     FOREIGN KEY (subido_por) REFERENCES funcionario(id) ON DELETE RESTRICT
