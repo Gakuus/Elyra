@@ -11,12 +11,46 @@
     <link href="/css/components/admin.css" rel="stylesheet">
     <link href="/css/components/tables.css" rel="stylesheet">
     <link href="/css/components/stats.css" rel="stylesheet">
+    <meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['_csrf_token'] ?? '') ?>">
 </head>
 <body>
 
 <?php if (isset($_SESSION['user'])): ?>
 
-<?php $currentUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH); ?>
+<?php
+$currentUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+$breadcrumbs = [
+    '/dashboard' => ['Inicio', null],
+    '/documentos' => ['Documentación', '/dashboard'],
+    '/documentos/subir' => ['Subir documento', '/documentos'],
+    '/documentos/editar' => ['Editar documento', '/documentos'],
+    '/documentos/ver' => ['Detalle', '/documentos'],
+    '/encuestas' => ['Encuestas', '/dashboard'],
+    '/encuestas/crear' => ['Crear encuesta', '/encuestas'],
+    '/encuestas/resultados' => ['Resultados', '/encuestas'],
+    '/traslados' => ['Traslados', '/dashboard'],
+    '/traslados/nuevo' => ['Nuevo traslado', '/traslados'],
+    '/traslados/ver' => ['Detalle traslado', '/traslados'],
+    '/traslados/historial' => ['Historial', '/traslados'],
+    '/conductores' => ['Conductores', '/dashboard'],
+    '/conductores/crear' => ['Crear conductor', '/conductores'],
+    '/rutas' => ['Rutas', '/dashboard'],
+    '/rutas/crear' => ['Crear ruta', '/rutas'],
+];
+
+function renderBreadcrumbs(string $uri, array $map): void {
+    if (!isset($map[$uri])) return;
+    [$label, $parent] = $map[$uri];
+    echo '<nav aria-label="breadcrumb" class="breadcrumb-custom">';
+    echo '<ol class="breadcrumb mb-0">';
+    if ($parent) {
+        echo '<li class="breadcrumb-item"><a href="' . $parent . '">' . $map[$parent][0] . '</a></li>';
+    }
+    echo '<li class="breadcrumb-item active" aria-current="page">' . $label . '</li>';
+    echo '</ol></nav>';
+}
+?>
 
 <nav class="navbar navbar-expand-lg navbar-dark" style="background: var(--navbar-bg); transition: background 0.3s;">
     <div class="container-fluid px-4">
@@ -76,12 +110,17 @@
 </nav>
 
 <main class="main-content">
+    <?php if ($currentUri !== '/dashboard'): ?>
+        <?php renderBreadcrumbs($currentUri, $breadcrumbs); ?>
+    <?php endif; ?>
     <?= $contenido ?? '' ?>
 </main>
 
-<footer class="footer">
-    &copy; 2026 Hospital de Clínicas &mdash; Elyra v1.0
-</footer>
+    <div class="toast-container"></div>
+
+    <footer class="footer">
+        &copy; 2026 Hospital de Clínicas &mdash; Elyra v1.0
+    </footer>
 
 <?php else: ?>
 

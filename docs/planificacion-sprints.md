@@ -58,12 +58,12 @@ Ver checklist completo en `docs/pendientes-backend.md` (secciones X.1–X.10 y S
 
 ### Frontend
 
-| # | Tarea | Depende | Archivos destino |
-|---|-------|---------|------------------|
-| F0.1 | Página 404 personalizada (acorde al diseño) | — | `views/errors/404.php`, CSS |
-| F0.2 | Sistema de toasts (CSS + vanilla JS, auto-destruir 4s) | — | `public/js/elyra.js`, CSS en `elyra.css` |
-| F0.3 | Breadcrumbs en layout admin (desde `$currentUri`) | — | Actualizar `views/layout/base.php` |
-| F0.4 | CSRF token en `fetch()`: helper JS que agrega header `X-CSRF-Token` | F0.3 | `public/js/elyra.js` |
+| # | Tarea | Depende | Archivos destino | Estado |
+|---|-------|---------|------------------|--------|
+| F0.1 | Página 404 personalizada (acorde al diseño) | — | `views/errors/404.php`, CSS | ✅ |
+| F0.2 | Sistema de toasts (CSS + vanilla JS, auto-destruir 4s) | — | `public/js/elyra.js`, CSS en `elyra.css` | ✅ |
+| F0.3 | Breadcrumbs en layout admin (desde `$currentUri`) | — | Actualizar `views/layout/base.php` | ✅ |
+| F0.4 | CSRF token en `fetch()`: helper JS que agrega header `X-CSRF-Token` | F0.3 | `public/js/elyra.js` | ✅ |
 
 ### Security Deliverables Sprint 0
 - [x] Passwords hasheados con Argon2id
@@ -74,6 +74,13 @@ Ver checklist completo en `docs/pendientes-backend.md` (secciones X.1–X.10 y S
 - [x] Error handler sin leak de información
 - [x] CSP headers configurados
 - [x] Input sanitization en toda entrada
+
+### Frontend Deliverables Sprint 0
+- [x] Página 404 personalizada
+- [x] Sistema de toasts (Bootstrap + JS, auto-destruir 4s)
+- [x] Breadcrumbs en layout admin
+- [x] CSRF token en fetch() + formularios
+- [x] Dark mode con toggle, localStorage y prefers-color-scheme
 
 ---
 

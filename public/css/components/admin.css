@@ -29,6 +29,20 @@
     min-width: 200px;
 }
 
+.toast-container {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1060;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.toast-container .toast {
+    animation: slide-in-right 0.3s ease;
+}
+
 .breadcrumb-custom {
     font-size: 0.85rem;
     color: var(--text-muted);

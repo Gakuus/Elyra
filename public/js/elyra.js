@@ -22,4 +22,17 @@
             });
         });
     }
+
+    window.Elyra.fetch = function (url, options) {
+        options = options || {};
+        options.headers = options.headers || {};
+        if (token) {
+            options.headers['X-CSRF-Token'] = token;
+        }
+        if (options.body && typeof options.body === 'object' && !(options.body instanceof FormData)) {
+            options.headers['Content-Type'] = options.headers['Content-Type'] || 'application/json';
+            options.body = JSON.stringify(options.body);
+        }
+        return fetch(url, options);
+    };
 })();
