@@ -302,5 +302,57 @@
                 applyTheme(current === 'dark' ? 'light' : 'dark');
             });
         }
+
+        var statCards = document.querySelectorAll('.stat-card[data-filtro]');
+        var filterRow = document.querySelector('.filter-active-bar');
+
+        function applyFilter(filtro) {
+            statCards.forEach(function (card) {
+                card.classList.toggle('stat-card-active', card.getAttribute('data-filtro') === filtro);
+            });
+            document.querySelectorAll('[data-estado]').forEach(function (el) {
+                var show = filtro === 'total' || el.getAttribute('data-estado') === filtro;
+                el.style.display = show ? '' : 'none';
+            });
+            if (filterRow) {
+                filterRow.style.display = filtro === 'total' ? 'none' : '';
+                var label = filterRow.querySelector('.filter-label');
+                if (label) {
+                    var activeCard = document.querySelector('.stat-card[data-filtro="' + filtro + '"]');
+                    label.textContent = activeCard ? activeCard.querySelector('.text-muted').textContent : 'Filtrando';
+                }
+            }
+        }
+
+        function clearFilter() {
+            statCards.forEach(function (card) {
+                card.classList.remove('stat-card-active');
+            });
+            document.querySelectorAll('[data-estado]').forEach(function (el) {
+                el.style.display = '';
+            });
+            if (filterRow) {
+                filterRow.style.display = 'none';
+            }
+        }
+
+        statCards.forEach(function (card) {
+            card.addEventListener('click', function () {
+                var filtro = this.getAttribute('data-filtro');
+                var isActive = this.classList.contains('stat-card-active');
+                if (isActive) {
+                    clearFilter();
+                } else {
+                    applyFilter(filtro);
+                }
+            });
+        });
+
+        if (filterRow) {
+            var clearBtn = filterRow.querySelector('.btn-clear-filter');
+            if (clearBtn) {
+                clearBtn.addEventListener('click', clearFilter);
+            }
+        }
     });
 })();
