@@ -126,7 +126,7 @@ $e = $estados[$t['estado']] ?? ['label' => $t['estado'], 'class' => 'secondary']
 
         <div class="d-flex gap-2 mt-4">
             <?php if (in_array($t['estado'], ['pendiente', 'en_curso', 'en_destino', 'en_retorno'], true)): ?>
-                <a href="/traslados/actualizar-estado?id=<?= $t['id'] ?>&estado=<?= $t['estado'] ?>" class="btn btn-primary">
+                <a href="/traslados/actualizar-estado?id=<?= $t['id'] ?>" class="btn btn-primary">
                     <i class="bi bi-arrow-right-circle me-1"></i> Actualizar estado
                 </a>
             <?php endif; ?>

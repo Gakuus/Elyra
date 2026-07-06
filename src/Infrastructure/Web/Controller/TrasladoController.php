@@ -243,13 +243,101 @@ class TrasladoController extends BaseController
     public function actualizarEstado(): void
     {
         $this->requireAuth();
-        $this->redirect('/traslados');
+
+        $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
+        if ($id <= 0) {
+            $this->redirect('/traslados');
+            return;
+        }
+
+        $traslado = $this->findTrasladoById($id);
+        if (!$traslado) {
+            $this->redirect('/traslados');
+            return;
+        }
+
+        $stateMachine = [
+            'pendiente' => ['en_curso', 'cancelado'],
+            'en_curso' => ['en_destino', 'cancelado'],
+            'en_destino' => ['en_retorno', 'cancelado'],
+            'en_retorno' => ['completado', 'cancelado'],
+            'completado' => [],
+            'cancelado' => [],
+        ];
+
+        $current = $traslado['estado'];
+        $allowed = $stateMachine[$current] ?? [];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $nuevoEstado = $_POST['estado'] ?? '';
+
+            if (!in_array($nuevoEstado, $allowed, true)) {
+                $_SESSION['flash_error'] = 'Transición de estado no válida.';
+                $this->redirect('/traslados/ver?id=' . $id);
+                return;
+            }
+
+            $this->updateTrasladoEstado($id, $nuevoEstado);
+
+            $_SESSION['flash_success'] = 'Estado actualizado a ' . $this->estadoLabel($nuevoEstado);
+            $this->redirect('/traslados/ver?id=' . $id);
+            return;
+        }
+
+        $estados = [
+            'pendiente' => ['label' => 'Pendiente', 'class' => 'warning'],
+            'en_curso' => ['label' => 'En curso', 'class' => 'primary'],
+            'en_destino' => ['label' => 'En destino', 'class' => 'info'],
+            'en_retorno' => ['label' => 'En retorno', 'class' => 'secondary'],
+            'completado' => ['label' => 'Completado', 'class' => 'success'],
+            'cancelado' => ['label' => 'Cancelado', 'class' => 'danger'],
+        ];
+
+        $this->render('traslados/actualizar_estado', [
+            't' => $traslado,
+            'allowed' => $allowed,
+            'estados' => $estados,
+        ]);
     }
 
     public function historial(): void
     {
         $this->requireAuth();
         $this->render('traslados/historial');
+    }
+
+    private function estadoLabel(string $estado): string
+    {
+        $map = [
+            'pendiente' => 'Pendiente',
+            'en_curso' => 'En curso',
+            'en_destino' => 'En destino',
+            'en_retorno' => 'En retorno',
+            'completado' => 'Completado',
+            'cancelado' => 'Cancelado',
+        ];
+        return $map[$estado] ?? $estado;
+    }
+
+    private function updateTrasladoEstado(int $id, string $nuevoEstado): void
+    {
+        $metaFile = __DIR__ . '/../../../../storage/traslados/.meta.json';
+        $traslados = is_file($metaFile) ? (json_decode(file_get_contents($metaFile), true) ?? []) : [];
+
+        $updated = false;
+        foreach ($traslados as &$t) {
+            if ($t['id'] === $id) {
+                $t['estado'] = $nuevoEstado;
+                $t['updated_at'] = date('d/m/Y H:i');
+                $updated = true;
+                break;
+            }
+        }
+        unset($t);
+
+        if ($updated) {
+            file_put_contents($metaFile, json_encode($traslados, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        }
     }
 
     private function mockTraslados(): array
