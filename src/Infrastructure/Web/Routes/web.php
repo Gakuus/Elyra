@@ -6,6 +6,8 @@ return [
     ['method' => 'GET',  'pattern' => '/',                    'controller' => 'PublicController',    'action' => 'home'],
     ['method' => 'GET',  'pattern' => '/login',               'controller' => 'AuthController',      'action' => 'login'],
     ['method' => 'POST', 'pattern' => '/login',               'controller' => 'AuthController',      'action' => 'doLogin'],
+    ['method' => 'GET',  'pattern' => '/registro',            'controller' => 'AuthController',      'action' => 'registro'],
+    ['method' => 'POST', 'pattern' => '/registro',            'controller' => 'AuthController',      'action' => 'doRegistro'],
     ['method' => 'GET',  'pattern' => '/logout',              'controller' => 'AuthController',      'action' => 'logout'],
     ['method' => 'GET',  'pattern' => '/dashboard',           'controller' => 'DashboardController', 'action' => 'index'],
 

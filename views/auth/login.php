@@ -27,6 +27,9 @@
             </div>
             <button type="submit" class="btn btn-primary w-100 login-btn">Iniciar Sesión</button>
         </form>
+        <p class="text-center mt-3 mb-0 small">
+            <a href="/registro" class="text-decoration-none">¿No tenés cuenta? Registrate</a>
+        </p>
     </div>
 </div>
 <?php $contenido = ob_get_clean(); ?>
