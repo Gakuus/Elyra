@@ -125,6 +125,9 @@ function renderBreadcrumbs(string $uri, array $map): void {
                 <?php endif; ?>
             </ul>
             <div class="d-flex align-items-center gap-2">
+                <button id="darkModeToggle" class="win-btn win-btn-sm" title="Alternar modo oscuro">
+                    <i class="bi bi-sun-fill"></i>
+                </button>
                 <span class="win-text small">
                     <i class="bi bi-person-circle"></i> <?= htmlspecialchars($_SESSION['user_nombre'] ?? 'Usuario') ?>
                 </span>
