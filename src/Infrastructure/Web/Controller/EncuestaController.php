@@ -17,6 +17,7 @@ class EncuestaController extends BaseController
     public function crear(): void
     {
         $this->requireAuth();
+        $this->denyPaciente();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->handleCrear();

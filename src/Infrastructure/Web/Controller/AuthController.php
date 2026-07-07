@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Elyra\Infrastructure\Web\Controller;
 
-use Elyra\Domain\Entity\Funcionario;
-use Elyra\Domain\ValueObject\RolUsuario;
+use Elyra\Domain\Entity\Paciente;
 use Elyra\Infrastructure\Persistence\MySQL\UsuarioRepository;
 use Elyra\Infrastructure\Service\AuthService;
 use Elyra\Infrastructure\Service\SessionManager;
@@ -87,14 +86,16 @@ class AuthController extends BaseController
           ->required('email', $email, 'Email')
           ->email('email', $email, 'Email')
           ->maxLength('email', $email, 150, 'Email')
-          ->required('documento', $documento, 'Cédula')
-          ->maxLength('documento', $documento, 20, 'Cédula')
+           ->required('documento', $documento, 'Cédula')
+           ->numeric('documento', $documento, 'Cédula')
+           ->minLength('documento', $documento, 8, 'Cédula')
+           ->maxLength('documento', $documento, 8, 'Cédula')
           ->required('username', $username, 'Usuario')
           ->minLength('username', $username, 3, 'Usuario')
           ->maxLength('username', $username, 50, 'Usuario')
-          ->maxLength('telefono', $telefono, 20, 'Teléfono')
-          ->required('password', $password, 'Contraseña')
-          ->minLength('password', $password, 6, 'Contraseña');
+           ->maxLength('telefono', $telefono, 9, 'Teléfono')
+           ->required('password', $password, 'Contraseña')
+           ->minLength('password', $password, 6, 'Contraseña');
 
         if ($password !== $password2) {
             $v->required('password2', null, 'Repetir contraseña');
@@ -107,34 +108,35 @@ class AuthController extends BaseController
             return;
         }
 
-        if ($this->usuarioRepo->findFuncionarioByUsername($username)) {
+        if ($telefono !== '' && !preg_match('/^[0-9]{8,9}$/', $telefono)) {
+            $this->render('auth/registro', ['error' => 'El teléfono debe tener 8 o 9 dígitos']);
+            return;
+        }
+
+        if ($this->usuarioRepo->findFuncionarioByUsername($username) || $this->usuarioRepo->findPacienteByUsername($username)) {
             $this->render('auth/registro', ['error' => 'El nombre de usuario ya está registrado']);
             return;
         }
 
-        if ($this->usuarioRepo->findFuncionarioByEmail($email)) {
-            $this->render('auth/registro', ['error' => 'El email ya está registrado']);
-            return;
-        }
-
         $hash = password_hash($password, PASSWORD_BCRYPT);
+        $token = bin2hex(random_bytes(16));
 
-        $funcionario = new Funcionario(
+        $paciente = new Paciente(
             id: null,
             nombre: Validator::sanitize($nombre),
             apellido: Validator::sanitize($apellido),
-            rol: new RolUsuario('conductor'),
-            username: $username,
-            passwordHash: $hash,
             email: $email,
             documentoIdentidad: $documento,
+            tokenAcceso: $token,
+            username: $username,
+            passwordHash: $hash,
             telefono: $telefono,
             activo: true
         );
 
         try {
-            $this->usuarioRepo->saveFuncionario($funcionario);
-            SessionManager::login($funcionario->getId(), $funcionario->getRol()->value(), $funcionario->getNombreCompleto());
+            $this->usuarioRepo->savePaciente($paciente);
+            SessionManager::login($paciente->getId(), 'paciente', $paciente->getNombreCompleto());
             $this->redirect('/dashboard');
         } catch (\Exception $e) {
             $this->render('auth/registro', ['error' => 'Error al registrar. Verificá que los datos no estén duplicados.']);

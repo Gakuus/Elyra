@@ -33,4 +33,20 @@ abstract class BaseController
             $this->redirect('/login');
         }
     }
+
+    protected function requireRole(string ...$roles): void
+    {
+        $this->requireAuth();
+        $userRole = SessionManager::getUserRole();
+        if (!in_array($userRole, $roles, true)) {
+            $this->redirect('/dashboard');
+        }
+    }
+
+    protected function denyPaciente(): void
+    {
+        if (SessionManager::isPaciente()) {
+            $this->redirect('/dashboard');
+        }
+    }
 }

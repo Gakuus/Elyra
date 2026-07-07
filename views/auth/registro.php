@@ -47,7 +47,7 @@
                 <label for="documento" class="form-label small">C&eacute;dula <span class="text-danger">*</span></label>
                 <div class="login-input-group">
                     <i class="bi bi-card-text input-icon"></i>
-                    <input type="text" id="documento" name="documento" class="form-control" required maxlength="20" placeholder="N&uacute;mero de c&eacute;dula" value="<?= htmlspecialchars($_POST['documento'] ?? '') ?>">
+                    <input type="text" id="documento" name="documento" class="form-control" required maxlength="8" pattern="[0-9]{8}" placeholder="N&uacute;mero de c&eacute;dula (8 d&iacute;gitos)" value="<?= htmlspecialchars($_POST['documento'] ?? '') ?>">
                 </div>
             </div>
 
@@ -63,7 +63,7 @@
                     <label for="telefono" class="form-label small">Tel&eacute;fono</label>
                     <div class="login-input-group">
                         <i class="bi bi-telephone input-icon"></i>
-                        <input type="tel" id="telefono" name="telefono" class="form-control" maxlength="20" placeholder="Tel&eacute;fono" value="<?= htmlspecialchars($_POST['telefono'] ?? '') ?>">
+                        <input type="tel" id="telefono" name="telefono" class="form-control" maxlength="9" pattern="[0-9]{8,9}" placeholder="098765432" value="<?= htmlspecialchars($_POST['telefono'] ?? '') ?>">
                     </div>
                 </div>
             </div>
@@ -73,14 +73,20 @@
                     <label for="password" class="form-label small">Contrase&ntilde;a <span class="text-danger">*</span></label>
                     <div class="login-input-group">
                         <i class="bi bi-lock input-icon"></i>
-                        <input type="password" id="password" name="password" class="form-control" required minlength="6" placeholder="M&iacute;n. 6 caracteres">
+                        <input type="password" id="password" name="password" class="form-control input-icon-end-padding" required minlength="6" placeholder="M&iacute;n. 6 caracteres">
+                        <button type="button" class="btn btn-link input-icon-end toggle-password" tabindex="-1" data-target="password">
+                            <i class="bi bi-eye-slash"></i>
+                        </button>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <label for="password2" class="form-label small">Repetir contrase&ntilde;a <span class="text-danger">*</span></label>
                     <div class="login-input-group">
                         <i class="bi bi-lock input-icon"></i>
-                        <input type="password" id="password2" name="password2" class="form-control" required minlength="6" placeholder="Repetir contrase&ntilde;a">
+                        <input type="password" id="password2" name="password2" class="form-control input-icon-end-padding" required minlength="6" placeholder="Repetir contrase&ntilde;a">
+                        <button type="button" class="btn btn-link input-icon-end toggle-password" tabindex="-1" data-target="password2">
+                            <i class="bi bi-eye-slash"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -94,4 +100,23 @@
     </div>
 </div>
 <?php $contenido = ob_get_clean(); ?>
+<?php $scripts = <<<HTML
+<script>
+document.querySelectorAll('.toggle-password').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var target = document.getElementById(this.dataset.target);
+        if (!target) return;
+        var icon = this.querySelector('i');
+        if (target.type === 'password') {
+            target.type = 'text';
+            icon.className = 'bi bi-eye';
+        } else {
+            target.type = 'password';
+            icon.className = 'bi bi-eye-slash';
+        }
+    });
+});
+</script>
+HTML;
+?>
 <?php require __DIR__ . '/../layout/base.php'; ?>

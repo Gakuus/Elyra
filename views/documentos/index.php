@@ -1,10 +1,15 @@
-<?php $titulo = 'Documentos'; ?>
+<?php
+$titulo = 'Documentos';
+$isPaciente = \Elyra\Infrastructure\Service\SessionManager::isPaciente();
+?>
 <?php ob_start(); ?>
 
 <div class="action-bar">
+    <?php if (!$isPaciente): ?>
     <a href="/documentos/subir" class="btn btn-primary">
         <i class="bi bi-upload me-1"></i> Subir documento
     </a>
+    <?php endif; ?>
     <form method="get" class="d-flex gap-2 flex-wrap" id="filterForm">
         <select name="categoria" class="form-select" onchange="this.form.submit()">
             <option value="">Todos los tipos</option>
@@ -14,6 +19,7 @@
                 </option>
             <?php endforeach; ?>
         </select>
+        <?php if (!$isPaciente): ?>
         <select name="paciente" class="form-select" onchange="this.form.submit()">
             <option value="">Todos los pacientes</option>
             <?php foreach ($pacientes as $pac): ?>
@@ -22,8 +28,9 @@
                 </option>
             <?php endforeach; ?>
         </select>
+        <?php endif; ?>
         <div class="position-relative">
-            <input type="text" name="q" class="form-control ps-4" placeholder="Buscar t&iacute;tulo, descripci&oacute;n o paciente..." value="<?= htmlspecialchars($search) ?>" aria-label="Buscar documento">
+            <input type="text" name="q" class="form-control ps-4" placeholder="Buscar t&iacute;tulo o descripci&oacute;n..." value="<?= htmlspecialchars($search) ?>" aria-label="Buscar documento">
             <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-2 text-muted small"></i>
         </div>
     </form>
@@ -39,7 +46,7 @@
     </p>
     <?php if ($search || $categoriaFiltro): ?>
         <a href="/documentos" class="btn btn-outline-secondary">Limpiar filtros</a>
-    <?php else: ?>
+    <?php elseif (!$isPaciente): ?>
         <a href="/documentos/subir" class="btn btn-primary"><i class="bi bi-upload me-1"></i> Subir primer documento</a>
     <?php endif; ?>
 </div>
@@ -85,15 +92,19 @@
                             <a href="/documentos/ver?id=<?= $doc['id'] ?>" class="btn btn-sm btn-outline-secondary border-0" title="Ver detalle">
                                 <i class="bi bi-eye"></i>
                             </a>
+                            <?php if (!$isPaciente): ?>
                             <a href="/documentos/editar?id=<?= $doc['id'] ?>" class="btn btn-sm btn-outline-secondary border-0" title="Editar">
                                 <i class="bi bi-pencil"></i>
                             </a>
+                            <?php endif; ?>
                             <button type="button" class="btn btn-sm btn-outline-secondary border-0" title="Copiar enlace" onclick="Elyra.copiarEnlace(<?= $doc['id'] ?>, this)">
                                 <i class="bi bi-link-45deg"></i>
                             </button>
+                            <?php if (!$isPaciente): ?>
                             <button type="button" class="btn btn-sm btn-outline-danger border-0" title="Eliminar" onclick="Elyra.confirm(<?= $doc['id'] ?>, '<?= htmlspecialchars($doc['titulo'], ENT_QUOTES) ?>')">
                                 <i class="bi bi-trash"></i>
                             </button>
+                            <?php endif; ?>
                         </div>
                     </td>
                 </tr>
@@ -122,9 +133,13 @@
             <div class="card-item-actions">
                 <button class="btn btn-sm btn-outline-secondary" onclick="Elyra.verQR(<?= $doc['id'] ?>)"><i class="bi bi-qr-code"></i></button>
                 <a href="/documentos/ver?id=<?= $doc['id'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a>
+                <?php if (!$isPaciente): ?>
                 <a href="/documentos/editar?id=<?= $doc['id'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                <?php endif; ?>
                 <button class="btn btn-sm btn-outline-secondary" onclick="Elyra.copiarEnlace(<?= $doc['id'] ?>, this)"><i class="bi bi-link-45deg"></i></button>
+                <?php if (!$isPaciente): ?>
                 <button class="btn btn-sm btn-outline-danger" onclick="Elyra.confirm(<?= $doc['id'] ?>, '<?= htmlspecialchars($doc['titulo'], ENT_QUOTES) ?>')"><i class="bi bi-trash"></i></button>
+                <?php endif; ?>
             </div>
         </div>
     <?php endforeach; ?>

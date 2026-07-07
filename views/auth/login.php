@@ -23,7 +23,10 @@
             </div>
             <div class="login-input-group">
                 <i class="bi bi-lock input-icon"></i>
-                <input type="password" id="password" name="password" class="form-control" required autocomplete="current-password" placeholder="Contraseña" aria-label="Contraseña">
+                <input type="password" id="password" name="password" class="form-control input-icon-end-padding" required autocomplete="current-password" placeholder="Contraseña" aria-label="Contraseña">
+                <button type="button" class="btn btn-link input-icon-end toggle-password" tabindex="-1" data-target="password">
+                    <i class="bi bi-eye-slash"></i>
+                </button>
             </div>
             <button type="submit" class="btn btn-primary w-100 login-btn">Iniciar Sesión</button>
         </form>
@@ -33,4 +36,23 @@
     </div>
 </div>
 <?php $contenido = ob_get_clean(); ?>
+<?php $scripts = <<<HTML
+<script>
+document.querySelectorAll('.toggle-password').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var target = document.getElementById(this.dataset.target);
+        if (!target) return;
+        var icon = this.querySelector('i');
+        if (target.type === 'password') {
+            target.type = 'text';
+            icon.className = 'bi bi-eye';
+        } else {
+            target.type = 'password';
+            icon.className = 'bi bi-eye-slash';
+        }
+    });
+});
+</script>
+HTML;
+?>
 <?php require __DIR__ . '/../layout/base.php'; ?>

@@ -10,6 +10,8 @@ return [
     ['method' => 'POST', 'pattern' => '/registro',            'controller' => 'AuthController',      'action' => 'doRegistro'],
     ['method' => 'GET',  'pattern' => '/logout',              'controller' => 'AuthController',      'action' => 'logout'],
     ['method' => 'GET',  'pattern' => '/dashboard',           'controller' => 'DashboardController', 'action' => 'index'],
+    ['method' => 'GET',  'pattern' => '/perfil',              'controller' => 'PerfilController',    'action' => 'index'],
+    ['method' => 'POST', 'pattern' => '/perfil',              'controller' => 'PerfilController',    'action' => 'actualizar'],
 
     ['method' => 'GET',  'pattern' => '/documentos',          'controller' => 'DocumentoController',  'action' => 'index'],
     ['method' => 'GET',  'pattern' => '/documentos/subir',    'controller' => 'DocumentoController',  'action' => 'subir'],

@@ -28,23 +28,27 @@ class AuthService
 
         RateLimiter::incrementLoginAttempts($ip);
 
-        $funcionario = $this->usuarioRepo->findFuncionarioByUsername($username);
+        $user = $this->usuarioRepo->findFuncionarioByUsername($username);
 
-        if ($funcionario === null) {
+        if ($user === null) {
+            $user = $this->usuarioRepo->findPacienteByUsername($username);
+        }
+
+        if ($user === null) {
             return [
                 'success' => false,
                 'error' => 'Credenciales inválidas',
             ];
         }
 
-        if (!$funcionario->isActivo()) {
+        if (method_exists($user, 'isActivo') && !$user->isActivo()) {
             return [
                 'success' => false,
                 'error' => 'Usuario desactivado. Contacte al administrador.',
             ];
         }
 
-        if (!$funcionario->verificarPassword($password)) {
+        if (!method_exists($user, 'verificarPassword') || !$user->verificarPassword($password)) {
             return [
                 'success' => false,
                 'error' => 'Credenciales inválidas',
@@ -53,11 +57,12 @@ class AuthService
 
         RateLimiter::resetLoginAttempts($ip);
 
-        SessionManager::login($funcionario->getId(), $funcionario->getRol()->value(), $funcionario->getNombreCompleto());
+        $rol = $user instanceof \Elyra\Domain\Entity\Funcionario ? $user->getRol()->value() : 'paciente';
+        SessionManager::login($user->getId(), $rol, $user->getNombreCompleto());
 
         return [
             'success' => true,
-            'user' => $funcionario,
+            'user' => $user,
         ];
     }
 

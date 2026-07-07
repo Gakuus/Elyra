@@ -10,6 +10,15 @@ class TrasladoController extends BaseController
     {
         $this->requireAuth();
 
+        if (SessionManager::isPaciente()) {
+            $this->render('traslados/index', [
+                'isPaciente' => true,
+                'activos' => [],
+                'historico' => [],
+            ]);
+            return;
+        }
+
         $traslados = $this->mockTraslados();
 
         $pendientes = count(array_filter($traslados, fn($t) => $t['estado'] === 'pendiente'));
@@ -21,6 +30,7 @@ class TrasladoController extends BaseController
         $activos = array_values(array_filter($traslados, fn($t) => in_array($t['estado'], ['pendiente', 'en_curso', 'en_destino', 'en_retorno'], true)));
 
         $this->render('traslados/index', [
+            'isPaciente' => false,
             'pendientes' => $pendientes,
             'enCurso' => $enCurso,
             'completadosHoy' => $completadosHoy,
@@ -32,6 +42,7 @@ class TrasladoController extends BaseController
     public function nuevo(): void
     {
         $this->requireAuth();
+        $this->denyPaciente();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->handleNuevo();
@@ -162,6 +173,7 @@ class TrasladoController extends BaseController
     public function ver(): void
     {
         $this->requireAuth();
+        $this->denyPaciente();
 
         $id = (int) ($_GET['id'] ?? 0);
         if ($id <= 0) {
@@ -243,6 +255,7 @@ class TrasladoController extends BaseController
     public function actualizarEstado(): void
     {
         $this->requireAuth();
+        $this->denyPaciente();
 
         $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
         if ($id <= 0) {
@@ -303,6 +316,17 @@ class TrasladoController extends BaseController
     public function historial(): void
     {
         $this->requireAuth();
+
+        if (SessionManager::isPaciente()) {
+            $this->render('traslados/historial', [
+                'isPaciente' => true,
+                'traslados' => [],
+                'estadosList' => [],
+                'conductores' => [],
+                'filtros' => [],
+            ]);
+            return;
+        }
 
         $traslados = $this->mockTraslados();
 

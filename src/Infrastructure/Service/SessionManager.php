@@ -92,6 +92,17 @@ class SessionManager
         return $_SESSION['user_role'] ?? null;
     }
 
+    public static function isPaciente(): bool
+    {
+        return ($_SESSION['user_role'] ?? null) === 'paciente';
+    }
+
+    public static function isAdmin(): bool
+    {
+        $role = $_SESSION['user_role'] ?? null;
+        return $role !== null && $role !== 'paciente';
+    }
+
     public static function getCsrfToken(): string
     {
         if (empty($_SESSION['_csrf_token'])) {

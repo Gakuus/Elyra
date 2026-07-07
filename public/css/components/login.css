@@ -91,6 +91,27 @@
     color: var(--text-muted);
 }
 
+.login-input-group .input-icon-end {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    padding: 0.25rem 0.5rem;
+    color: var(--text-muted);
+    font-size: 1rem;
+    line-height: 1;
+    text-decoration: none;
+}
+
+.login-input-group .input-icon-end:hover {
+    color: var(--primary);
+}
+
+.login-input-group .form-control.input-icon-end-padding {
+    padding-right: 2.5rem;
+}
+
 .login-input-group .input-icon {
     position: absolute;
     left: 0.85rem;
