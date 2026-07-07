@@ -30,6 +30,9 @@ body.win-body {
     background: #808080;
     font-family: Tahoma, 'MS Sans Serif', sans-serif;
     color: #000;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 /* === PANELS === */
@@ -171,14 +174,22 @@ body.win-body {
     background: #c0c0c0;
     border-bottom: 2px solid #808080;
     font-family: Tahoma, 'MS Sans Serif', sans-serif;
-    font-size: 12px;
-    padding: 2px 0;
+    font-size: 13px;
+    padding: 4px 0;
+}
+
+.win-navbar .navbar-brand {
+    font-family: Tahoma, 'MS Sans Serif', sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: #000;
 }
 
 .win-navbar .nav-link {
     color: #000;
-    padding: 4px 12px;
+    padding: 6px 14px;
     border: 1px solid transparent;
+    font-size: 13px;
 }
 
 .win-navbar .nav-link:hover {
@@ -224,10 +235,8 @@ body.win-body {
 
 /* === FOOTER === */
 footer.win-statusbar {
-    position: relative;
-    bottom: 0;
+    flex-shrink: 0;
     width: 100%;
-    z-index: 100;
 }
 
 /* === SEPARATOR === */
@@ -281,8 +290,8 @@ footer.win-statusbar {
 
 /* === MAIN CONTENT OVERRIDE === */
 body.win-body .main-content {
-    min-height: auto;
-    padding: 0.75rem;
+    flex: 1 0 auto;
+    padding: 0.5rem 0.75rem;
 }
 
 /* === MISC === */

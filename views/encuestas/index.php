@@ -7,7 +7,7 @@ $isPaciente = \Elyra\Infrastructure\Service\SessionManager::isPaciente();
 <div class="row justify-content-center">
     <div class="col-lg-10 col-xl-9">
 
-        <div class="win-panel mb-3">
+        <div class="win-panel mb-2">
             <div class="win-titlebar d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-bar-chart me-1"></i> Encuestas</span>
                 <?php if (!$isPaciente): ?>
@@ -18,7 +18,7 @@ $isPaciente = \Elyra\Infrastructure\Service\SessionManager::isPaciente();
             </div>
 
             <?php if (empty($encuestas)): ?>
-                <div class="p-4 text-center win-text" style="font-size: 12px;">
+                <div class="p-3 text-center win-text" style="font-size: 12px;">
                     <i class="bi bi-bar-chart fs-1 d-block mb-2"></i>
                     <p class="mb-2">No hay encuestas.</p>
                     <?php if (!$isPaciente): ?>

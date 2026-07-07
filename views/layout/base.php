@@ -63,7 +63,7 @@ function renderBreadcrumbs(string $uri, array $map): void {
 
 <nav class="win-navbar navbar navbar-expand-lg">
     <div class="container-fluid px-4">
-        <span class="fw-bold px-2" style="font-family: Tahoma, 'MS Sans Serif', sans-serif; font-size: 13px;">Elyra</span>
+        <span class="navbar-brand px-2">Elyra</span>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Abrir men\u00fa">
             <span class="navbar-toggler-icon"></span>
         </button>

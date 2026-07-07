@@ -3,11 +3,11 @@ $titulo = 'Mis Documentos';
 ?>
 <?php ob_start(); ?>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="d-flex justify-content-between align-items-center mb-2">
     <h4 class="mb-0">Mis Documentos</h4>
 </div>
 
-<form method="get" class="d-flex gap-2 mb-3" id="filterForm">
+<form method="get" class="d-flex gap-2 mb-2" id="filterForm">
     <select name="categoria" class="form-select" onchange="this.form.submit()" aria-label="Tipo de documento">
         <option value="">Todos los tipos</option>
         <?php foreach ($tiposDocumento as $cat): ?>
@@ -23,7 +23,7 @@ $titulo = 'Mis Documentos';
 </form>
 
 <?php if (empty($documentos)): ?>
-    <div class="text-muted small py-4">
+    <div class="text-muted small py-3">
         <i class="bi bi-inbox me-1"></i> No ten&eacute;s documentos asignados.
     </div>
 <?php else: ?>
