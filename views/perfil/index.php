@@ -19,21 +19,38 @@
 
             <?php if ($user): ?>
                 <div class="p-3">
+                    <div class="text-center mb-3">
+                        <?php $fotoBase64 = $user->getFotoBase64(); ?>
+                        <?php if ($fotoBase64): ?>
+                            <img src="<?= $fotoBase64 ?>" alt="Foto de perfil" class="win-avatar" style="width: 100px; height: 100px; object-fit: cover;">
+                        <?php else: ?>
+                            <div class="d-inline-flex align-items-center justify-content-center text-white fw-bold win-avatar" style="width: 100px; height: 100px; font-size: 36px;">
+                                <?= htmlspecialchars(mb_strtoupper(mb_substr($user->getNombre(), 0, 1) . mb_substr($user->getApellido(), 0, 1))) ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+
                     <div class="row g-2 mb-2">
                         <div class="col-sm-6">
                             <div class="win-label mb-1">Nombre</div>
                             <div class="win-field w-100" style="background: #f0f0f0;" readonly><?= htmlspecialchars($user->getNombreCompleto()) ?></div>
                         </div>
                         <div class="col-sm-6">
-                            <div class="win-label mb-1">Cédula</div>
+                            <div class="win-label mb-1">Cédula de Identidad</div>
                             <div class="win-field w-100" style="background: #f0f0f0;" readonly><?= htmlspecialchars($user->getDocumentoIdentidad() ?? '—') ?></div>
                         </div>
                     </div>
 
                     <div class="win-separator mb-2"></div>
 
-                    <form method="post">
+                    <form method="post" enctype="multipart/form-data">
                         <input type="hidden" name="_csrf_token" value="<?= \Elyra\Infrastructure\Service\SessionManager::getCsrfToken() ?>">
+
+                        <div class="mb-2">
+                            <label for="foto" class="win-label mb-1">Foto de perfil</label>
+                            <input type="file" id="foto" name="foto" class="win-field w-100" accept="image/jpeg,image/png,image/gif,image/webp">
+                            <div class="win-text small" style="font-size: 10px; margin-top: 2px;">JPEG, PNG, GIF o WebP. Máx. 2MB.</div>
+                        </div>
 
                         <div class="row g-2 mb-2">
                             <div class="col-sm-6">
@@ -42,7 +59,7 @@
                             </div>
                             <div class="col-sm-6">
                                 <label for="telefono" class="win-label mb-1">Teléfono</label>
-                                <input type="tel" id="telefono" name="telefono" class="win-field w-100" maxlength="9" pattern="[0-9]{8,9}" value="<?= htmlspecialchars(method_exists($user, 'getTelefono') ? ($user->getTelefono() ?? '') : '') ?>">
+                                <input type="tel" id="telefono" name="telefono" class="win-field w-100" maxlength="9" pattern="[0-9]{8,9}" value="<?= htmlspecialchars(method_exists($user, 'getTelefono') ? ($user->getTelefono() ?? '') : '') ?>" placeholder="8 o 9 dígitos">
                             </div>
                         </div>
 

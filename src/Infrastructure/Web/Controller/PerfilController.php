@@ -40,8 +40,8 @@ class PerfilController extends BaseController
             return;
         }
 
-        $telefono = trim($_POST['telefono'] ?? '');
         $email = trim($_POST['email'] ?? '');
+        $telefono = trim($_POST['telefono'] ?? '');
 
         if ($telefono !== '' && !preg_match('/^[0-9]{8,9}$/', $telefono)) {
             $this->render('perfil/index', ['error' => 'El teléfono debe tener 8 o 9 dígitos.', 'user' => $user]);
@@ -51,6 +51,12 @@ class PerfilController extends BaseController
         if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $this->render('perfil/index', ['error' => 'Email inválido.', 'user' => $user]);
             return;
+        }
+
+        $user->setEmail($email !== '' ? $email : null);
+
+        if (method_exists($user, 'setTelefono')) {
+            $user->setTelefono($telefono !== '' ? $telefono : null);
         }
 
         $password = $_POST['password'] ?? '';
@@ -68,20 +74,31 @@ class PerfilController extends BaseController
             $user->setPasswordHash(password_hash($password, PASSWORD_BCRYPT));
         }
 
+        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime = finfo_file($finfo, $_FILES['foto']['tmp_name']);
+            finfo_close($finfo);
+
+            $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!in_array($mime, $allowed)) {
+                $this->render('perfil/index', ['error' => 'La foto debe ser JPEG, PNG, GIF o WebP.', 'user' => $user]);
+                return;
+            }
+
+            if ($_FILES['foto']['size'] > 2 * 1024 * 1024) {
+                $this->render('perfil/index', ['error' => 'La foto no debe superar los 2MB.', 'user' => $user]);
+                return;
+            }
+
+            $contenido = file_get_contents($_FILES['foto']['tmp_name']);
+            $user->setFoto($contenido);
+        }
+
         $esPaciente = $user->getTipo() === 'paciente';
 
         if ($esPaciente) {
-            if ($telefono !== '') {
-                $user->setTelefono($telefono);
-            }
-            if ($email !== '') {
-                $user->setEmail($email);
-            }
             $this->usuarioRepo->updatePaciente($user);
         } else {
-            if ($email !== '') {
-                $user->setEmail($email);
-            }
             $this->usuarioRepo->updateFuncionario($user);
         }
 

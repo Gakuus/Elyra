@@ -12,6 +12,7 @@ class Usuario
     private string $apellido;
     private ?string $email;
     private ?string $documentoIdentidad;
+    private ?string $foto;
     private ?string $createdAt;
 
     public function __construct(
@@ -21,6 +22,7 @@ class Usuario
         string $apellido,
         ?string $email = null,
         ?string $documentoIdentidad = null,
+        ?string $foto = null,
         ?string $createdAt = null
     ) {
         $this->id = $id;
@@ -29,6 +31,7 @@ class Usuario
         $this->apellido = $apellido;
         $this->email = $email;
         $this->documentoIdentidad = $documentoIdentidad;
+        $this->foto = $foto;
         $this->createdAt = $createdAt;
     }
 
@@ -70,6 +73,22 @@ class Usuario
     public function getCreatedAt(): ?string
     {
         return $this->createdAt;
+    }
+
+    public function getFoto(): ?string
+    {
+        return $this->foto;
+    }
+
+    public function setFoto(?string $foto): void
+    {
+        $this->foto = $foto;
+    }
+
+    public function getFotoBase64(): ?string
+    {
+        if ($this->foto === null) return null;
+        return 'data:image/jpeg;base64,' . base64_encode($this->foto);
     }
 
     public function setId(int $id): void

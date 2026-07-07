@@ -68,6 +68,7 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             licencia: $row['licencia'],
             telefono: $row['telefono'],
             activo: (bool) $row['activo'],
+            foto: $row['foto'] ?? null,
             createdAt: $row['created_at']
         );
     }
@@ -97,6 +98,7 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             licencia: $row['licencia'],
             telefono: $row['telefono'],
             activo: (bool) $row['activo'],
+            foto: $row['foto'] ?? null,
             createdAt: $row['created_at']
         );
     }
@@ -138,14 +140,15 @@ class UsuarioRepository implements UsuarioRepositoryInterface
         $this->pdo->beginTransaction();
         try {
             $stmt = $this->pdo->prepare("
-                INSERT INTO usuario (tipo, nombre, apellido, email, documento_identidad)
-                VALUES ('funcionario', ?, ?, ?, ?)
+                INSERT INTO usuario (tipo, nombre, apellido, email, documento_identidad, foto)
+                VALUES ('funcionario', ?, ?, ?, ?, ?)
             ");
             $stmt->execute([
                 $funcionario->getNombre(),
                 $funcionario->getApellido(),
                 $funcionario->getEmail(),
                 $funcionario->getDocumentoIdentidad(),
+                $funcionario->getFoto(),
             ]);
             $id = (int) $this->pdo->lastInsertId();
 
@@ -177,14 +180,15 @@ class UsuarioRepository implements UsuarioRepositoryInterface
         $this->pdo->beginTransaction();
         try {
             $stmt = $this->pdo->prepare("
-                INSERT INTO usuario (tipo, nombre, apellido, email, documento_identidad)
-                VALUES ('paciente', ?, ?, ?, ?)
+                INSERT INTO usuario (tipo, nombre, apellido, email, documento_identidad, foto)
+                VALUES ('paciente', ?, ?, ?, ?, ?)
             ");
             $stmt->execute([
                 $paciente->getNombre(),
                 $paciente->getApellido(),
                 $paciente->getEmail(),
                 $paciente->getDocumentoIdentidad(),
+                $paciente->getFoto(),
             ]);
             $id = (int) $this->pdo->lastInsertId();
 
@@ -214,7 +218,7 @@ class UsuarioRepository implements UsuarioRepositoryInterface
     public function updatePaciente(Paciente $paciente): void
     {
         $stmt = $this->pdo->prepare("
-            UPDATE usuario SET nombre = ?, apellido = ?, email = ?, documento_identidad = ?
+            UPDATE usuario SET nombre = ?, apellido = ?, email = ?, documento_identidad = ?, foto = ?
             WHERE id = ?
         ");
         $stmt->execute([
@@ -222,6 +226,7 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             $paciente->getApellido(),
             $paciente->getEmail(),
             $paciente->getDocumentoIdentidad(),
+            $paciente->getFoto(),
             $paciente->getId(),
         ]);
 
@@ -241,7 +246,7 @@ class UsuarioRepository implements UsuarioRepositoryInterface
     public function updateFuncionario(Funcionario $funcionario): void
     {
         $stmt = $this->pdo->prepare("
-            UPDATE usuario SET nombre = ?, apellido = ?, email = ?, documento_identidad = ?
+            UPDATE usuario SET nombre = ?, apellido = ?, email = ?, documento_identidad = ?, foto = ?
             WHERE id = ?
         ");
         $stmt->execute([
@@ -249,6 +254,7 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             $funcionario->getApellido(),
             $funcionario->getEmail(),
             $funcionario->getDocumentoIdentidad(),
+            $funcionario->getFoto(),
             $funcionario->getId(),
         ]);
 
@@ -298,6 +304,7 @@ class UsuarioRepository implements UsuarioRepositoryInterface
                 licencia: $row['licencia'],
                 telefono: $row['telefono'],
                 activo: (bool) $row['activo'],
+                foto: $row['foto'] ?? null,
                 createdAt: $row['created_at']
             );
         }
@@ -354,6 +361,7 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             passwordHash: $row['password_hash'] ?? null,
             telefono: $row['telefono'] ?? null,
             activo: isset($row['activo']) ? (bool) $row['activo'] : true,
+            foto: $row['foto'] ?? null,
             createdAt: $row['created_at']
         );
     }
@@ -373,6 +381,7 @@ class UsuarioRepository implements UsuarioRepositoryInterface
                 licencia: $row['licencia'],
                 telefono: $row['telefono'],
                 activo: (bool) $row['activo'],
+                foto: $row['foto'] ?? null,
                 createdAt: $row['created_at']
             );
         }
