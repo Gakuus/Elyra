@@ -98,6 +98,7 @@ CREATE TABLE documento (
     categoria_id INT NOT NULL,
     especialidad_id INT NULL,
     encuesta_id INT NULL UNIQUE,
+    paciente_id INT NULL,
     subido_por INT NOT NULL,
     activo BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -106,6 +107,7 @@ CREATE TABLE documento (
     FOREIGN KEY (categoria_id) REFERENCES categoria(id) ON DELETE RESTRICT,
     FOREIGN KEY (especialidad_id) REFERENCES categoria(id) ON DELETE SET NULL,
     FOREIGN KEY (encuesta_id) REFERENCES encuesta(id) ON DELETE SET NULL,
+    FOREIGN KEY (paciente_id) REFERENCES paciente(id) ON DELETE SET NULL,
     FOREIGN KEY (subido_por) REFERENCES funcionario(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -211,6 +213,7 @@ CREATE INDEX idx_paciente_qr ON paciente(codigo_qr_id);
 CREATE INDEX idx_documento_categoria ON documento(categoria_id);
 CREATE INDEX idx_documento_activo ON documento(activo);
 CREATE INDEX idx_documento_qr ON documento(codigo_qr_id);
+CREATE INDEX idx_documento_paciente ON documento(paciente_id);
 CREATE INDEX idx_encuesta_activa ON encuesta(activa);
 CREATE INDEX idx_encuesta_creada_por ON encuesta(creada_por);
 CREATE INDEX idx_pregunta_encuesta ON pregunta(encuesta_id);

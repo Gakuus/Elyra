@@ -8,6 +8,7 @@ use Elyra\Domain\Entity\Categoria;
 use Elyra\Domain\Entity\Documento;
 use Elyra\Infrastructure\Persistence\MySQL\CategoriaRepository;
 use Elyra\Infrastructure\Persistence\MySQL\DocumentoRepository;
+use Elyra\Infrastructure\Persistence\MySQL\UsuarioRepository;
 use Elyra\Infrastructure\Service\SessionManager;
 use Elyra\Infrastructure\Service\Validator;
 
@@ -15,12 +16,14 @@ class DocumentoController extends BaseController
 {
     private DocumentoRepository $docRepo;
     private CategoriaRepository $categoriaRepo;
+    private UsuarioRepository $usuarioRepo;
     private string $storageDir;
 
     public function __construct()
     {
         $this->docRepo = new DocumentoRepository();
         $this->categoriaRepo = new CategoriaRepository();
+        $this->usuarioRepo = new UsuarioRepository();
         $this->storageDir = __DIR__ . '/../../../../storage/docs';
     }
 
@@ -30,21 +33,24 @@ class DocumentoController extends BaseController
 
         $search = trim($_GET['q'] ?? '');
         $categoriaId = isset($_GET['categoria']) && $_GET['categoria'] !== '' ? (int) $_GET['categoria'] : null;
+        $pacienteId = isset($_GET['paciente']) && $_GET['paciente'] !== '' ? (int) $_GET['paciente'] : null;
         $page = max(1, (int) ($_GET['pagina'] ?? 1));
         $perPage = 5;
 
-        $documentos = $this->docRepo->findAll($categoriaId, $search ?: null, $page, $perPage);
-        $total = $this->docRepo->count($categoriaId, $search ?: null);
+        $documentos = $this->docRepo->findAll($categoriaId, $search ?: null, $pacienteId, $page, $perPage);
+        $total = $this->docRepo->count($categoriaId, $search ?: null, $pacienteId);
         $totalPaginas = max(1, (int) ceil($total / $perPage));
 
         $this->render('documentos/index', [
             'documentos' => array_map(fn (Documento $d) => $this->docToArray($d), $documentos),
             'tiposDocumento' => $this->categoriaArray($this->categoriaRepo->findByTipo('tipo_documento')),
+            'pacientes' => $this->pacienteArray($this->usuarioRepo->findAllPacientes()),
             'total' => $total,
             'pagina' => $page,
             'totalPaginas' => $totalPaginas,
             'search' => $search,
             'categoriaFiltro' => $categoriaId,
+            'pacienteFiltro' => $pacienteId,
         ]);
     }
 
@@ -82,6 +88,8 @@ class DocumentoController extends BaseController
                 $v->required('especialidad', null, 'Especialidad');
             }
         }
+
+        $pacienteId = !empty($_POST['paciente']) ? (int) $_POST['paciente'] : null;
 
         $archivo = $_FILES['archivo'] ?? null;
         $uploadOk = $archivo && $archivo['error'] === UPLOAD_ERR_OK;
@@ -133,6 +141,7 @@ class DocumentoController extends BaseController
             subidoPor: SessionManager::getUserId() ?? 0,
             descripcion: Validator::sanitize($_POST['descripcion'] ?? ''),
             especialidadId: $especialidadId,
+            pacienteId: $pacienteId,
             activo: true
         );
         $doc->setArchivoContenido($contenidoPdf);
@@ -196,6 +205,8 @@ class DocumentoController extends BaseController
             }
         }
 
+        $pacienteId = !empty($_POST['paciente']) ? (int) $_POST['paciente'] : null;
+
         if (!$v->isValid()) {
             $msg = $v->getFirstError();
             if ($isJson) { $this->json(['error' => $msg], 422); return; }
@@ -223,6 +234,7 @@ class DocumentoController extends BaseController
             qrPath: $doc->getQrPath(),
             especialidadId: $especialidadId,
             encuestaId: $doc->getEncuestaId(),
+            pacienteId: $pacienteId ?? $doc->getPacienteId(),
             activo: true,
             createdAt: $doc->getCreatedAt()
         );
@@ -304,6 +316,8 @@ class DocumentoController extends BaseController
             'activo' => $d->isActivo(),
             'especialidad' => $d->getEspecialidadNombre() ?? '',
             'especialidad_id' => $d->getEspecialidadId(),
+            'paciente_id' => $d->getPacienteId(),
+            'paciente' => $d->getPacienteNombre() ?? '',
         ];
     }
 
@@ -312,6 +326,7 @@ class DocumentoController extends BaseController
         return [
             'especialidades' => $this->categoriaArray($this->categoriaRepo->findByTipo('especialidad')),
             'tiposDocumento' => $this->categoriaArray($this->categoriaRepo->findByTipo('tipo_documento')),
+            'pacientes' => $this->pacienteArray($this->usuarioRepo->findAllPacientes()),
         ];
     }
 
@@ -321,5 +336,13 @@ class DocumentoController extends BaseController
             'id' => $c->getId(),
             'nombre' => $c->getNombre(),
         ], $categorias);
+    }
+
+    private function pacienteArray(array $pacientes): array
+    {
+        return array_map(fn (\Elyra\Domain\Entity\Paciente $p) => [
+            'id' => $p->getId(),
+            'nombre' => $p->getApellido() . ', ' . $p->getNombre(),
+        ], $pacientes);
     }
 }

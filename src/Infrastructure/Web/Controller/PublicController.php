@@ -5,15 +5,18 @@ declare(strict_types=1);
 namespace Elyra\Infrastructure\Web\Controller;
 
 use Elyra\Infrastructure\Persistence\MySQL\DocumentoRepository;
+use Elyra\Infrastructure\Persistence\MySQL\UsuarioRepository;
 use Elyra\Infrastructure\Service\SessionManager;
 
 class PublicController extends BaseController
 {
     private DocumentoRepository $docRepo;
+    private UsuarioRepository $usuarioRepo;
 
     public function __construct()
     {
         $this->docRepo = new DocumentoRepository();
+        $this->usuarioRepo = new UsuarioRepository();
     }
 
     public function home(): void
@@ -71,6 +74,30 @@ class PublicController extends BaseController
         exit;
     }
 
+    public function misDocumentos(): void
+    {
+        $token = $_GET['token'] ?? '';
+        if (empty($token)) {
+            http_response_code(404);
+            require __DIR__ . '/../../../../views/errors/404.php';
+            return;
+        }
+
+        $paciente = $this->usuarioRepo->findPacienteByToken($token);
+        if (!$paciente) {
+            http_response_code(404);
+            require __DIR__ . '/../../../../views/errors/404.php';
+            return;
+        }
+
+        $documentos = $this->docRepo->findByPaciente($paciente->getId());
+
+        $this->render('publico/mis-documentos', [
+            'paciente' => ['id' => $paciente->getId(), 'nombre' => $paciente->getApellido() . ', ' . $paciente->getNombre()],
+            'documentos' => array_map(fn (\Elyra\Domain\Entity\Documento $d) => $this->docToArray($d), $documentos),
+        ]);
+    }
+
     private function docToArray(\Elyra\Domain\Entity\Documento $d): array
     {
         $created = $d->getCreatedAt();
@@ -86,6 +113,8 @@ class PublicController extends BaseController
             'activo' => $d->isActivo(),
             'especialidad' => $d->getEspecialidadNombre() ?? '',
             'especialidad_id' => $d->getEspecialidadId(),
+            'paciente_id' => $d->getPacienteId(),
+            'paciente' => $d->getPacienteNombre() ?? '',
         ];
     }
 

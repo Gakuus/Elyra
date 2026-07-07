@@ -18,11 +18,12 @@ class DocumentoRepository implements DocumentoRepositoryInterface
 
     private const JOIN_CATEGORIA = ' JOIN categoria c ON c.id = d.categoria_id';
     private const JOIN_ESPECIALIDAD = ' LEFT JOIN categoria e ON e.id = d.especialidad_id';
-    private const SELECT_COLS = 'd.id, d.titulo, d.descripcion, d.archivo_path, d.archivo_nombre, d.codigo_qr_id, d.qr_path, d.categoria_id, d.especialidad_id, d.encuesta_id, d.subido_por, d.activo, d.created_at, d.updated_at, c.nombre as categoria_nombre, e.nombre as especialidad_nombre';
+    private const JOIN_PACIENTE = ' LEFT JOIN usuario pu ON pu.id = d.paciente_id';
+    private const SELECT_COLS = 'd.id, d.titulo, d.descripcion, d.archivo_path, d.archivo_nombre, d.codigo_qr_id, d.qr_path, d.categoria_id, d.especialidad_id, d.encuesta_id, d.paciente_id, d.subido_por, d.activo, d.created_at, d.updated_at, c.nombre as categoria_nombre, e.nombre as especialidad_nombre, CONCAT(pu.apellido, \', \', pu.nombre) as paciente_nombre';
 
     public function findById(int $id): ?Documento
     {
-        $stmt = $this->pdo->prepare("SELECT " . self::SELECT_COLS . " FROM documento d" . self::JOIN_CATEGORIA . self::JOIN_ESPECIALIDAD . " WHERE d.id = ?");
+        $stmt = $this->pdo->prepare("SELECT " . self::SELECT_COLS . " FROM documento d" . self::JOIN_CATEGORIA . self::JOIN_ESPECIALIDAD . self::JOIN_PACIENTE . " WHERE d.id = ?");
         $stmt->execute([$id]);
         $row = $stmt->fetch();
 
@@ -33,7 +34,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
 
     public function findByCodigoQr(int $codigoQrId): ?Documento
     {
-        $stmt = $this->pdo->prepare("SELECT " . self::SELECT_COLS . " FROM documento d" . self::JOIN_CATEGORIA . self::JOIN_ESPECIALIDAD . " WHERE d.codigo_qr_id = ?");
+        $stmt = $this->pdo->prepare("SELECT " . self::SELECT_COLS . " FROM documento d" . self::JOIN_CATEGORIA . self::JOIN_ESPECIALIDAD . self::JOIN_PACIENTE . " WHERE d.codigo_qr_id = ?");
         $stmt->execute([$codigoQrId]);
         $row = $stmt->fetch();
 
@@ -44,7 +45,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
 
     public function findByEncuesta(int $encuestaId): ?Documento
     {
-        $stmt = $this->pdo->prepare("SELECT " . self::SELECT_COLS . " FROM documento d" . self::JOIN_CATEGORIA . self::JOIN_ESPECIALIDAD . " WHERE d.encuesta_id = ?");
+        $stmt = $this->pdo->prepare("SELECT " . self::SELECT_COLS . " FROM documento d" . self::JOIN_CATEGORIA . self::JOIN_ESPECIALIDAD . self::JOIN_PACIENTE . " WHERE d.encuesta_id = ?");
         $stmt->execute([$encuestaId]);
         $row = $stmt->fetch();
 
@@ -53,9 +54,19 @@ class DocumentoRepository implements DocumentoRepositoryInterface
         return $this->hydrate($row);
     }
 
-    public function findAll(?int $categoriaId = null, ?string $busqueda = null, int $page = 1, int $perPage = 20): array
+    public function findByPaciente(int $pacienteId, ?int $categoriaId = null, ?string $busqueda = null, int $page = 1, int $perPage = 20): array
     {
-        $sql = "SELECT " . self::SELECT_COLS . " FROM documento d" . self::JOIN_CATEGORIA . self::JOIN_ESPECIALIDAD . " WHERE 1=1";
+        return $this->findAll($categoriaId, $busqueda, $pacienteId, $page, $perPage);
+    }
+
+    public function countByPaciente(int $pacienteId, ?int $categoriaId = null, ?string $busqueda = null): int
+    {
+        return $this->count($categoriaId, $busqueda, $pacienteId);
+    }
+
+    public function findAll(?int $categoriaId = null, ?string $busqueda = null, ?int $pacienteId = null, int $page = 1, int $perPage = 20): array
+    {
+        $sql = "SELECT " . self::SELECT_COLS . " FROM documento d" . self::JOIN_CATEGORIA . self::JOIN_ESPECIALIDAD . self::JOIN_PACIENTE . " WHERE 1=1";
         $params = [];
 
         if ($categoriaId !== null) {
@@ -64,9 +75,15 @@ class DocumentoRepository implements DocumentoRepositoryInterface
         }
 
         if ($busqueda !== null && $busqueda !== '') {
-            $sql .= " AND (d.titulo LIKE ? OR d.descripcion LIKE ?)";
+            $sql .= " AND (d.titulo LIKE ? OR d.descripcion LIKE ? OR CONCAT(pu.apellido, ', ', pu.nombre) LIKE ?)";
             $params[] = "%{$busqueda}%";
             $params[] = "%{$busqueda}%";
+            $params[] = "%{$busqueda}%";
+        }
+
+        if ($pacienteId !== null) {
+            $sql .= " AND d.paciente_id = ?";
+            $params[] = $pacienteId;
         }
 
         $sql .= " ORDER BY d.created_at DESC LIMIT ? OFFSET ?";
@@ -80,9 +97,9 @@ class DocumentoRepository implements DocumentoRepositoryInterface
         return array_map(fn (array $row) => $this->hydrate($row), $rows);
     }
 
-    public function count(?int $categoriaId = null, ?string $busqueda = null): int
+    public function count(?int $categoriaId = null, ?string $busqueda = null, ?int $pacienteId = null): int
     {
-        $sql = "SELECT COUNT(*) FROM documento d WHERE 1=1";
+        $sql = "SELECT COUNT(*) FROM documento d LEFT JOIN usuario pu ON pu.id = d.paciente_id WHERE 1=1";
         $params = [];
 
         if ($categoriaId !== null) {
@@ -91,9 +108,15 @@ class DocumentoRepository implements DocumentoRepositoryInterface
         }
 
         if ($busqueda !== null && $busqueda !== '') {
-            $sql .= " AND (d.titulo LIKE ? OR d.descripcion LIKE ?)";
+            $sql .= " AND (d.titulo LIKE ? OR d.descripcion LIKE ? OR CONCAT(pu.apellido, ', ', pu.nombre) LIKE ?)";
             $params[] = "%{$busqueda}%";
             $params[] = "%{$busqueda}%";
+            $params[] = "%{$busqueda}%";
+        }
+
+        if ($pacienteId !== null) {
+            $sql .= " AND d.paciente_id = ?";
+            $params[] = $pacienteId;
         }
 
         $stmt = $this->pdo->prepare($sql);
@@ -127,8 +150,8 @@ class DocumentoRepository implements DocumentoRepositoryInterface
             ?? (is_file($documento->getArchivoPath()) ? file_get_contents($documento->getArchivoPath()) : null);
 
         $stmt = $this->pdo->prepare("
-            INSERT INTO documento (titulo, descripcion, archivo_path, archivo_nombre, archivo_contenido, codigo_qr_id, qr_path, categoria_id, especialidad_id, encuesta_id, subido_por, activo)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO documento (titulo, descripcion, archivo_path, archivo_nombre, archivo_contenido, codigo_qr_id, qr_path, categoria_id, especialidad_id, encuesta_id, paciente_id, subido_por, activo)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         $stmt->execute([
             $documento->getTitulo(),
@@ -141,6 +164,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
             $documento->getCategoriaId(),
             $documento->getEspecialidadId(),
             $documento->getEncuestaId(),
+            $documento->getPacienteId(),
             $documento->getSubidoPor(),
             $documento->isActivo() ? 1 : 0,
         ]);
@@ -184,11 +208,13 @@ class DocumentoRepository implements DocumentoRepositoryInterface
             qrPath: $row['qr_path'],
             especialidadId: $row['especialidad_id'] !== null ? (int) $row['especialidad_id'] : null,
             encuestaId: $row['encuesta_id'] !== null ? (int) $row['encuesta_id'] : null,
+            pacienteId: $row['paciente_id'] !== null ? (int) $row['paciente_id'] : null,
             activo: (bool) $row['activo'],
             createdAt: $row['created_at'],
             updatedAt: $row['updated_at'],
             categoriaNombre: $row['categoria_nombre'] ?? null,
-            especialidadNombre: $row['especialidad_nombre'] ?? null
+            especialidadNombre: $row['especialidad_nombre'] ?? null,
+            pacienteNombre: $row['paciente_nombre'] ?? null
         );
     }
 }

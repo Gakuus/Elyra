@@ -20,6 +20,9 @@
                 <span class="badge bg-info bg-opacity-10 text-info"><?= htmlspecialchars($doc['especialidad']) ?></span>
             <?php endif; ?>
             <span class="badge bg-primary bg-opacity-10 text-primary"><?= htmlspecialchars($doc['categoria']) ?></span>
+            <?php if ($doc['paciente']): ?>
+                <span class="badge bg-success bg-opacity-10 text-success"><i class="bi bi-person"></i> <?= htmlspecialchars($doc['paciente']) ?></span>
+            <?php endif; ?>
             <small class="text-muted">Subido el <?= htmlspecialchars($doc['subido']) ?></small>
             <?php if (!$doc['activo']): ?>
                 <span class="badge bg-secondary">Inactivo</span>

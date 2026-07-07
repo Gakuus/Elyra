@@ -20,7 +20,8 @@ return [
 
     ['method' => 'GET',  'pattern' => '/publico/doc',     'controller' => 'PublicController', 'action' => 'verDocumento'],
     ['method' => 'GET',  'pattern' => '/publico/archivo', 'controller' => 'PublicController', 'action' => 'archivo'],
-    ['method' => 'GET',  'pattern' => '/publico/encuesta',   'controller' => 'PublicController', 'action' => 'mostrarEncuesta'],
+    ['method' => 'GET',  'pattern' => '/publico/mis-documentos', 'controller' => 'PublicController', 'action' => 'misDocumentos'],
+    ['method' => 'GET',  'pattern' => '/publico/encuesta', 'controller' => 'PublicController', 'action' => 'mostrarEncuesta'],
     ['method' => 'POST', 'pattern' => '/publico/encuesta',   'controller' => 'PublicController', 'action' => 'enviarEncuesta'],
 
     ['method' => 'GET',  'pattern' => '/encuestas',              'controller' => 'EncuestaController',  'action' => 'index'],
