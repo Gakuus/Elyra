@@ -59,6 +59,11 @@ class Funcionario extends Usuario
         return $this->telefono;
     }
 
+    public function setTelefono(?string $telefono): void
+    {
+        $this->telefono = $telefono;
+    }
+
     public function isActivo(): bool
     {
         return $this->activo;
