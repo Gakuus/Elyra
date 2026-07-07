@@ -17,6 +17,8 @@ class Documento
     private int $categoriaId;
     private ?int $especialidadId;
     private ?int $encuestaId;
+    private ?int $pacienteId;
+    private ?string $pacienteNombre;
     private int $subidoPor;
     private bool $activo;
     private ?string $createdAt;
@@ -36,11 +38,13 @@ class Documento
         ?string $qrPath = null,
         ?int $especialidadId = null,
         ?int $encuestaId = null,
+        ?int $pacienteId = null,
         bool $activo = true,
         ?string $createdAt = null,
         ?string $updatedAt = null,
         ?string $categoriaNombre = null,
-        ?string $especialidadNombre = null
+        ?string $especialidadNombre = null,
+        ?string $pacienteNombre = null
     ) {
         $this->id = $id;
         $this->titulo = $titulo;
@@ -53,11 +57,13 @@ class Documento
         $this->qrPath = $qrPath;
         $this->especialidadId = $especialidadId;
         $this->encuestaId = $encuestaId;
+        $this->pacienteId = $pacienteId;
         $this->activo = $activo;
         $this->createdAt = $createdAt;
         $this->updatedAt = $updatedAt;
         $this->categoriaNombre = $categoriaNombre;
         $this->especialidadNombre = $especialidadNombre;
+        $this->pacienteNombre = $pacienteNombre;
     }
 
     public function getId(): ?int { return $this->id; }
@@ -72,6 +78,8 @@ class Documento
     public function getCategoriaId(): int { return $this->categoriaId; }
     public function getEspecialidadId(): ?int { return $this->especialidadId; }
     public function getEncuestaId(): ?int { return $this->encuestaId; }
+    public function getPacienteId(): ?int { return $this->pacienteId; }
+    public function getPacienteNombre(): ?string { return $this->pacienteNombre; }
     public function getSubidoPor(): int { return $this->subidoPor; }
     public function isActivo(): bool { return $this->activo; }
     public function getCreatedAt(): ?string { return $this->createdAt; }

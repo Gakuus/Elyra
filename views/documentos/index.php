@@ -14,8 +14,16 @@
                 </option>
             <?php endforeach; ?>
         </select>
+        <select name="paciente" class="form-select" onchange="this.form.submit()">
+            <option value="">Todos los pacientes</option>
+            <?php foreach ($pacientes as $pac): ?>
+                <option value="<?= $pac['id'] ?>"<?= ($pacienteFiltro ?? '') == $pac['id'] ? ' selected' : '' ?>>
+                    <?= htmlspecialchars($pac['nombre']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
         <div class="position-relative">
-            <input type="text" name="q" class="form-control ps-4" placeholder="Buscar t&iacute;tulo..." value="<?= htmlspecialchars($search) ?>" aria-label="Buscar documento">
+            <input type="text" name="q" class="form-control ps-4" placeholder="Buscar t&iacute;tulo, descripci&oacute;n o paciente..." value="<?= htmlspecialchars($search) ?>" aria-label="Buscar documento">
             <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-2 text-muted small"></i>
         </div>
     </form>
@@ -45,6 +53,7 @@
                 <th style="width: 50px;">QR</th>
                 <th>T&iacute;tulo</th>
                 <th>Categor&iacute;a</th>
+                <th>Paciente</th>
                 <th>Subido</th>
                 <th style="width: 140px;">Acciones</th>
             </tr>
@@ -69,6 +78,7 @@
                         <?php endif; ?>
                         <span class="badge bg-primary bg-opacity-10 text-primary"><?= htmlspecialchars($doc['categoria']) ?></span>
                     </td>
+                    <td class="text-muted small"><?= $doc['paciente'] ? htmlspecialchars($doc['paciente']) : '<span class="text-muted fst-italic">Sin asignar</span>' ?></td>
                     <td class="text-muted small"><?= htmlspecialchars($doc['subido']) ?></td>
                     <td>
                         <div class="d-flex gap-1">
@@ -101,6 +111,9 @@
                     <span class="badge bg-info bg-opacity-10 text-info me-1"><?= htmlspecialchars($doc['especialidad']) ?></span>
                 <?php endif; ?>
                 <span class="badge bg-primary bg-opacity-10 text-primary me-2"><?= htmlspecialchars($doc['categoria']) ?></span>
+                <?php if ($doc['paciente']): ?>
+                    <span class="text-muted small me-2"><i class="bi bi-person"></i> <?= htmlspecialchars($doc['paciente']) ?></span>
+                <?php endif; ?>
                 <?= htmlspecialchars($doc['subido']) ?>
                 <?php if (!$doc['activo']): ?>
                     <span class="badge bg-secondary ms-2">Inactivo</span>

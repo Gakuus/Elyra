@@ -11,8 +11,10 @@ interface DocumentoRepositoryInterface
     public function findById(int $id): ?Documento;
     public function findByCodigoQr(int $codigoQrId): ?Documento;
     public function findByEncuesta(int $encuestaId): ?Documento;
-    public function findAll(?int $categoriaId = null, ?string $busqueda = null, int $page = 1, int $perPage = 20): array;
-    public function count(?int $categoriaId = null, ?string $busqueda = null): int;
+    public function findByPaciente(int $pacienteId, ?int $categoriaId = null, ?string $busqueda = null, int $page = 1, int $perPage = 20): array;
+    public function countByPaciente(int $pacienteId, ?int $categoriaId = null, ?string $busqueda = null): int;
+    public function findAll(?int $categoriaId = null, ?string $busqueda = null, ?int $pacienteId = null, int $page = 1, int $perPage = 20): array;
+    public function count(?int $categoriaId = null, ?string $busqueda = null, ?int $pacienteId = null): int;
     public function countTotal(): int;
     public function countActivos(): int;
     public function getArchivoContent(int $id): ?string;

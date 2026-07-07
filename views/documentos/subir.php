@@ -49,6 +49,18 @@
                     </div>
 
                     <div class="mb-3">
+                        <label for="paciente" class="form-label">Paciente</label>
+                        <select name="paciente" id="paciente" class="form-select">
+                            <option value="">Sin asignar...</option>
+                            <?php foreach ($pacientes as $pac): ?>
+                                <option value="<?= $pac['id'] ?>"<?= ($_POST['paciente'] ?? '') == $pac['id'] ? ' selected' : '' ?>>
+                                    <?= htmlspecialchars($pac['nombre']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
                         <label for="archivo" class="form-label">Archivo PDF <span class="text-danger">*</span></label>
                         <div id="dropZone" class="drop-zone">
                             <div class="drop-zone-content" id="dropContent">

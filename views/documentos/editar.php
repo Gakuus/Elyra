@@ -56,6 +56,18 @@
                         </div>
                     </div>
 
+                    <div class="mb-3">
+                        <label for="paciente" class="form-label">Paciente</label>
+                        <select name="paciente" id="paciente" class="form-select">
+                            <option value="">Sin asignar...</option>
+                            <?php foreach ($pacientes as $pac): ?>
+                                <option value="<?= $pac['id'] ?>"<?= ($doc['paciente_id'] ?? '') == $pac['id'] ? ' selected' : '' ?>>
+                                    <?= htmlspecialchars($pac['nombre']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
                     <div class="mb-4">
                         <label for="descripcion" class="form-label">Descripci&oacute;n (opcional)</label>
                         <textarea name="descripcion" id="descripcion" class="form-control" rows="3" maxlength="500" placeholder="Breve descripci&oacute;n del documento..."><?= htmlspecialchars($doc['descripcion'] ?? '') ?></textarea>
