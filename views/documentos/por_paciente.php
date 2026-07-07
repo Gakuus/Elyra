@@ -35,9 +35,14 @@ $frontendLimit = 8;
             <div class="win-panel mb-2">
                 <div class="win-titlebar"><i class="bi bi-person me-1"></i> Ficha del paciente</div>
                 <div class="p-3 text-center">
-                    <div class="d-inline-flex align-items-center justify-content-center text-white fw-bold mb-2 win-avatar" style="width: 80px; height: 80px; font-size: 30px;">
-                        <?= htmlspecialchars($iniciales) ?>
-                    </div>
+                    <?php $pfoto = $ciPaciente->getFotoBase64(); ?>
+                    <?php if ($pfoto): ?>
+                        <img src="<?= $pfoto ?>" alt="Foto de <?= htmlspecialchars($ciPaciente->getNombreCompleto()) ?>" class="win-avatar mb-2" style="width: 80px; height: 80px; object-fit: cover;">
+                    <?php else: ?>
+                        <div class="d-inline-flex align-items-center justify-content-center text-white fw-bold mb-2 win-avatar" style="width: 80px; height: 80px; font-size: 30px;">
+                            <?= htmlspecialchars($iniciales) ?>
+                        </div>
+                    <?php endif; ?>
                     <h5 class="fw-bold mb-1 win-text"><?= htmlspecialchars($ciPaciente->getNombreCompleto()) ?></h5>
                     <div class="d-flex justify-content-center gap-3 mb-2 win-text" style="font-size: 11px;">
                         <span><i class="bi bi-person-badge me-1"></i> CI: <?= htmlspecialchars($ci) ?></span>
