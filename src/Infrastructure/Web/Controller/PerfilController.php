@@ -59,6 +59,21 @@ class PerfilController extends BaseController
             $user->setTelefono($telefono !== '' ? $telefono : null);
         }
 
+        $ci = trim($_POST['documento_identidad'] ?? '');
+        if ($ci !== '' && $user->getDocumentoIdentidad() === null) {
+            if (!preg_match('/^\d{8}$/', $ci)) {
+                $this->render('perfil/index', ['error' => 'La cédula debe tener exactamente 8 dígitos.', 'user' => $user]);
+                return;
+            }
+
+            try {
+                $user->setDocumentoIdentidad($ci);
+            } catch (\Throwable $th) {
+                $this->render('perfil/index', ['error' => 'Esa cédula ya está registrada por otro usuario.', 'user' => $user]);
+                return;
+            }
+        }
+
         $password = $_POST['password'] ?? '';
         $password2 = $_POST['password2'] ?? '';
 
@@ -75,18 +90,9 @@ class PerfilController extends BaseController
         }
 
         if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $mime = finfo_file($finfo, $_FILES['foto']['tmp_name']);
-            finfo_close($finfo);
-
-            $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-            if (!in_array($mime, $allowed)) {
-                $this->render('perfil/index', ['error' => 'La foto debe ser JPEG, PNG, GIF o WebP.', 'user' => $user]);
-                return;
-            }
-
-            if ($_FILES['foto']['size'] > 2 * 1024 * 1024) {
-                $this->render('perfil/index', ['error' => 'La foto no debe superar los 2MB.', 'user' => $user]);
+            $error = $this->validarFoto($_FILES['foto']);
+            if ($error) {
+                $this->render('perfil/index', ['error' => $error, 'user' => $user]);
                 return;
             }
 
@@ -96,14 +102,50 @@ class PerfilController extends BaseController
 
         $esPaciente = $user->getTipo() === 'paciente';
 
-        if ($esPaciente) {
-            $this->usuarioRepo->updatePaciente($user);
-        } else {
-            $this->usuarioRepo->updateFuncionario($user);
+        try {
+            if ($esPaciente) {
+                $this->usuarioRepo->updatePaciente($user);
+            } else {
+                $this->usuarioRepo->updateFuncionario($user);
+            }
+        } catch (\Throwable $th) {
+            $this->render('perfil/index', ['error' => 'Error al guardar. Verificá que los datos no estén duplicados.', 'user' => $user]);
+            return;
         }
 
         $_SESSION['user_nombre'] = $user->getNombreCompleto();
 
         $this->render('perfil/index', ['success' => 'Datos actualizados correctamente.', 'user' => $user]);
+    }
+
+    private function validarFoto(array $file): ?string
+    {
+        $allowedMime = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        $allowedExt = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime = finfo_file($finfo, $file['tmp_name']);
+        finfo_close($finfo);
+
+        if (!in_array($mime, $allowedMime, true)) {
+            return 'La foto debe ser JPEG, PNG, GIF o WebP.';
+        }
+
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if (!in_array($ext, $allowedExt, true)) {
+            return 'Extensión de archivo no permitida.';
+        }
+
+        if ($file['size'] > 2 * 1024 * 1024) {
+            return 'La foto no debe superar los 2MB.';
+        }
+
+        $img = @imagecreatefromstring(file_get_contents($file['tmp_name']));
+        if ($img === false) {
+            return 'El archivo no es una imagen válida.';
+        }
+        imagedestroy($img);
+
+        return null;
     }
 }

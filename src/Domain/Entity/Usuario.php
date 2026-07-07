@@ -100,4 +100,9 @@ class Usuario
     {
         $this->email = $email;
     }
+
+    public function setDocumentoIdentidad(?string $documentoIdentidad): void
+    {
+        $this->documentoIdentidad = $documentoIdentidad;
+    }
 }
