@@ -142,6 +142,26 @@
     <a href="/encuestas" class="btn btn-outline-primary btn-sm"><i class="bi bi-bar-chart me-1"></i> Ir a Encuestas</a>
 </div>
 
+<script>
+    window.Elyra = window.Elyra || {};
+    window.Elyra.verDocumento = window.Elyra.verDocumento || function (id, titulo, categoria, especialidad, subido) {
+        var embedEl = document.getElementById('previewEmbed');
+        if (!embedEl) return;
+        var titleEl = document.getElementById('previewTitle');
+        var metaEl = document.getElementById('previewMeta');
+        var downloadEl = document.getElementById('previewDownload');
+        titleEl.textContent = titulo;
+        var badges = '';
+        if (especialidad) { badges += '<span class="badge bg-info bg-opacity-10 text-info me-1">' + especialidad + '</span>'; }
+        badges += '<span class="badge bg-primary bg-opacity-10 text-primary me-1">' + categoria + '</span>';
+        badges += '<small class="text-muted">Subido el ' + subido + '</small>';
+        metaEl.innerHTML = badges;
+        embedEl.src = '/documentos/archivo?id=' + id;
+        downloadEl.href = '/documentos/archivo?id=' + id + '&descargar=1';
+        new bootstrap.Modal(document.getElementById('docPreviewModal')).show();
+    };
+</script>
+
 <div class="modal fade" id="docPreviewModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen modal-dialog-centered">
         <div class="modal-content bg-body">
