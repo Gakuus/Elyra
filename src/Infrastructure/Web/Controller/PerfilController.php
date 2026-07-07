@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Elyra\Infrastructure\Web\Controller;
 
-use Elyra\Domain\Entity\Paciente;
 use Elyra\Infrastructure\Persistence\MySQL\UsuarioRepository;
 use Elyra\Infrastructure\Service\SessionManager;
-use Elyra\Infrastructure\Service\Validator;
 
 class PerfilController extends BaseController
 {
@@ -21,30 +19,23 @@ class PerfilController extends BaseController
     public function index(): void
     {
         $this->requireAuth();
-        $this->requireRole('paciente');
 
         $userId = SessionManager::getUserId();
-        $paciente = $this->usuarioRepo->findById($userId);
-
-        if (!$paciente || !($paciente instanceof Paciente)) {
-            $this->render('perfil/index', ['error' => 'Paciente no encontrado.', 'paciente' => null]);
-            return;
-        }
+        $user = $this->usuarioRepo->findById($userId);
 
         $this->render('perfil/index', [
-            'paciente' => $paciente,
+            'user' => $user,
         ]);
     }
 
     public function actualizar(): void
     {
         $this->requireAuth();
-        $this->requireRole('paciente');
 
         $userId = SessionManager::getUserId();
-        $paciente = $this->usuarioRepo->findById($userId);
+        $user = $this->usuarioRepo->findById($userId);
 
-        if (!$paciente || !($paciente instanceof Paciente)) {
+        if (!$user) {
             $this->redirect('/perfil');
             return;
         }
@@ -53,12 +44,12 @@ class PerfilController extends BaseController
         $email = trim($_POST['email'] ?? '');
 
         if ($telefono !== '' && !preg_match('/^[0-9]{8,9}$/', $telefono)) {
-            $this->render('perfil/index', ['error' => 'El teléfono debe tener 8 o 9 dígitos.', 'paciente' => $paciente]);
+            $this->render('perfil/index', ['error' => 'El teléfono debe tener 8 o 9 dígitos.', 'user' => $user]);
             return;
         }
 
         if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $this->render('perfil/index', ['error' => 'Email inválido.', 'paciente' => $paciente]);
+            $this->render('perfil/index', ['error' => 'Email inválido.', 'user' => $user]);
             return;
         }
 
@@ -67,28 +58,35 @@ class PerfilController extends BaseController
 
         if ($password !== '') {
             if (strlen($password) < 6) {
-                $this->render('perfil/index', ['error' => 'La contraseña debe tener al menos 6 caracteres.', 'paciente' => $paciente]);
+                $this->render('perfil/index', ['error' => 'La contraseña debe tener al menos 6 caracteres.', 'user' => $user]);
                 return;
             }
             if ($password !== $password2) {
-                $this->render('perfil/index', ['error' => 'Las contraseñas no coinciden.', 'paciente' => $paciente]);
+                $this->render('perfil/index', ['error' => 'Las contraseñas no coinciden.', 'user' => $user]);
                 return;
             }
-            $paciente->setPasswordHash(password_hash($password, PASSWORD_BCRYPT));
+            $user->setPasswordHash(password_hash($password, PASSWORD_BCRYPT));
         }
 
-        if ($telefono !== '') {
-            $paciente->setTelefono($telefono);
+        $esPaciente = $user->getTipo() === 'paciente';
+
+        if ($esPaciente) {
+            if ($telefono !== '') {
+                $user->setTelefono($telefono);
+            }
+            if ($email !== '') {
+                $user->setEmail($email);
+            }
+            $this->usuarioRepo->updatePaciente($user);
+        } else {
+            if ($email !== '') {
+                $user->setEmail($email);
+            }
+            $this->usuarioRepo->updateFuncionario($user);
         }
 
-        if ($email !== '') {
-            $paciente->setEmail($email);
-        }
+        $_SESSION['user_nombre'] = $user->getNombreCompleto();
 
-        $this->usuarioRepo->updatePaciente($paciente);
-
-        $_SESSION['user_nombre'] = $paciente->getNombreCompleto();
-
-        $this->render('perfil/index', ['success' => 'Datos actualizados correctamente.', 'paciente' => $paciente]);
+        $this->render('perfil/index', ['success' => 'Datos actualizados correctamente.', 'user' => $user]);
     }
 }
