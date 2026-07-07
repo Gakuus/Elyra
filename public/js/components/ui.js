@@ -261,14 +261,19 @@
     };
 
     window.Elyra.verDocPublico = function (id, titulo) {
+        var modalEl = document.getElementById('docPublicoModal');
         var embedEl = document.getElementById('publicoPreviewEmbed');
         var downloadEl = document.getElementById('publicoPreviewDownload');
         var titleEl = document.getElementById('publicoPreviewTitle');
-        if (!embedEl || !downloadEl || !titleEl) return;
+        if (!modalEl || !embedEl || !downloadEl || !titleEl) return;
         titleEl.textContent = titulo;
-        embedEl.src = '/publico/archivo?id=' + id;
         downloadEl.href = '/publico/archivo?id=' + id + '&descargar=1';
-        new bootstrap.Modal(document.getElementById('docPublicoModal')).show();
+        embedEl.src = '';
+        var modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+        modal.show();
+        modalEl.addEventListener('shown.bs.modal', function () {
+            embedEl.src = '/publico/archivo?id=' + id;
+        }, { once: true });
     };
 
     document.addEventListener('hidden.bs.modal', function (e) {
