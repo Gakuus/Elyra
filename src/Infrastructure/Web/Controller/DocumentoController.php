@@ -6,6 +6,7 @@ namespace Elyra\Infrastructure\Web\Controller;
 
 use Elyra\Domain\Entity\Categoria;
 use Elyra\Domain\Entity\Documento;
+use Elyra\Domain\Entity\Paciente;
 use Elyra\Infrastructure\Persistence\MySQL\CategoriaRepository;
 use Elyra\Infrastructure\Persistence\MySQL\DocumentoRepository;
 use Elyra\Infrastructure\Persistence\MySQL\UsuarioRepository;
@@ -31,15 +32,16 @@ class DocumentoController extends BaseController
     {
         $this->requireAuth();
 
+        if (!SessionManager::isPaciente()) {
+            $this->redirect('/dashboard');
+            return;
+        }
+
         $search = trim($_GET['q'] ?? '');
         $categoriaId = isset($_GET['categoria']) && $_GET['categoria'] !== '' ? (int) $_GET['categoria'] : null;
-        $pacienteId = isset($_GET['paciente']) && $_GET['paciente'] !== '' ? (int) $_GET['paciente'] : null;
+        $pacienteId = SessionManager::getUserId();
         $page = max(1, (int) ($_GET['pagina'] ?? 1));
-        $perPage = 5;
-
-        if (SessionManager::isPaciente()) {
-            $pacienteId = SessionManager::getUserId();
-        }
+        $perPage = 20;
 
         $documentos = $this->docRepo->findAll($categoriaId, $search ?: null, $pacienteId, $page, $perPage);
         $total = $this->docRepo->count($categoriaId, $search ?: null, $pacienteId);
@@ -48,13 +50,78 @@ class DocumentoController extends BaseController
         $this->render('documentos/index', [
             'documentos' => array_map(fn (Documento $d) => $this->docToArray($d), $documentos),
             'tiposDocumento' => $this->categoriaArray($this->categoriaRepo->findByTipo('tipo_documento')),
-            'pacientes' => SessionManager::isPaciente() ? [] : $this->pacienteArray($this->usuarioRepo->findAllPacientes()),
             'total' => $total,
             'pagina' => $page,
             'totalPaginas' => $totalPaginas,
             'search' => $search,
             'categoriaFiltro' => $categoriaId,
-            'pacienteFiltro' => $pacienteId,
+        ]);
+    }
+
+    public function generales(): void
+    {
+        $this->requireAuth();
+        $this->denyPaciente();
+
+        $search = trim($_GET['q'] ?? '');
+        $categoriaId = isset($_GET['categoria']) && $_GET['categoria'] !== '' ? (int) $_GET['categoria'] : null;
+        $page = max(1, (int) ($_GET['pagina'] ?? 1));
+        $perPage = 20;
+
+        $documentos = $this->docRepo->findGenerales($categoriaId, $search ?: null, $page, $perPage);
+        $total = $this->docRepo->countGenerales($categoriaId, $search ?: null);
+        $totalPaginas = max(1, (int) ceil($total / $perPage));
+
+        $this->render('documentos/generales', [
+            'documentos' => array_map(fn (Documento $d) => $this->docToArray($d), $documentos),
+            'tiposDocumento' => $this->categoriaArray($this->categoriaRepo->findByTipo('tipo_documento')),
+            'total' => $total,
+            'pagina' => $page,
+            'totalPaginas' => $totalPaginas,
+            'search' => $search,
+            'categoriaFiltro' => $categoriaId,
+        ]);
+    }
+
+    public function porPaciente(): void
+    {
+        $this->requireAuth();
+        $this->denyPaciente();
+
+        $ci = trim($_GET['ci'] ?? '');
+        $search = trim($_GET['q'] ?? '');
+        $categoriaId = isset($_GET['categoria']) && $_GET['categoria'] !== '' ? (int) $_GET['categoria'] : null;
+        $page = max(1, (int) ($_GET['pagina'] ?? 1));
+        $perPage = 20;
+
+        $paciente = null;
+        $documentos = [];
+        $total = 0;
+        $totalPaginas = 1;
+        $ciError = null;
+
+        if ($ci !== '') {
+            $paciente = $this->usuarioRepo->findByDocumentoIdentidad($ci);
+            if ($paciente) {
+                $documentos = $this->docRepo->findAll($categoriaId, $search ?: null, $paciente->getId(), $page, $perPage);
+                $total = $this->docRepo->count($categoriaId, $search ?: null, $paciente->getId());
+                $totalPaginas = max(1, (int) ceil($total / $perPage));
+            } else {
+                $ciError = "No se encontr&oacute; paciente con CI {$ci}.";
+            }
+        }
+
+        $this->render('documentos/por_paciente', [
+            'documentos' => array_map(fn (Documento $d) => $this->docToArray($d), $documentos),
+            'tiposDocumento' => $this->categoriaArray($this->categoriaRepo->findByTipo('tipo_documento')),
+            'total' => $total,
+            'pagina' => $page,
+            'totalPaginas' => $totalPaginas,
+            'search' => $search,
+            'categoriaFiltro' => $categoriaId,
+            'ci' => $ci,
+            'ciError' => $ciError,
+            'ciPaciente' => $paciente,
         ]);
     }
 
@@ -154,9 +221,9 @@ class DocumentoController extends BaseController
         $this->docRepo->save($doc);
 
         if ($isJson) {
-            $this->json(['success' => true, 'redirect' => '/documentos']);
+            $this->json(['success' => true, 'redirect' => '/documentos/generales']);
         } else {
-            $this->redirect('/documentos?subido=1');
+            $this->redirect('/documentos/generales?subido=1');
         }
     }
 
@@ -167,7 +234,7 @@ class DocumentoController extends BaseController
 
         $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
         if ($id <= 0) {
-            $this->redirect('/documentos');
+            $this->redirect('/documentos/generales');
             return;
         }
 
@@ -224,7 +291,7 @@ class DocumentoController extends BaseController
         if (!$doc) {
             $msg = 'Documento no encontrado.';
             if ($isJson) { $this->json(['error' => $msg], 404); return; }
-            $this->redirect('/documentos');
+            $this->redirect('/documentos/generales');
             return;
         }
 
@@ -248,9 +315,9 @@ class DocumentoController extends BaseController
         $this->docRepo->update($updated);
 
         if ($isJson) {
-            $this->json(['success' => true, 'redirect' => '/documentos']);
+            $this->json(['success' => true, 'redirect' => '/documentos/generales']);
         } else {
-            $this->redirect('/documentos?editado=1');
+            $this->redirect('/documentos/generales?editado=1');
         }
     }
 
@@ -261,12 +328,12 @@ class DocumentoController extends BaseController
 
         $id = (int) ($_GET['id'] ?? 0);
         if ($id <= 0) {
-            $this->redirect('/documentos');
+            $this->redirect('/documentos/generales');
             return;
         }
 
         $this->docRepo->delete($id);
-        $this->redirect('/documentos?eliminado=1');
+        $this->redirect('/documentos/generales?eliminado=1');
     }
 
     public function ver(): void

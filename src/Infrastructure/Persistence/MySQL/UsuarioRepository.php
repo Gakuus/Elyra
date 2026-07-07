@@ -304,6 +304,19 @@ class UsuarioRepository implements UsuarioRepositoryInterface
         return $result;
     }
 
+    public function findByDocumentoIdentidad(string $documento): ?Paciente
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT u.*, p.*
+            FROM usuario u
+            JOIN paciente p ON p.id = u.id
+            WHERE u.documento_identidad = ?
+        ");
+        $stmt->execute([$documento]);
+        $row = $stmt->fetch();
+        return $row ? $this->hydratePaciente($row) : null;
+    }
+
     public function findAllPacientes(): array
     {
         $stmt = $this->pdo->query("

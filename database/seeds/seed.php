@@ -111,4 +111,32 @@ if ($count === 0) {
     echo "  - Rutas ya existen ({$count} encontradas)\n";
 }
 
+// Default encuesta: Satisfaccion general del paciente
+$stmt = $pdo->prepare("SELECT id FROM encuesta WHERE titulo = ?");
+$stmt->execute(['Satisfacción general del paciente']);
+if (!$stmt->fetch()) {
+    $stmt = $pdo->prepare("SELECT id FROM funcionario WHERE username = 'admin'");
+    $stmt->execute();
+    $admin = $stmt->fetch();
+    $adminId = $admin ? (int) $admin['id'] : 2;
+
+    $pdo->prepare("INSERT INTO encuesta (titulo, descripcion, activa, creada_por) VALUES (?, ?, TRUE, ?)")
+        ->execute(['Satisfacción general del paciente', 'Ayudanos a mejorar contando tu experiencia durante tu estadía en el hospital.', $adminId]);
+    $encuestaId = (int) $pdo->lastInsertId();
+
+    $preguntas = [
+        ['¿Cómo calificarías la atención general recibida?', 'escala', 0, null],
+        ['¿Recomendarías este hospital a otros pacientes?', 'multiple_choice', 1, json_encode(['Sí, definitivamente', 'Sí, probablemente', 'No estoy seguro', 'No'], JSON_UNESCAPED_UNICODE)],
+        ['Dejanos tu comentario o sugerencia', 'texto_libre', 2, null],
+    ];
+
+    $insert = $pdo->prepare("INSERT INTO pregunta (encuesta_id, tipo, texto, opciones, requerida, `orden`) VALUES (?, ?, ?, ?, TRUE, ?)");
+    foreach ($preguntas as [$texto, $tipo, $orden, $opciones]) {
+        $insert->execute([$encuestaId, $tipo, $texto, $opciones, $orden]);
+    }
+    echo "  ✓ Encuesta 'Satisfacción general del paciente' creada\n";
+} else {
+    echo "  - Encuesta 'Satisfacción general del paciente' ya existe\n";
+}
+
 echo "\nSeeders completados.\n";

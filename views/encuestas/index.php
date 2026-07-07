@@ -4,90 +4,77 @@ $isPaciente = \Elyra\Infrastructure\Service\SessionManager::isPaciente();
 ?>
 <?php ob_start(); ?>
 
-<div class="action-bar">
-    <?php if (!$isPaciente): ?>
-    <a href="/encuestas/crear" class="btn btn-primary">
-        <i class="bi bi-plus-lg me-1"></i> Nueva encuesta
-    </a>
-    <?php endif; ?>
-</div>
+<div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-9">
 
-<?php if (empty($encuestas)): ?>
-    <div class="text-center py-5">
-        <div class="display-6 text-muted mb-3"><i class="bi bi-bar-chart"></i></div>
-        <h5 class="fw-semibold">No hay encuestas</h5>
-        <p class="text-muted mb-4">A&uacute;n no se ha creado ninguna encuesta.</p>
-        <?php if (!$isPaciente): ?>
-        <a href="/encuestas/crear" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> Crear primera encuesta</a>
-        <?php endif; ?>
-    </div>
-<?php else: ?>
-    <div class="table-responsive">
-        <table class="table table-elyra mb-0">
-            <thead>
-                <tr>
-                    <th>T&iacute;tulo</th>
-                    <th>Preguntas</th>
-                    <th>Estado</th>
-                    <th>Creada</th>
-                    <th style="width: 160px;">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($encuestas as $e): ?>
-                    <tr>
-                        <td>
-                            <div class="fw-semibold"><?= htmlspecialchars($e['titulo']) ?></div>
-                            <small class="text-muted"><?= htmlspecialchars($e['descripcion']) ?></small>
-                        </td>
-                        <td><span class="badge bg-secondary bg-opacity-10 text-secondary"><?= $e['preguntas'] ?></span></td>
-                        <td>
-                            <?php if ($isPaciente): ?>
-                                <span class="badge bg-<?= $e['activa'] ? 'success' : 'secondary' ?> bg-opacity-10 text-<?= $e['activa'] ? 'success' : 'secondary' ?>"><?= $e['activa'] ? 'Activa' : 'Inactiva' ?></span>
-                            <?php else: ?>
-                            <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" role="switch" id="toggle-<?= $e['id'] ?>"<?= $e['activa'] ? ' checked' : '' ?> data-encuesta-id="<?= $e['id'] ?>">
-                                <label class="form-check-label small" for="toggle-<?= $e['id'] ?>"><?= $e['activa'] ? 'Activa' : 'Inactiva' ?></label>
-                            </div>
-                            <?php endif; ?>
-                        </td>
-                        <td class="text-muted small"><?= htmlspecialchars($e['creada']) ?></td>
-                        <td>
-                            <div class="d-flex gap-1">
-                                <a href="/encuestas/resultados?id=<?= $e['id'] ?>" class="btn btn-sm btn-outline-secondary border-0" title="Ver resultados">
-                                    <i class="bi bi-bar-chart"></i>
-                                </a>
-                                <button type="button" class="btn btn-sm btn-outline-secondary border-0" title="Copiar enlace" onclick="Elyra.copiarEnlaceEncuesta(<?= $e['id'] ?>, this)">
-                                    <i class="bi bi-link-45deg"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="card-list-view mt-3">
-        <?php foreach ($encuestas as $e): ?>
-            <div class="card-item">
-                <div class="card-item-title"><?= htmlspecialchars($e['titulo']) ?></div>
-                <div class="card-item-meta">
-                    <span class="badge bg-secondary bg-opacity-10 text-secondary me-2"><?= $e['preguntas'] ?> preg.</span>
-                    <span class="badge bg-<?= $e['activa'] ? 'success' : 'secondary' ?> bg-opacity-10 text-<?= $e['activa'] ? 'success' : 'secondary' ?> me-2"><?= $e['activa'] ? 'Activa' : 'Inactiva' ?></span>
-                    <?= htmlspecialchars($e['creada']) ?>
-                </div>
-                <div class="card-item-actions">
-                    <a href="/encuestas/resultados?id=<?= $e['id'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-bar-chart"></i></a>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="Elyra.copiarEnlaceEncuesta(<?= $e['id'] ?>, this)"><i class="bi bi-link-45deg"></i></button>
-                </div>
+        <div class="win-panel mb-3">
+            <div class="win-titlebar d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-bar-chart me-1"></i> Encuestas</span>
+                <?php if (!$isPaciente): ?>
+                <a href="/encuestas/crear" class="win-btn win-btn-primary py-0 px-3" style="font-size: 11px;">
+                    <i class="bi bi-plus-lg me-1"></i> Nueva
+                </a>
+                <?php endif; ?>
             </div>
-        <?php endforeach; ?>
-    </div>
-<?php endif; ?>
 
-<div class="mt-3">
-    <a href="/documentos" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-text me-1"></i> Ir a Documentos</a>
+            <?php if (empty($encuestas)): ?>
+                <div class="p-4 text-center win-text" style="font-size: 12px;">
+                    <i class="bi bi-bar-chart fs-1 d-block mb-2"></i>
+                    <p class="mb-2">No hay encuestas.</p>
+                    <?php if (!$isPaciente): ?>
+                    <a href="/encuestas/crear" class="win-btn win-btn-primary">Crear primera encuesta</a>
+                    <?php endif; ?>
+                </div>
+            <?php else: ?>
+                <div class="win-inset m-2">
+                    <table class="win-table">
+                        <thead>
+                            <tr>
+                                <th>T&iacute;tulo</th>
+                                <th>Preg.</th>
+                                <th>Estado</th>
+                                <th>Creada</th>
+                                <th style="width: 120px;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($encuestas as $e): ?>
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold win-text"><?= htmlspecialchars($e['titulo']) ?></div>
+                                        <small class="win-text"><?= htmlspecialchars($e['descripcion']) ?></small>
+                                    </td>
+                                    <td class="win-text"><?= $e['preguntas'] ?></td>
+                                    <td>
+                                        <?php if ($isPaciente): ?>
+                                            <span class="win-text"><?= $e['activa'] ? 'Activa' : 'Inactiva' ?></span>
+                                        <?php else: ?>
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="toggle-<?= $e['id'] ?>"<?= $e['activa'] ? ' checked' : '' ?> data-encuesta-id="<?= $e['id'] ?>">
+                                            <label class="form-check-label small win-text" for="toggle-<?= $e['id'] ?>"><?= $e['activa'] ? 'Activa' : 'Inactiva' ?></label>
+                                        </div>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="win-text"><?= htmlspecialchars($e['creada']) ?></td>
+                                    <td>
+                                        <div class="d-flex gap-1">
+                                            <a href="/encuestas/resultados?id=<?= $e['id'] ?>" class="win-btn win-btn-sm" title="Ver resultados">
+                                                <i class="bi bi-bar-chart"></i>
+                                            </a>
+                                            <button type="button" class="win-btn win-btn-sm" title="Copiar enlace" onclick="Elyra.copiarEnlaceEncuesta(<?= $e['id'] ?>, this)">
+                                                <i class="bi bi-link-45deg"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
+
+    </div>
 </div>
 
 <?php $contenido = ob_get_clean(); ?>

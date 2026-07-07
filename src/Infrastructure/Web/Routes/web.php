@@ -21,16 +21,18 @@ return [
     ['method' => 'GET',  'pattern' => '/documentos/eliminar', 'controller' => 'DocumentoController', 'action' => 'eliminar'],
     ['method' => 'GET',  'pattern' => '/documentos/ver', 'controller' => 'DocumentoController',  'action' => 'ver'],
     ['method' => 'GET',  'pattern' => '/documentos/archivo', 'controller' => 'DocumentoController',  'action' => 'archivo'],
+    ['method' => 'GET',  'pattern' => '/documentos/generales', 'controller' => 'DocumentoController',  'action' => 'generales'],
+    ['method' => 'GET',  'pattern' => '/documentos/paciente', 'controller' => 'DocumentoController',  'action' => 'porPaciente'],
 
     ['method' => 'GET',  'pattern' => '/publico/doc',     'controller' => 'PublicController', 'action' => 'verDocumento'],
     ['method' => 'GET',  'pattern' => '/publico/archivo', 'controller' => 'PublicController', 'action' => 'archivo'],
     ['method' => 'GET',  'pattern' => '/publico/mis-documentos', 'controller' => 'PublicController', 'action' => 'misDocumentos'],
     ['method' => 'GET',  'pattern' => '/publico/encuesta', 'controller' => 'PublicController', 'action' => 'mostrarEncuesta'],
-    ['method' => 'POST', 'pattern' => '/publico/encuesta',   'controller' => 'PublicController', 'action' => 'enviarEncuesta'],
+    ['method' => 'POST', 'pattern' => '/publico/encuesta',   'controller' => 'PublicController', 'action' => 'mostrarEncuesta'],
 
     ['method' => 'GET',  'pattern' => '/encuestas',              'controller' => 'EncuestaController',  'action' => 'index'],
     ['method' => 'GET',  'pattern' => '/encuestas/crear',        'controller' => 'EncuestaController',  'action' => 'crear'],
-    ['method' => 'POST', 'pattern' => '/encuestas/crear',        'controller' => 'EncuestaController',  'action' => 'guardar'],
+    ['method' => 'POST', 'pattern' => '/encuestas/crear',        'controller' => 'EncuestaController',  'action' => 'crear'],
     ['method' => 'GET',  'pattern' => '/encuestas/resultados', 'controller' => 'EncuestaController', 'action' => 'resultados'],
 
     ['method' => 'GET',  'pattern' => '/traslados',                 'controller' => 'TrasladoController',  'action' => 'index'],

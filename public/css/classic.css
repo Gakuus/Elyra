@@ -1,0 +1,278 @@
+/*
+ * ============================================================
+ * ELYRA — Tema Clásico Windows
+ * ============================================================
+ * Estilo visual inspirado en Windows 95/2000.
+ * Aplica a toda la sección de administración.
+ *
+ * Clases principales:
+ *   .win-panel        — Panel gris con bordes 3D levantados
+ *   .win-panel-inset  — Panel gris con borde hundido
+ *   .win-titlebar     — Barra azul marino (título de ventana)
+ *   .win-titlebar-gray— Barra gris (título de sección)
+ *   .win-inset        — Área de contenido con borde hundido
+ *   .win-btn          — Botón 3D (se hunde al hacer clic)
+ *   .win-btn-primary  — Botón azul marino (acción principal)
+ *   .win-btn-sm       — Botón pequeño
+ *   .win-field        — Campo de texto con borde hundido
+ *   .win-select       — Select desplegable
+ *   .win-label        — Etiqueta de formulario
+ *   .win-avatar       — Avatar con iniciales
+ *   .win-table        — Tabla con bordes clásicos
+ *   .win-navbar       — Barra de navegación estilo Windows
+ *   .win-statusbar    — Barra de estado al pie
+ *   .win-separator    — Separador elevado (como en Windows)
+ * ============================================================
+ */
+
+/* === BASE === */
+body.win-body {
+    background: #808080;
+    font-family: Tahoma, 'MS Sans Serif', sans-serif;
+    color: #000000;
+}
+
+/* === PANELS === */
+.win-panel {
+    background: #c0c0c0;
+    border: 2px solid;
+    border-color: #ffffff #808080 #808080 #ffffff;
+    font-family: Tahoma, 'MS Sans Serif', sans-serif;
+}
+
+.win-panel-inset {
+    background: #c0c0c0;
+    border: 2px solid;
+    border-color: #808080 #ffffff #ffffff #808080;
+    font-family: Tahoma, 'MS Sans Serif', sans-serif;
+}
+
+/* === TITLE BARS === */
+.win-titlebar {
+    background: #000080;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 12px;
+    padding: 4px 8px;
+    font-family: Tahoma, 'MS Sans Serif', sans-serif;
+    border-bottom: 2px solid #808080;
+}
+
+.win-titlebar-gray {
+    background: #c0c0c0;
+    color: #000000;
+    font-weight: bold;
+    font-size: 12px;
+    padding: 4px 8px;
+    font-family: Tahoma, 'MS Sans Serif', sans-serif;
+    border-bottom: 2px solid #808080;
+}
+
+/* === INSET CONTENT AREA (sunken border) === */
+.win-inset {
+    border: 2px inset #808080;
+    background: #ffffff;
+}
+
+/* === FORM CONTROLS === */
+.win-field {
+    border: 2px inset #808080;
+    background: #ffffff;
+    font-family: Tahoma, 'MS Sans Serif', sans-serif;
+    font-size: 12px;
+    padding: 3px 6px;
+    color: #000000;
+    outline: none;
+}
+
+.win-select {
+    border: 2px inset #808080;
+    background: #ffffff;
+    font-family: Tahoma, 'MS Sans Serif', sans-serif;
+    font-size: 11px;
+    padding: 2px 4px;
+    color: #000000;
+}
+
+.win-label {
+    font-family: Tahoma, 'MS Sans Serif', sans-serif;
+    font-size: 11px;
+    color: #000000;
+}
+
+/* === BUTTONS === */
+.win-btn {
+    border: 2px outset #c0c0c0;
+    background: #c0c0c0;
+    font-family: Tahoma, 'MS Sans Serif', sans-serif;
+    font-size: 11px;
+    padding: 3px 14px;
+    cursor: pointer;
+    color: #000000;
+    text-decoration: none;
+    display: inline-block;
+    line-height: normal;
+}
+
+.win-btn:hover {
+    text-decoration: none;
+    color: #000000;
+}
+
+.win-btn:active {
+    border-style: inset;
+}
+
+.win-btn-primary {
+    border-color: #000080;
+    background: #000080;
+    color: #ffffff;
+}
+
+.win-btn-primary:hover {
+    color: #ffffff;
+}
+
+.win-btn-sm {
+    font-size: 11px;
+    padding: 1px 8px;
+}
+
+/* === AVATAR === */
+.win-avatar {
+    border: 2px solid #808080;
+    background: #000080;
+}
+
+/* === TABLE === */
+.win-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Tahoma, 'MS Sans Serif', sans-serif;
+    font-size: 11px;
+    background: #ffffff;
+}
+
+.win-table th {
+    background: #c0c0c0;
+    border: 1px solid #808080;
+    padding: 4px 6px;
+    font-weight: bold;
+    text-align: left;
+}
+
+.win-table td {
+    border: 1px solid #808080;
+    padding: 3px 6px;
+}
+
+/* === NAVBAR === */
+.win-navbar {
+    background: #c0c0c0;
+    border-bottom: 2px solid #808080;
+    font-family: Tahoma, 'MS Sans Serif', sans-serif;
+    font-size: 12px;
+    padding: 2px 0;
+}
+
+.win-navbar .nav-link {
+    color: #000000;
+    padding: 4px 12px;
+    border: 1px solid transparent;
+}
+
+.win-navbar .nav-link:hover {
+    border-color: #808080 #ffffff #ffffff #808080;
+    background: #c0c0c0;
+}
+
+.win-navbar .nav-link.active {
+    border: 1px inset #808080;
+    background: #c0c0c0;
+}
+
+.win-dropdown-menu {
+    background: #c0c0c0;
+    border: 2px solid;
+    border-color: #ffffff #808080 #808080 #ffffff;
+    font-family: Tahoma, 'MS Sans Serif', sans-serif;
+    font-size: 11px;
+    padding: 2px;
+}
+
+.win-dropdown-item {
+    padding: 3px 20px;
+    color: #000000;
+    text-decoration: none;
+    display: block;
+}
+
+.win-dropdown-item:hover {
+    background: #000080;
+    color: #ffffff;
+}
+
+/* === STATUSBAR === */
+.win-statusbar {
+    background: #c0c0c0;
+    border-top: 2px solid #808080;
+    font-family: Tahoma, 'MS Sans Serif', sans-serif;
+    font-size: 11px;
+    padding: 3px 8px;
+    color: #000000;
+}
+
+/* === SEPARATOR === */
+.win-separator {
+    border-top: 1px solid #808080;
+    border-bottom: 1px solid #ffffff;
+    margin: 4px 0;
+}
+
+/* === PAGINATION === */
+.win-pagination {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+}
+
+.win-page-btn {
+    border: 2px outset #c0c0c0;
+    background: #c0c0c0;
+    font-family: Tahoma, 'MS Sans Serif', sans-serif;
+    font-size: 11px;
+    padding: 1px 8px;
+    cursor: pointer;
+    color: #000000;
+    text-decoration: none;
+}
+
+.win-page-btn:active {
+    border-style: inset;
+}
+
+.win-page-btn.active,
+.win-page-btn.win-inset {
+    border: 2px inset #808080;
+    background: #c0c0c0;
+}
+
+/* === ALERT / MESSAGE === */
+.win-msg {
+    font-family: Tahoma, 'MS Sans Serif', sans-serif;
+    font-size: 12px;
+    padding: 6px 12px;
+    border: 2px solid;
+}
+
+.win-msg-warning {
+    background: #ffffcc;
+    border-color: #ffffff #808080 #808080 #ffffff;
+    color: #000000;
+}
+
+/* === MISC === */
+.win-text {
+    font-family: Tahoma, 'MS Sans Serif', sans-serif;
+    color: #000000;
+}

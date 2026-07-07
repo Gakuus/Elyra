@@ -41,9 +41,12 @@
             <div class="feedback-msg text-center small text-muted mt-2 d-none" id="feedbackMsg"></div>
         </div>
 
-        <div class="text-center mt-3">
+        <div class="d-flex gap-2 justify-content-center mt-3 flex-wrap">
             <a href="/publico/archivo?id=<?= $doc['id'] ?>&descargar=1" class="btn btn-outline-primary">
                 <i class="bi bi-download me-1"></i> Descargar PDF
+            </a>
+            <a href="/publico/encuesta?id=<?= $doc['encuesta_id'] ?? 3 ?>" class="btn btn-outline-info">
+                <i class="bi bi-chat-square-text me-1"></i> Encuesta de satisfacci&oacute;n
             </a>
         </div>
 

@@ -51,8 +51,7 @@
     </div>
 </div>
 
-<?php $contenido = ob_get_clean(); ?>
-
+<?php ob_start(); ?>
 <script>
 (function () {
     var qIndex = 0;
@@ -154,5 +153,7 @@
     addBtn.addEventListener('click', function () { addQuestion({}); });
 })();
 </script>
+<?php $scripts = ob_get_clean(); ?>
 
+<?php $contenido = ob_get_clean(); ?>
 <?php require __DIR__ . '/../layout/base.php'; ?>

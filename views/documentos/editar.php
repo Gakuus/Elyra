@@ -56,10 +56,31 @@
                         </div>
                     </div>
 
+                    <?php $esPaciente = !empty($doc['paciente_id']); ?>
                     <div class="mb-3">
-                        <label for="paciente" class="form-label">Paciente</label>
+                        <label class="form-label">Tipo de documento</label>
+                        <div class="d-flex gap-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tipo_doc" id="tipoGeneral" value="general"<?= !$esPaciente ? ' checked' : '' ?>>
+                                <label class="form-check-label fw-semibold" for="tipoGeneral">
+                                    <i class="bi bi-globe text-secondary me-1"></i> General
+                                </label>
+                                <div class="text-muted small ms-4">Protocolos, gu&iacute;as, formularios administrativos</div>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tipo_doc" id="tipoPaciente" value="paciente"<?= $esPaciente ? ' checked' : '' ?>>
+                                <label class="form-check-label fw-semibold" for="tipoPaciente">
+                                    <i class="bi bi-person text-success me-1"></i> Espec&iacute;fico del paciente
+                                </label>
+                                <div class="text-muted small ms-4">Historia cl&iacute;nica, an&aacute;lisis, recetas</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="pacienteField" style="<?= !$esPaciente ? 'display:none' : '' ?>">
+                        <label for="paciente" class="form-label">Paciente <span class="text-danger">*</span></label>
                         <select name="paciente" id="paciente" class="form-select">
-                            <option value="">Sin asignar...</option>
+                            <option value="">Seleccionar paciente...</option>
                             <?php foreach ($pacientes as $pac): ?>
                                 <option value="<?= $pac['id'] ?>"<?= ($doc['paciente_id'] ?? '') == $pac['id'] ? ' selected' : '' ?>>
                                     <?= htmlspecialchars($pac['nombre']) ?>
@@ -101,5 +122,24 @@
     </div>
 </div>
 
+<?php $scripts = <<<HTML
+<script>
+document.querySelectorAll('input[name="tipo_doc"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+        const field = document.getElementById('pacienteField');
+        const select = document.getElementById('paciente');
+        if (document.getElementById('tipoPaciente').checked) {
+            field.style.display = '';
+            select.required = true;
+        } else {
+            field.style.display = 'none';
+            select.required = false;
+            select.value = '';
+        }
+    });
+});
+</script>
+HTML;
+?>
 <?php $contenido = ob_get_clean(); ?>
 <?php require __DIR__ . '/../layout/base.php'; ?>

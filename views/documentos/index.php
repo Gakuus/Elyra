@@ -1,174 +1,54 @@
 <?php
-$titulo = 'Documentos';
-$isPaciente = \Elyra\Infrastructure\Service\SessionManager::isPaciente();
+$titulo = 'Mis Documentos';
 ?>
 <?php ob_start(); ?>
 
-<div class="action-bar">
-    <?php if (!$isPaciente): ?>
-    <a href="/documentos/subir" class="btn btn-primary">
-        <i class="bi bi-upload me-1"></i> Subir documento
-    </a>
-    <?php endif; ?>
-    <form method="get" class="d-flex gap-2 flex-wrap" id="filterForm">
-        <select name="categoria" class="form-select" onchange="this.form.submit()">
-            <option value="">Todos los tipos</option>
-            <?php foreach ($tiposDocumento as $cat): ?>
-                <option value="<?= $cat['id'] ?>"<?= $categoriaFiltro == $cat['id'] ? ' selected' : '' ?>>
-                    <?= $cat['nombre'] ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-        <?php if (!$isPaciente): ?>
-        <select name="paciente" class="form-select" onchange="this.form.submit()">
-            <option value="">Todos los pacientes</option>
-            <?php foreach ($pacientes as $pac): ?>
-                <option value="<?= $pac['id'] ?>"<?= ($pacienteFiltro ?? '') == $pac['id'] ? ' selected' : '' ?>>
-                    <?= htmlspecialchars($pac['nombre']) ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-        <?php endif; ?>
-        <div class="position-relative">
-            <input type="text" name="q" class="form-control ps-4" placeholder="Buscar t&iacute;tulo o descripci&oacute;n..." value="<?= htmlspecialchars($search) ?>" aria-label="Buscar documento">
-            <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-2 text-muted small"></i>
-        </div>
-    </form>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">Mis Documentos</h4>
 </div>
+
+<form method="get" class="d-flex gap-2 mb-3" id="filterForm">
+    <select name="categoria" class="form-select" onchange="this.form.submit()" aria-label="Tipo de documento">
+        <option value="">Todos los tipos</option>
+        <?php foreach ($tiposDocumento as $cat): ?>
+            <option value="<?= $cat['id'] ?>"<?= $categoriaFiltro == $cat['id'] ? ' selected' : '' ?>>
+                <?= $cat['nombre'] ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+    <div class="position-relative flex-grow-1">
+        <input type="text" name="q" class="form-control ps-4" placeholder="Buscar por t&iacute;tulo..." value="<?= htmlspecialchars($search) ?>" aria-label="Buscar documento">
+        <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-2 text-muted small"></i>
+    </div>
+</form>
 
 <?php if (empty($documentos)): ?>
-
-<div class="text-center py-5">
-    <div class="display-6 text-muted mb-3"><i class="bi bi-file-earmark-x"></i></div>
-    <h5 class="fw-semibold">No hay documentos</h5>
-    <p class="text-muted mb-4">
-        <?= $search || $categoriaFiltro ? 'No se encontraron documentos con los filtros seleccionados.' : 'A&uacute;n no hay documentos subidos al sistema.' ?>
-    </p>
-    <?php if ($search || $categoriaFiltro): ?>
-        <a href="/documentos" class="btn btn-outline-secondary">Limpiar filtros</a>
-    <?php elseif (!$isPaciente): ?>
-        <a href="/documentos/subir" class="btn btn-primary"><i class="bi bi-upload me-1"></i> Subir primer documento</a>
-    <?php endif; ?>
-</div>
-
+    <div class="text-muted small py-4">
+        <i class="bi bi-inbox me-1"></i> No ten&eacute;s documentos asignados.
+    </div>
 <?php else: ?>
+    <?php $docs = $documentos; ?>
+    <?php require __DIR__ . '/_table.php'; ?>
 
-<div class="table-responsive">
-    <table class="table table-elyra mb-0">
-        <thead>
-            <tr>
-                <th style="width: 50px;">QR</th>
-                <th>T&iacute;tulo</th>
-                <th>Categor&iacute;a</th>
-                <th>Paciente</th>
-                <th>Subido</th>
-                <th style="width: 140px;">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($documentos as $doc): ?>
-                <tr>
-                    <td>
-                        <button type="button" class="btn btn-sm btn-outline-secondary border-0" onclick="Elyra.verQR(<?= $doc['id'] ?>)" title="Ver QR">
-                            <i class="bi bi-qr-code"></i>
-                        </button>
-                    </td>
-                    <td class="fw-semibold">
-                        <?= htmlspecialchars($doc['titulo']) ?>
-                        <?php if (!$doc['activo']): ?>
-                            <span class="badge bg-secondary ms-2">Inactivo</span>
-                        <?php endif; ?>
-                    </td>
-                    <td>
-                        <?php if ($doc['especialidad']): ?>
-                            <span class="badge bg-info bg-opacity-10 text-info me-1"><?= htmlspecialchars($doc['especialidad']) ?></span>
-                        <?php endif; ?>
-                        <span class="badge bg-primary bg-opacity-10 text-primary"><?= htmlspecialchars($doc['categoria']) ?></span>
-                    </td>
-                    <td class="text-muted small"><?= $doc['paciente'] ? htmlspecialchars($doc['paciente']) : '<span class="text-muted fst-italic">Sin asignar</span>' ?></td>
-                    <td class="text-muted small"><?= htmlspecialchars($doc['subido']) ?></td>
-                    <td>
-                        <div class="d-flex gap-1">
-                            <a href="/documentos/ver?id=<?= $doc['id'] ?>" class="btn btn-sm btn-outline-secondary border-0" title="Ver detalle">
-                                <i class="bi bi-eye"></i>
-                            </a>
-                            <?php if (!$isPaciente): ?>
-                            <a href="/documentos/editar?id=<?= $doc['id'] ?>" class="btn btn-sm btn-outline-secondary border-0" title="Editar">
-                                <i class="bi bi-pencil"></i>
-                            </a>
-                            <?php endif; ?>
-                            <button type="button" class="btn btn-sm btn-outline-secondary border-0" title="Copiar enlace" onclick="Elyra.copiarEnlace(<?= $doc['id'] ?>, this)">
-                                <i class="bi bi-link-45deg"></i>
-                            </button>
-                            <?php if (!$isPaciente): ?>
-                            <button type="button" class="btn btn-sm btn-outline-danger border-0" title="Eliminar" onclick="Elyra.confirm(<?= $doc['id'] ?>, '<?= htmlspecialchars($doc['titulo'], ENT_QUOTES) ?>')">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                            <?php endif; ?>
-                        </div>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-</div>
-
-<div class="card-list-view">
-    <?php foreach ($documentos as $doc): ?>
-        <div class="card-item">
-            <div class="card-item-title"><?= htmlspecialchars($doc['titulo']) ?></div>
-            <div class="card-item-meta">
-                <?php if ($doc['especialidad']): ?>
-                    <span class="badge bg-info bg-opacity-10 text-info me-1"><?= htmlspecialchars($doc['especialidad']) ?></span>
-                <?php endif; ?>
-                <span class="badge bg-primary bg-opacity-10 text-primary me-2"><?= htmlspecialchars($doc['categoria']) ?></span>
-                <?php if ($doc['paciente']): ?>
-                    <span class="text-muted small me-2"><i class="bi bi-person"></i> <?= htmlspecialchars($doc['paciente']) ?></span>
-                <?php endif; ?>
-                <?= htmlspecialchars($doc['subido']) ?>
-                <?php if (!$doc['activo']): ?>
-                    <span class="badge bg-secondary ms-2">Inactivo</span>
-                <?php endif; ?>
-            </div>
-            <div class="card-item-actions">
-                <button class="btn btn-sm btn-outline-secondary" onclick="Elyra.verQR(<?= $doc['id'] ?>)"><i class="bi bi-qr-code"></i></button>
-                <a href="/documentos/ver?id=<?= $doc['id'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a>
-                <?php if (!$isPaciente): ?>
-                <a href="/documentos/editar?id=<?= $doc['id'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
-                <?php endif; ?>
-                <button class="btn btn-sm btn-outline-secondary" onclick="Elyra.copiarEnlace(<?= $doc['id'] ?>, this)"><i class="bi bi-link-45deg"></i></button>
-                <?php if (!$isPaciente): ?>
-                <button class="btn btn-sm btn-outline-danger" onclick="Elyra.confirm(<?= $doc['id'] ?>, '<?= htmlspecialchars($doc['titulo'], ENT_QUOTES) ?>')"><i class="bi bi-trash"></i></button>
-                <?php endif; ?>
-            </div>
-        </div>
-    <?php endforeach; ?>
-</div>
-
-<?php if ($totalPaginas > 1): ?>
-<nav class="mt-3 d-flex justify-content-between align-items-center" aria-label="Paginaci&oacute;n">
-    <p class="text-muted small mb-0">Mostrando <?= count($documentos) ?> de <?= $total ?> documentos</p>
-    <ul class="pagination pagination-sm mb-0">
-        <li class="page-item<?= $pagina <= 1 ? ' disabled' : '' ?>">
-            <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['pagina' => $pagina - 1])) ?>" aria-label="Anterior">&laquo;</a>
-        </li>
-        <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
-            <li class="page-item<?= $i === $pagina ? ' active' : '' ?>">
-                <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['pagina' => $i])) ?>"><?= $i ?></a>
+    <?php if ($totalPaginas > 1): ?>
+    <nav class="d-flex justify-content-between align-items-center border-top pt-3" aria-label="Paginaci&oacute;n">
+        <p class="text-muted small mb-0">P&aacute;gina <?= $pagina ?> de <?= $totalPaginas ?> (<?= $total ?> documentos)</p>
+        <ul class="pagination pagination-sm mb-0">
+            <li class="page-item<?= $pagina <= 1 ? ' disabled' : '' ?>">
+                <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['pagina' => $pagina - 1])) ?>" aria-label="Anterior">&laquo;</a>
             </li>
-        <?php endfor; ?>
-        <li class="page-item<?= $pagina >= $totalPaginas ? ' disabled' : '' ?>">
-            <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['pagina' => $pagina + 1])) ?>" aria-label="Siguiente">&raquo;</a>
-        </li>
-    </ul>
-</nav>
+            <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
+                <li class="page-item<?= $i === $pagina ? ' active' : '' ?>">
+                    <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['pagina' => $i])) ?>"><?= $i ?></a>
+                </li>
+            <?php endfor; ?>
+            <li class="page-item<?= $pagina >= $totalPaginas ? ' disabled' : '' ?>">
+                <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['pagina' => $pagina + 1])) ?>" aria-label="Siguiente">&raquo;</a>
+            </li>
+        </ul>
+    </nav>
+    <?php endif; ?>
 <?php endif; ?>
-
-<?php endif; ?>
-
-<div class="mt-3">
-    <a href="/encuestas" class="btn btn-outline-primary btn-sm"><i class="bi bi-bar-chart me-1"></i> Ir a Encuestas</a>
-</div>
 
 <?php $contenido = ob_get_clean(); ?>
 <?php require __DIR__ . '/../layout/base.php'; ?>
