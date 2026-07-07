@@ -152,7 +152,7 @@ function renderBreadcrumbs(string $uri, array $map): void {
     <?php require __DIR__ . '/../documentos/_modal_eliminar.php'; ?>
     <div class="toast-container"></div>
 
-    <footer class="footer">
+    <footer class="win-statusbar text-center">
         &copy; 2026 Hospital de Clínicas &mdash; Elyra v1.0
     </footer>
 
