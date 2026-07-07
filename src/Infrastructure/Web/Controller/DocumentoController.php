@@ -133,6 +133,7 @@ class DocumentoController extends BaseController
             especialidadId: $especialidadId,
             activo: true
         );
+        $doc->setArchivoContenido(file_get_contents($archivo['tmp_name']));
 
         $this->docRepo->save($doc);
 
@@ -265,19 +266,24 @@ class DocumentoController extends BaseController
         $id = (int) ($_GET['id'] ?? 0);
 
         $doc = $id > 0 ? $this->docRepo->findById($id) : null;
-        if (!$doc || !$doc->getArchivoPath() || !is_file($doc->getArchivoPath())) {
+        if (!$doc) {
             http_response_code(404);
             exit;
         }
 
-        $ext = strtolower(pathinfo($doc->getArchivoNombre(), PATHINFO_EXTENSION));
-        $mime = $ext === 'pdf' ? 'application/pdf' : mime_content_type($doc->getArchivoPath());
+        $contenido = $this->docRepo->getArchivoContent($id);
+        if ($contenido === null) {
+            http_response_code(404);
+            exit;
+        }
+
+        $mime = 'application/pdf';
 
         header('Content-Type: ' . $mime);
         header('Content-Disposition: inline; filename="' . $doc->getArchivoNombre() . '"');
-        header('Content-Length: ' . filesize($doc->getArchivoPath()));
+        header('Content-Length: ' . strlen($contenido));
         header('Cache-Control: private, max-age=3600');
-        readfile($doc->getArchivoPath());
+        echo $contenido;
         exit;
     }
 

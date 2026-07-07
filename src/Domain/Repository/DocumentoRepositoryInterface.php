@@ -15,6 +15,7 @@ interface DocumentoRepositoryInterface
     public function count(?int $categoriaId = null, ?string $busqueda = null): int;
     public function countTotal(): int;
     public function countActivos(): int;
+    public function getArchivoContent(int $id): ?string;
     public function save(Documento $documento): Documento;
     public function update(Documento $documento): void;
     public function delete(int $id): void;

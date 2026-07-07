@@ -11,6 +11,7 @@ class Documento
     private ?string $descripcion;
     private string $archivoPath;
     private string $archivoNombre;
+    private ?string $archivoContenido = null;
     private ?int $codigoQrId;
     private ?string $qrPath;
     private int $categoriaId;
@@ -64,6 +65,8 @@ class Documento
     public function getDescripcion(): ?string { return $this->descripcion; }
     public function getArchivoPath(): string { return $this->archivoPath; }
     public function getArchivoNombre(): string { return $this->archivoNombre; }
+    public function getArchivoContenido(): ?string { return $this->archivoContenido; }
+    public function setArchivoContenido(?string $contenido): void { $this->archivoContenido = $contenido; }
     public function getCodigoQrId(): ?int { return $this->codigoQrId; }
     public function getQrPath(): ?string { return $this->qrPath; }
     public function getCategoriaId(): int { return $this->categoriaId; }
