@@ -105,6 +105,8 @@ class DocumentoController extends BaseController
             return;
         }
 
+        $contenidoPdf = file_get_contents($archivo['tmp_name']);
+
         $safeName = preg_replace('/[^a-zA-Z0-9_-]/', '_', pathinfo($archivo['name'], PATHINFO_FILENAME));
         $safeName = mb_substr($safeName, 0, 80);
         $filename = $safeName . '_' . time() . '.pdf';
@@ -133,6 +135,7 @@ class DocumentoController extends BaseController
             especialidadId: $especialidadId,
             activo: true
         );
+        $doc->setArchivoContenido($contenidoPdf);
 
         $this->docRepo->save($doc);
 
@@ -256,7 +259,34 @@ class DocumentoController extends BaseController
 
         $this->render('documentos/ver', [
             'doc' => $doc ? $this->docToArray($doc) : null,
-        ]);
+        ] + $this->viewCategorias());
+    }
+
+    public function archivo(): void
+    {
+        $this->requireAuth();
+        $id = (int) ($_GET['id'] ?? 0);
+
+        $doc = $id > 0 ? $this->docRepo->findById($id) : null;
+        if (!$doc) {
+            http_response_code(404);
+            exit;
+        }
+
+        $contenido = $this->docRepo->getArchivoContent($id);
+        if ($contenido === null) {
+            http_response_code(404);
+            exit;
+        }
+
+        $mime = 'application/pdf';
+
+        header('Content-Type: ' . $mime);
+        header('Content-Disposition: inline; filename="' . $doc->getArchivoNombre() . '"');
+        header('Content-Length: ' . strlen($contenido));
+        header('Cache-Control: private, max-age=3600');
+        echo $contenido;
+        exit;
     }
 
     private function docToArray(Documento $d): array

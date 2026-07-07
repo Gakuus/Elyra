@@ -92,6 +92,7 @@ CREATE TABLE documento (
     descripcion TEXT,
     archivo_path VARCHAR(255) NOT NULL,
     archivo_nombre VARCHAR(100) NOT NULL,
+    archivo_contenido LONGBLOB NULL,
     codigo_qr_id INT NULL,
     qr_path VARCHAR(255),
     categoria_id INT NOT NULL,

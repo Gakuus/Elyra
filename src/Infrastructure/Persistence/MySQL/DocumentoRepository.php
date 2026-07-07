@@ -113,17 +113,29 @@ class DocumentoRepository implements DocumentoRepositoryInterface
         return (int) $stmt->fetchColumn();
     }
 
+    public function getArchivoContent(int $id): ?string
+    {
+        $stmt = $this->pdo->prepare("SELECT archivo_contenido FROM documento WHERE id = ?");
+        $stmt->execute([$id]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $row ? $row['archivo_contenido'] : null;
+    }
+
     public function save(Documento $documento): Documento
     {
+        $contenido = $documento->getArchivoContenido()
+            ?? (is_file($documento->getArchivoPath()) ? file_get_contents($documento->getArchivoPath()) : null);
+
         $stmt = $this->pdo->prepare("
-            INSERT INTO documento (titulo, descripcion, archivo_path, archivo_nombre, codigo_qr_id, qr_path, categoria_id, especialidad_id, encuesta_id, subido_por, activo)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO documento (titulo, descripcion, archivo_path, archivo_nombre, archivo_contenido, codigo_qr_id, qr_path, categoria_id, especialidad_id, encuesta_id, subido_por, activo)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         $stmt->execute([
             $documento->getTitulo(),
             $documento->getDescripcion(),
             $documento->getArchivoPath(),
             $documento->getArchivoNombre(),
+            $contenido,
             $documento->getCodigoQrId(),
             $documento->getQrPath(),
             $documento->getCategoriaId(),

@@ -16,8 +16,10 @@ return [
     ['method' => 'POST', 'pattern' => '/documentos/editar', 'controller' => 'DocumentoController', 'action' => 'editar'],
     ['method' => 'GET',  'pattern' => '/documentos/eliminar', 'controller' => 'DocumentoController', 'action' => 'eliminar'],
     ['method' => 'GET',  'pattern' => '/documentos/ver', 'controller' => 'DocumentoController',  'action' => 'ver'],
+    ['method' => 'GET',  'pattern' => '/documentos/archivo', 'controller' => 'DocumentoController',  'action' => 'archivo'],
 
     ['method' => 'GET',  'pattern' => '/publico/doc',     'controller' => 'PublicController', 'action' => 'verDocumento'],
+    ['method' => 'GET',  'pattern' => '/publico/archivo', 'controller' => 'PublicController', 'action' => 'archivo'],
     ['method' => 'GET',  'pattern' => '/publico/encuesta',   'controller' => 'PublicController', 'action' => 'mostrarEncuesta'],
     ['method' => 'POST', 'pattern' => '/publico/encuesta',   'controller' => 'PublicController', 'action' => 'enviarEncuesta'],
 

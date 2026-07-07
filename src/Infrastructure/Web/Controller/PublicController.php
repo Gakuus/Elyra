@@ -4,11 +4,21 @@ declare(strict_types=1);
 
 namespace Elyra\Infrastructure\Web\Controller;
 
+use Elyra\Infrastructure\Persistence\MySQL\DocumentoRepository;
+use Elyra\Infrastructure\Service\SessionManager;
+
 class PublicController extends BaseController
 {
+    private DocumentoRepository $docRepo;
+
+    public function __construct()
+    {
+        $this->docRepo = new DocumentoRepository();
+    }
+
     public function home(): void
     {
-        if (\Elyra\Infrastructure\Service\SessionManager::isAuthenticated()) {
+        if (SessionManager::isAuthenticated()) {
             $this->redirect('/dashboard');
         }
         require __DIR__ . '/../../../../views/publico/home.php';
@@ -23,41 +33,58 @@ class PublicController extends BaseController
             return;
         }
 
-        $doc = $this->findDocById($id);
-        if (!$doc || empty($doc['activo'])) {
+        $doc = $this->docRepo->findById($id);
+        if (!$doc || !$doc->isActivo()) {
             http_response_code(404);
             require __DIR__ . '/../../../../views/errors/404.php';
             return;
         }
 
-        $this->render('publico/documento', ['doc' => $doc]);
+        $this->render('publico/documento', ['doc' => $this->docToArray($doc)]);
     }
 
-    private function findDocById(int $id): ?array
+    public function archivo(): void
     {
-        $storageDir = __DIR__ . '/../../../../storage/uploads/documents';
-        $metaFile = $storageDir . '/.meta.json';
-        $meta = [];
-        if (is_file($metaFile)) {
-            $meta = json_decode(file_get_contents($metaFile), true) ?? [];
+        $id = (int) ($_GET['id'] ?? 0);
+
+        $doc = $id > 0 ? $this->docRepo->findById($id) : null;
+        if (!$doc || !$doc->isActivo()) {
+            http_response_code(404);
+            require __DIR__ . '/../../../../views/errors/404.php';
+            return;
         }
 
-        $mock = [
-            ['id' => 1, 'titulo' => 'Indicaciones pre-operatorias', 'categoria' => 'Cirugía', 'subido' => '15/05/2026', 'activo' => true],
-            ['id' => 2, 'titulo' => 'Preparación para estudios imagenológicos', 'categoria' => 'Imagenología', 'subido' => '14/05/2026', 'activo' => true],
-            ['id' => 3, 'titulo' => 'Plan de alta enfermería - Nefrología', 'categoria' => 'Nefrología', 'subido' => '12/05/2026', 'activo' => true],
-            ['id' => 4, 'titulo' => 'Cuidados post-operatorios cardiovasculares', 'categoria' => 'Cardiología', 'subido' => '10/05/2026', 'activo' => true],
-            ['id' => 5, 'titulo' => 'Guía de preparación para cirugía ginecológica', 'categoria' => 'Ginecología', 'subido' => '08/05/2026', 'activo' => true],
-            ['id' => 6, 'titulo' => 'Indicaciones ecocardiograma con dobutamina', 'categoria' => 'Cardiología', 'subido' => '06/05/2026', 'activo' => true],
-            ['id' => 7, 'titulo' => 'Prevención de infecciones intrahospitalarias', 'categoria' => 'Enfermería', 'subido' => '04/05/2026', 'activo' => false],
-            ['id' => 8, 'titulo' => 'Indicaciones para ingreso a centro de nefrología', 'categoria' => 'Nefrología', 'subido' => '02/05/2026', 'activo' => true],
+        $contenido = $this->docRepo->getArchivoContent($id);
+        if ($contenido === null) {
+            http_response_code(404);
+            require __DIR__ . '/../../../../views/errors/404.php';
+            return;
+        }
+
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: inline; filename="' . $doc->getArchivoNombre() . '"');
+        header('Content-Length: ' . strlen($contenido));
+        header('Cache-Control: public, max-age=3600');
+        echo $contenido;
+        exit;
+    }
+
+    private function docToArray(\Elyra\Domain\Entity\Documento $d): array
+    {
+        $created = $d->getCreatedAt();
+
+        return [
+            'id' => $d->getId(),
+            'titulo' => $d->getTitulo(),
+            'categoria' => $d->getCategoriaNombre() ?? '',
+            'categoria_id' => $d->getCategoriaId(),
+            'descripcion' => $d->getDescripcion() ?? '',
+            'filename' => $d->getArchivoNombre(),
+            'subido' => $created ? date('d/m/Y', strtotime($created)) : '',
+            'activo' => $d->isActivo(),
+            'especialidad' => $d->getEspecialidadNombre() ?? '',
+            'especialidad_id' => $d->getEspecialidadId(),
         ];
-
-        $all = array_merge($mock, $meta);
-        foreach ($all as $d) {
-            if ($d['id'] === $id) return $d;
-        }
-        return null;
     }
 
     public function mostrarEncuesta(): void
