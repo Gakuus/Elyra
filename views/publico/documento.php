@@ -4,6 +4,9 @@
 <div class="public-doc">
     <div class="public-doc-header">
         <div class="d-flex align-items-center gap-2 mb-1">
+            <?php if (!empty($doc['especialidad'])): ?>
+                <span class="badge bg-info bg-opacity-10 text-info"><?= htmlspecialchars($doc['especialidad']) ?></span>
+            <?php endif; ?>
             <span class="badge bg-primary"><?= htmlspecialchars($doc['categoria']) ?></span>
             <small class="text-muted">Subido el <?= htmlspecialchars($doc['subido']) ?></small>
         </div>
@@ -15,7 +18,7 @@
 
     <?php if (!empty($doc['filename'])): ?>
     <div class="public-doc-viewer">
-        <embed src="/storage/uploads/documents/<?= rawurlencode($doc['filename']) ?>" type="application/pdf" class="public-doc-embed">
+        <embed src="/publico/archivo?id=<?= $doc['id'] ?>" type="application/pdf" class="public-doc-embed">
     </div>
     <?php else: ?>
     <div class="public-doc-viewer">
