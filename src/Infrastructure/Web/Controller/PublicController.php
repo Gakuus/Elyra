@@ -5,18 +5,23 @@ declare(strict_types=1);
 namespace Elyra\Infrastructure\Web\Controller;
 
 use Elyra\Infrastructure\Persistence\MySQL\DocumentoRepository;
+use Elyra\Infrastructure\Persistence\MySQL\EncuestaRepository;
 use Elyra\Infrastructure\Persistence\MySQL\UsuarioRepository;
+use Elyra\Domain\Entity\Pregunta;
+use Elyra\Domain\Entity\Respuesta;
 use Elyra\Infrastructure\Service\SessionManager;
 
 class PublicController extends BaseController
 {
     private DocumentoRepository $docRepo;
     private UsuarioRepository $usuarioRepo;
+    private EncuestaRepository $encuestaRepo;
 
     public function __construct()
     {
         $this->docRepo = new DocumentoRepository();
         $this->usuarioRepo = new UsuarioRepository();
+        $this->encuestaRepo = new EncuestaRepository();
     }
 
     public function home(): void
@@ -115,6 +120,7 @@ class PublicController extends BaseController
             'especialidad_id' => $d->getEspecialidadId(),
             'paciente_id' => $d->getPacienteId(),
             'paciente' => $d->getPacienteNombre() ?? '',
+            'encuesta_id' => $d->getEncuestaId(),
         ];
     }
 
@@ -132,105 +138,91 @@ class PublicController extends BaseController
             return;
         }
 
-        $encuesta = $this->findEncuestaById($id);
-        if (!$encuesta || empty($encuesta['activa'])) {
+        $encuesta = $this->encuestaRepo->findById($id);
+        if (!$encuesta || !$encuesta->isActiva()) {
             http_response_code(404);
             require __DIR__ . '/../../../../views/errors/404.php';
             return;
         }
 
-        $this->render('publico/encuesta', ['encuesta' => $encuesta]);
+        $preguntas = $this->encuestaRepo->findPreguntasByEncuestaId($id);
+
+        $encuestaArr = [
+            'id' => $encuesta->getId(),
+            'titulo' => $encuesta->getTitulo(),
+            'descripcion' => $encuesta->getDescripcion() ?? '',
+            'preguntas' => array_map(function (Pregunta $p) {
+                $tipo = $p->getTipo()->value();
+                return [
+                    'texto' => $p->getTexto(),
+                    'tipo' => $tipo === 'texto_libre' ? 'texto' : $tipo,
+                    'opciones' => $p->getOpciones(),
+                ];
+            }, $preguntas),
+            'activa' => $encuesta->isActiva(),
+            'creada' => $encuesta->getCreatedAt() ? date('d/m/Y', strtotime($encuesta->getCreatedAt())) : '',
+        ];
+
+        $this->render('publico/encuesta', ['encuesta' => $encuestaArr]);
     }
 
     private function handleResponderEncuesta(): void
     {
         $id = (int) ($_POST['encuesta_id'] ?? 0);
-        $encuesta = $this->findEncuestaById($id);
-        if (!$encuesta || empty($encuesta['activa'])) {
+        $encuesta = $this->encuestaRepo->findById($id);
+        if (!$encuesta || !$encuesta->isActiva()) {
             $this->redirect('/publico/encuesta?error=1');
             return;
         }
 
+        $preguntas = $this->encuestaRepo->findPreguntasByEncuestaId($id);
         $respuestas = $_POST['respuestas'] ?? [];
         $errores = [];
 
-        foreach ($encuesta['preguntas'] as $i => $p) {
+        foreach ($preguntas as $i => $p) {
+            $tipo = $p->getTipo()->value();
             $resp = trim($respuestas[$i] ?? '');
 
-            if ($p['tipo'] === 'multiple_choice') {
+            if ($tipo === 'multiple_choice') {
                 if (empty($resp)) {
-                    $errores[] = "Respond&eacute; la pregunta " . ($i + 1);
+                    $errores[] = "Respondé la pregunta " . ($i + 1);
                 }
-            } elseif ($p['tipo'] === 'escala') {
+            } elseif ($tipo === 'escala') {
                 if ($resp === '' || !in_array((int)$resp, [1, 2, 3, 4, 5])) {
-                    $errores[] = "Seleccion&aacute; una escala v&aacute;lida en la pregunta " . ($i + 1);
+                    $errores[] = "Seleccioná una escala válida en la pregunta " . ($i + 1);
                 }
-            } elseif ($p['tipo'] === 'texto') {
+            } elseif ($tipo === 'texto_libre') {
                 if (strlen($resp) < 1) {
-                    $errores[] = "Complet&aacute; el texto de la pregunta " . ($i + 1);
+                    $errores[] = "Completá el texto de la pregunta " . ($i + 1);
                 }
             }
         }
 
         if (!empty($errores)) {
-            $this->render('publico/encuesta', ['encuesta' => $encuesta, 'error' => implode('<br>', $errores)]);
+            $encuestaArr = [
+                'id' => $encuesta->getId(),
+                'titulo' => $encuesta->getTitulo(),
+                'descripcion' => $encuesta->getDescripcion() ?? '',
+                'preguntas' => array_map(function (Pregunta $p) {
+                    $tipo = $p->getTipo()->value();
+                    return [
+                        'texto' => $p->getTexto(),
+                        'tipo' => $tipo === 'texto_libre' ? 'texto' : $tipo,
+                        'opciones' => $p->getOpciones(),
+                    ];
+                }, $preguntas),
+                'activa' => $encuesta->isActiva(),
+                'creada' => $encuesta->getCreatedAt() ? date('d/m/Y', strtotime($encuesta->getCreatedAt())) : '',
+            ];
+            $this->render('publico/encuesta', ['encuesta' => $encuestaArr, 'error' => implode('<br>', $errores)]);
             return;
         }
 
-        $dir = __DIR__ . '/../../../../storage/encuestas/respuestas';
-        if (!is_dir($dir)) mkdir($dir, 0775, true);
+        $sesionToken = bin2hex(random_bytes(16));
+        $tokenPaciente = $_GET['token'] ?? null;
 
-        $file = $dir . '/' . $id . '.json';
-        $all = [];
-        if (is_file($file)) {
-            $all = json_decode(file_get_contents($file), true) ?? [];
-        }
-
-        $all[] = [
-            'fecha' => date('d/m/Y H:i:s'),
-            'respuestas' => $respuestas,
-        ];
-
-        file_put_contents($file, json_encode($all, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+        $this->encuestaRepo->saveRespuestasBatch($id, $sesionToken, $tokenPaciente, $respuestas);
 
         $this->redirect('/publico/encuesta?ok=1&id=' . $id);
-    }
-
-    private function findEncuestaById(int $id): ?array
-    {
-        $storageDir = __DIR__ . '/../../../../storage/encuestas';
-        $metaFile = $storageDir . '/.meta.json';
-        $meta = [];
-        if (is_file($metaFile)) {
-            $meta = json_decode(file_get_contents($metaFile), true) ?? [];
-        }
-
-        $mock = [
-            ['id' => 1, 'titulo' => 'Satisfacción general del paciente', 'descripcion' => 'Encuesta para pacientes internados sobre la calidad de atención recibida.', 'preguntas' => [
-                ['texto' => '¿Cómo calificarías la atención general recibida?', 'tipo' => 'escala'],
-                ['texto' => '¿El personal médico te explicó claramente tu diagnóstico?', 'tipo' => 'multiple_choice', 'opciones' => ['Sí, completamente', 'Sí, parcialmente', 'No']],
-                ['texto' => '¿Recomendarías este hospital a otros pacientes?', 'tipo' => 'multiple_choice', 'opciones' => ['Sí', 'No estoy seguro', 'No']],
-            ], 'activa' => true, 'creada' => '10/05/2026'],
-            ['id' => 2, 'titulo' => 'Evaluación de enfermería', 'descripcion' => 'Opinión sobre el cuidado y trato del personal de enfermería.', 'preguntas' => [
-                ['texto' => '¿El trato del personal de enfermería fue respetuoso?', 'tipo' => 'escala'],
-                ['texto' => 'Dejanos tu comentario sobre el servicio de enfermería', 'tipo' => 'texto'],
-            ], 'activa' => true, 'creada' => '12/05/2026'],
-            ['id' => 3, 'titulo' => 'Calidad de alimentos', 'descripcion' => 'Encuesta sobre la calidad y variedad de los alimentos servidos.', 'preguntas' => [
-                ['texto' => '¿Cómo calificarías la calidad de la comida?', 'tipo' => 'escala'],
-            ], 'activa' => false, 'creada' => '08/05/2026'],
-            ['id' => 4, 'titulo' => 'Atención en emergencias', 'descripcion' => 'Tiempo de espera y calidad de atención en el servicio de emergencias.', 'preguntas' => [
-                ['texto' => '¿Cuánto tiempo esperaste para ser atendido?', 'tipo' => 'multiple_choice', 'opciones' => ['Menos de 15 min', '15-30 min', '30-60 min', 'M&aacute;s de 60 min']],
-                ['texto' => '¿El personal de emergencias fue eficiente?', 'tipo' => 'escala'],
-            ], 'activa' => true, 'creada' => '15/05/2026'],
-            ['id' => 5, 'titulo' => 'Limpieza e higiene', 'descripcion' => 'Percepción de los pacientes sobre la limpieza de las instalaciones.', 'preguntas' => [
-                ['texto' => '¿Cómo calificarías la limpieza de las instalaciones?', 'tipo' => 'escala'],
-            ], 'activa' => false, 'creada' => '01/05/2026'],
-        ];
-
-        $all = array_merge($mock, $meta);
-        foreach ($all as $e) {
-            if ($e['id'] === $id) return $e;
-        }
-        return null;
     }
 }

@@ -5,15 +5,18 @@ declare(strict_types=1);
 namespace Elyra\Infrastructure\Web\Controller;
 
 use Elyra\Infrastructure\Persistence\MySQL\DocumentoRepository;
+use Elyra\Infrastructure\Persistence\MySQL\EncuestaRepository;
 use Elyra\Infrastructure\Service\SessionManager;
 
 class DashboardController extends BaseController
 {
     private DocumentoRepository $docRepo;
+    private EncuestaRepository $encuestaRepo;
 
     public function __construct()
     {
         $this->docRepo = new DocumentoRepository();
+        $this->encuestaRepo = new EncuestaRepository();
     }
 
     public function index(): void
@@ -49,7 +52,8 @@ class DashboardController extends BaseController
     private function adminDashboard(): void
     {
         $totalDocs = $this->docRepo->count();
-        $totalEncuestas = 0;
+        $totalGenerales = $this->docRepo->countGenerales();
+        $totalEncuestas = $this->encuestaRepo->countTotal();
         $totalTraslados = 0;
         $totalConductores = 0;
 
@@ -57,6 +61,7 @@ class DashboardController extends BaseController
 
         $this->render('dashboard/index', [
             'totalDocs' => $totalDocs,
+            'totalGenerales' => $totalGenerales,
             'totalEncuestas' => $totalEncuestas,
             'totalTraslados' => $totalTraslados,
             'totalConductores' => $totalConductores,

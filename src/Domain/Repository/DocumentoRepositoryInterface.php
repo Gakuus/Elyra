@@ -15,6 +15,10 @@ interface DocumentoRepositoryInterface
     public function countByPaciente(int $pacienteId, ?int $categoriaId = null, ?string $busqueda = null): int;
     public function findAll(?int $categoriaId = null, ?string $busqueda = null, ?int $pacienteId = null, int $page = 1, int $perPage = 20): array;
     public function count(?int $categoriaId = null, ?string $busqueda = null, ?int $pacienteId = null): int;
+    public function findGenerales(?int $categoriaId = null, ?string $busqueda = null, int $page = 1, int $perPage = 20): array;
+    public function countGenerales(?int $categoriaId = null, ?string $busqueda = null): int;
+    public function findDePacientes(?int $categoriaId = null, ?string $busqueda = null, ?int $pacienteId = null, int $page = 1, int $perPage = 20): array;
+    public function countDePacientes(?int $categoriaId = null, ?string $busqueda = null, ?int $pacienteId = null): int;
     public function countTotal(): int;
     public function countActivos(): int;
     public function getArchivoContent(int $id): ?string;

@@ -11,14 +11,14 @@
     <link href="/css/components/admin.css" rel="stylesheet">
     <link href="/css/components/tables.css" rel="stylesheet">
     <link href="/css/components/stats.css" rel="stylesheet">
+    <link href="/css/classic.css" rel="stylesheet">
     <meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['_csrf_token'] ?? '') ?>">
 </head>
-<body>
-
 <?php
 $currentSess = \Elyra\Infrastructure\Service\SessionManager::class;
 $isPaciente = $currentSess::isPaciente();
 ?>
+<body<?= $currentSess::isAuthenticated() ? ' class="win-body"' : '' ?>>
 
 <?php if ($currentSess::isAuthenticated()): ?>
 
@@ -28,10 +28,12 @@ $currentUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $breadcrumbs = [
     '/dashboard' => ['Inicio', null],
     '/documentos' => ['Documentación', '/dashboard'],
-    '/documentos/subir' => ['Subir documento', '/documentos'],
-    '/documentos/editar' => ['Editar documento', '/documentos'],
-    '/documentos/ver' => ['Detalle', '/documentos'],
-    '/documentos/eliminar' => ['Eliminar', '/documentos'],
+    '/documentos/generales' => ['Documentos generales', '/dashboard'],
+    '/documentos/paciente' => ['Documentos por CI', '/dashboard'],
+    '/documentos/subir' => ['Subir documento', '/documentos/generales'],
+    '/documentos/editar' => ['Editar documento', '/documentos/generales'],
+    '/documentos/ver' => ['Detalle', '/documentos/generales'],
+    '/documentos/eliminar' => ['Eliminar', '/documentos/generales'],
     '/encuestas' => ['Encuestas', '/dashboard'],
     '/encuestas/crear' => ['Crear encuesta', '/encuestas'],
     '/encuestas/resultados' => ['Resultados', '/encuestas'],
@@ -59,10 +61,10 @@ function renderBreadcrumbs(string $uri, array $map): void {
 }
 ?>
 
-<nav class="navbar navbar-expand-lg navbar-dark" style="background: var(--navbar-bg); transition: background 0.3s;">
+<nav class="win-navbar navbar navbar-expand-lg">
     <div class="container-fluid px-4">
-        <a class="navbar-brand fw-bold" href="/dashboard">Elyra</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Abrir menú">
+        <span class="fw-bold px-2" style="font-family: Tahoma, 'MS Sans Serif', sans-serif; font-size: 13px;">Elyra</span>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Abrir men\u00fa">
             <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -97,12 +99,13 @@ function renderBreadcrumbs(string $uri, array $map): void {
                     <a class="nav-link dropdown-toggle<?= str_starts_with($currentUri, '/documentos') || str_starts_with($currentUri, '/encuestas') ? ' active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-file-text me-1"></i> Documentaci&oacute;n
                     </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/documentos"><i class="bi bi-list-ul me-2"></i>Documentos</a></li>
-                        <li><a class="dropdown-item" href="/documentos/subir"><i class="bi bi-upload me-2"></i>Subir documento</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="/encuestas"><i class="bi bi-bar-chart me-2"></i>Encuestas</a></li>
-                        <li><a class="dropdown-item" href="/encuestas/crear"><i class="bi bi-plus-square me-2"></i>Crear encuesta</a></li>
+                    <ul class="dropdown-menu win-dropdown-menu">
+                        <li><a class="win-dropdown-item" href="/documentos/generales"><i class="bi bi-globe me-2"></i>Documentos generales</a></li>
+                        <li><a class="win-dropdown-item" href="/documentos/paciente"><i class="bi bi-person-search me-2"></i>Documentos por CI</a></li>
+                        <li><a class="win-dropdown-item" href="/documentos/subir"><i class="bi bi-upload me-2"></i>Subir documento</a></li>
+                        <li><div class="win-separator"></div></li>
+                        <li><a class="win-dropdown-item" href="/encuestas"><i class="bi bi-bar-chart me-2"></i>Encuestas</a></li>
+                        <li><a class="win-dropdown-item" href="/encuestas/crear"><i class="bi bi-plus-square me-2"></i>Crear encuesta</a></li>
                     </ul>
                 </li>
 
@@ -110,30 +113,27 @@ function renderBreadcrumbs(string $uri, array $map): void {
                     <a class="nav-link dropdown-toggle<?= str_starts_with($currentUri, '/traslados') || str_starts_with($currentUri, '/conductores') || str_starts_with($currentUri, '/rutas') ? ' active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-truck me-1"></i> Ambulancias
                     </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/traslados"><i class="bi bi-list-ul me-2"></i>Traslados activos</a></li>
-                        <li><a class="dropdown-item" href="/traslados/nuevo"><i class="bi bi-plus-circle me-2"></i>Nuevo traslado</a></li>
-                        <li><a class="dropdown-item" href="/traslados/historial"><i class="bi bi-clock-history me-2"></i>Historial</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="/rutas"><i class="bi bi-map me-2"></i>Rutas</a></li>
-                        <li><a class="dropdown-item" href="/conductores"><i class="bi bi-people me-2"></i>Conductores</a></li>
+                    <ul class="dropdown-menu win-dropdown-menu">
+                        <li><a class="win-dropdown-item" href="/traslados"><i class="bi bi-list-ul me-2"></i>Traslados activos</a></li>
+                        <li><a class="win-dropdown-item" href="/traslados/nuevo"><i class="bi bi-plus-circle me-2"></i>Nuevo traslado</a></li>
+                        <li><a class="win-dropdown-item" href="/traslados/historial"><i class="bi bi-clock-history me-2"></i>Historial</a></li>
+                        <li><div class="win-separator"></div></li>
+                        <li><a class="win-dropdown-item" href="/rutas"><i class="bi bi-map me-2"></i>Rutas</a></li>
+                        <li><a class="win-dropdown-item" href="/conductores"><i class="bi bi-people me-2"></i>Conductores</a></li>
                     </ul>
                 </li>
                 <?php endif; ?>
             </ul>
-            <div class="d-flex align-items-center gap-3">
-                <button id="darkModeToggle" class="btn btn-outline-light btn-sm" aria-label="Alternar modo oscuro">
-                    <i class="bi bi-moon-stars-fill"></i>
-                </button>
-<span class="text-light-emphasis small">
-    <i class="bi bi-person-circle"></i> <?= htmlspecialchars($_SESSION['user_nombre'] ?? 'Usuario') ?>
-</span>
+            <div class="d-flex align-items-center gap-2">
+                <span class="win-text small">
+                    <i class="bi bi-person-circle"></i> <?= htmlspecialchars($_SESSION['user_nombre'] ?? 'Usuario') ?>
+                </span>
                 <?php if ($isPaciente): ?>
-                <a href="/perfil" class="btn btn-outline-light btn-sm">
+                <a href="/perfil" class="win-btn win-btn-sm">
                     <i class="bi bi-gear"></i> Perfil
                 </a>
                 <?php endif; ?>
-                <a href="/logout" class="btn btn-outline-light btn-sm">
+                <a href="/logout" class="win-btn win-btn-sm">
                     <i class="bi bi-box-arrow-right"></i> Salir
                 </a>
             </div>
@@ -152,7 +152,7 @@ function renderBreadcrumbs(string $uri, array $map): void {
     <?php require __DIR__ . '/../documentos/_modal_eliminar.php'; ?>
     <div class="toast-container"></div>
 
-    <footer class="footer">
+    <footer class="win-statusbar text-center">
         &copy; 2026 Hospital de Clínicas &mdash; Elyra v1.0
     </footer>
 

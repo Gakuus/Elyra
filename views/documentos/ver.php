@@ -22,6 +22,8 @@
             <span class="badge bg-primary bg-opacity-10 text-primary"><?= htmlspecialchars($doc['categoria']) ?></span>
             <?php if ($doc['paciente']): ?>
                 <span class="badge bg-success bg-opacity-10 text-success"><i class="bi bi-person"></i> <?= htmlspecialchars($doc['paciente']) ?></span>
+            <?php else: ?>
+                <span class="badge bg-secondary bg-opacity-10 text-secondary"><i class="bi bi-globe"></i> Documento general</span>
             <?php endif; ?>
             <small class="text-muted">Subido el <?= htmlspecialchars($doc['subido']) ?></small>
             <?php if (!$doc['activo']): ?>

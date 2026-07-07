@@ -31,6 +31,7 @@
             </div>
 
             <form method="post" id="encuestaRespForm" novalidate>
+                <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars(\Elyra\Infrastructure\Service\SessionManager::getCsrfToken()) ?>">
                 <input type="hidden" name="encuesta_id" value="<?= $encuesta['id'] ?>">
 
                 <?php foreach ($encuesta['preguntas'] as $i => $p): ?>

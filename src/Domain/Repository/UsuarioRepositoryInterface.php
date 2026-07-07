@@ -20,6 +20,7 @@ interface UsuarioRepositoryInterface
     public function updateFuncionario(Funcionario $funcionario): void;
     public function updatePaciente(Paciente $paciente): void;
     public function findAllFuncionarios(?bool $activo = null): array;
+    public function findByDocumentoIdentidad(string $documento): ?Paciente;
     public function findAllPacientes(): array;
     public function delete(int $id): void;
 }

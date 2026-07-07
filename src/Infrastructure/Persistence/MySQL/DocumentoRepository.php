@@ -136,6 +136,114 @@ class DocumentoRepository implements DocumentoRepositoryInterface
         return (int) $stmt->fetchColumn();
     }
 
+    public function findGenerales(?int $categoriaId = null, ?string $busqueda = null, int $page = 1, int $perPage = 20): array
+    {
+        $sql = "SELECT " . self::SELECT_COLS . " FROM documento d" . self::JOIN_CATEGORIA . self::JOIN_ESPECIALIDAD . self::JOIN_PACIENTE . " WHERE d.paciente_id IS NULL";
+        $params = [];
+
+        if ($categoriaId !== null) {
+            $sql .= " AND d.categoria_id = ?";
+            $params[] = $categoriaId;
+        }
+
+        if ($busqueda !== null && $busqueda !== '') {
+            $sql .= " AND (d.titulo LIKE ? OR d.descripcion LIKE ?)";
+            $params[] = "%{$busqueda}%";
+            $params[] = "%{$busqueda}%";
+        }
+
+        $sql .= " ORDER BY d.created_at DESC LIMIT ? OFFSET ?";
+        $params[] = $perPage;
+        $params[] = ($page - 1) * $perPage;
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        $rows = $stmt->fetchAll();
+
+        return array_map(fn (array $row) => $this->hydrate($row), $rows);
+    }
+
+    public function countGenerales(?int $categoriaId = null, ?string $busqueda = null): int
+    {
+        $sql = "SELECT COUNT(*) FROM documento d WHERE d.paciente_id IS NULL";
+        $params = [];
+
+        if ($categoriaId !== null) {
+            $sql .= " AND d.categoria_id = ?";
+            $params[] = $categoriaId;
+        }
+
+        if ($busqueda !== null && $busqueda !== '') {
+            $sql .= " AND (d.titulo LIKE ? OR d.descripcion LIKE ?)";
+            $params[] = "%{$busqueda}%";
+            $params[] = "%{$busqueda}%";
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return (int) $stmt->fetchColumn();
+    }
+
+    public function findDePacientes(?int $categoriaId = null, ?string $busqueda = null, ?int $pacienteId = null, int $page = 1, int $perPage = 20): array
+    {
+        $sql = "SELECT " . self::SELECT_COLS . " FROM documento d" . self::JOIN_CATEGORIA . self::JOIN_ESPECIALIDAD . self::JOIN_PACIENTE . " WHERE d.paciente_id IS NOT NULL";
+        $params = [];
+
+        if ($categoriaId !== null) {
+            $sql .= " AND d.categoria_id = ?";
+            $params[] = $categoriaId;
+        }
+
+        if ($busqueda !== null && $busqueda !== '') {
+            $sql .= " AND (d.titulo LIKE ? OR d.descripcion LIKE ? OR CONCAT(pu.apellido, ', ', pu.nombre) LIKE ?)";
+            $params[] = "%{$busqueda}%";
+            $params[] = "%{$busqueda}%";
+            $params[] = "%{$busqueda}%";
+        }
+
+        if ($pacienteId !== null) {
+            $sql .= " AND d.paciente_id = ?";
+            $params[] = $pacienteId;
+        }
+
+        $sql .= " ORDER BY d.created_at DESC LIMIT ? OFFSET ?";
+        $params[] = $perPage;
+        $params[] = ($page - 1) * $perPage;
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        $rows = $stmt->fetchAll();
+
+        return array_map(fn (array $row) => $this->hydrate($row), $rows);
+    }
+
+    public function countDePacientes(?int $categoriaId = null, ?string $busqueda = null, ?int $pacienteId = null): int
+    {
+        $sql = "SELECT COUNT(*) FROM documento d LEFT JOIN usuario pu ON pu.id = d.paciente_id WHERE d.paciente_id IS NOT NULL";
+        $params = [];
+
+        if ($categoriaId !== null) {
+            $sql .= " AND d.categoria_id = ?";
+            $params[] = $categoriaId;
+        }
+
+        if ($busqueda !== null && $busqueda !== '') {
+            $sql .= " AND (d.titulo LIKE ? OR d.descripcion LIKE ? OR CONCAT(pu.apellido, ', ', pu.nombre) LIKE ?)";
+            $params[] = "%{$busqueda}%";
+            $params[] = "%{$busqueda}%";
+            $params[] = "%{$busqueda}%";
+        }
+
+        if ($pacienteId !== null) {
+            $sql .= " AND d.paciente_id = ?";
+            $params[] = $pacienteId;
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return (int) $stmt->fetchColumn();
+    }
+
     public function getArchivoContent(int $id): ?string
     {
         $stmt = $this->pdo->prepare("SELECT archivo_contenido FROM documento WHERE id = ?");
