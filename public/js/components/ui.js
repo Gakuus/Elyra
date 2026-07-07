@@ -194,7 +194,7 @@
                 var parent = this.closest('.public-doc-feedback');
                 var msg = parent.querySelector('#feedbackMsg');
                 btns.forEach(function (b) { b.disabled = true; });
-                msg.textContent = 'Gracias por tu opini&oacute;n.';
+                msg.textContent = 'Gracias por tu opinión.';
                 msg.classList.remove('d-none');
             });
         });
@@ -263,11 +263,9 @@
     window.Elyra.verDocPublico = function (id, titulo) {
         var modalEl = document.getElementById('docPublicoModal');
         var embedEl = document.getElementById('publicoPreviewEmbed');
-        var downloadEl = document.getElementById('publicoPreviewDownload');
         var titleEl = document.getElementById('publicoPreviewTitle');
-        if (!modalEl || !embedEl || !downloadEl || !titleEl) return;
+        if (!modalEl || !embedEl || !titleEl) return;
         titleEl.textContent = titulo;
-        downloadEl.href = '/publico/archivo?id=' + id + '&descargar=1';
         embedEl.src = '';
         var modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
         modal.show();
@@ -283,7 +281,7 @@
         }
     });
 
-    window.Elyra.verDocumento = function (id, titulo, categoria, especialidad, subido, activo) {
+    window.Elyra.verDocumento = function (id, titulo, categoria, especialidad, subido) {
         var titleEl = document.getElementById('previewTitle');
         var metaEl = document.getElementById('previewMeta');
         var embedEl = document.getElementById('previewEmbed');

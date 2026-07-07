@@ -5,7 +5,7 @@
 <div class="public-encuesta-wrapper">
     <div class="card border-0 shadow-sm text-center py-5 px-4">
         <div class="display-4 text-success mb-3"><i class="bi bi-check-circle-fill"></i></div>
-        <h4 class="fw-semibold">Gracias por tu opini&oacute;n</h4>
+        <h4 class="fw-semibold">Gracias por tu opinión</h4>
         <p class="text-muted mb-0">Tu respuesta ha sido registrada correctamente.</p>
     </div>
 </div>
