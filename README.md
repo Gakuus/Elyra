@@ -1,60 +1,322 @@
 # Elyra
 
-Sistema de gestión hospitalaria para el **Hospital de Clínicas**, con interfaz de escritorio estilo Windows clásico.
+> Sistema de gestión hospitalaria para el **Hospital de Clínicas**.
+> Interfaz de escritorio con temática **Windows clásica**.
 
-## Módulos
+## Tabla de contenidos
 
-- **Gestión de documentación para pacientes** — Carga y gestión de documentos informativos con acceso mediante código QR + encuestas de satisfacción con gráficos estadísticos (Chart.js).
-- **Trazabilidad de ambulancias** — Registro y seguimiento de traslados en ambulancia con gestión de rutas a nivel nacional.
-- **Perfil de usuario** — Autogestión de datos personales, foto de perfil, cédula de identidad y cambio de contraseña.
-- **Panel de administración** — Dashboard con acceso según roles (admin, superadmin, conductor).
+- [Funcionalidades](#funcionalidades)
+- [Stack tecnológico](#stack-tecnológico)
+- [Arquitectura](#arquitectura)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [Base de datos](#base-de-datos)
+- [Roles y permisos](#roles-y-permisos)
+- [Instalación](#instalación)
+- [Desarrollo](#desarrollo)
+- [API de rutas](#api-de-rutas)
+- [Tema visual](#tema-visual)
+- [Roadmap](#roadmap)
 
-## Stack
+---
 
-- PHP 8.5
-- MySQL / MariaDB
-- HTML5 / CSS3 / JavaScript (ES6+)
-- Bootstrap 5 + Chart.js 4
-- Interfaz visual con temática Windows clásica (`classic.css`)
+## Funcionalidades
+
+### Gestión de documentación para pacientes
+- Carga y clasificación de documentos informativos por categorías.
+- Acceso público mediante código QR por paciente.
+- Panel de administración con búsqueda por cédula, filtros y paginación.
+- Vista pública de documentos asociados al paciente.
+
+### Encuestas de satisfacción
+- Creación de encuestas con preguntas de opción múltiple, escala (1–5) y texto libre.
+- Respuesta anónima o vinculada a paciente mediante token QR.
+- Visualización de resultados con gráficos estadísticos (Chart.js):
+  - Barras horizontales para opción múltiple.
+  - Doughnut + promedio para escala.
+  - Lista de respuestas para texto libre.
+
+### Trazabilidad de ambulancias
+- Registro de traslados (origen, destino, paciente, conductor, vehículo).
+- Seguimiento de estados: pendiente → en curso → completado / cancelado.
+- Historial de traslados con filtros.
+- Gestión de conductores y rutas nacionales.
+
+### Perfil de usuario
+- Autogestión de email, teléfono y contraseña.
+- Foto de perfil con validación de tipo, tamaño y contenido (imagen real).
+- Cédula de identidad (editable una sola vez).
+
+### Panel de administración
+- Dashboard con acceso diferenciado por rol.
+- Vistas para gestión de documentos, encuestas, traslados, conductores y rutas.
+
+---
+
+## Stack tecnológico
+
+| Capa        | Tecnología                          |
+|-------------|-------------------------------------|
+| Lenguaje    | PHP 8.5                             |
+| Base de datos | MySQL / MariaDB                   |
+| Frontend    | HTML5, CSS3, JavaScript (ES6+)      |
+| CSS framework | Bootstrap 5                       |
+| Gráficos    | Chart.js 4                          |
+| Iconos      | Bootstrap Icons                     |
+| Arquitectura  | Hexagonal (Puertos y Adaptadores) + DDD |
+
+---
 
 ## Arquitectura
 
-Hexagonal (Puertos y Adaptadores) siguiendo principios DDD.
+El proyecto sigue una arquitectura hexagonal (puertos y adaptadores) con principios de Domain-Driven Design.
 
 ```
-src/
-├── Domain/          → Entidades, Value Objects, repositorios, servicios de dominio
-├── Application/     → Puertos (interfaces) y casos de uso
-└── Infrastructure/  → Adaptadores: persistencia (MySQL), web (controllers), servicios externos
+┌─────────────────────────────────────────────────┐
+│                  Infrastructure                  │
+│  ┌──────────────┐  ┌────────────────────────┐   │
+│  │  Persistence  │  │    Web (Controllers)   │   │
+│  │  (MySQL PDO)  │  │   Views / Middleware   │   │
+│  └──────┬───────┘  └───────────┬────────────┘   │
+│         │                      │                  │
+├─────────┴──────────────────────┴─────────────────┤
+│                   Application                     │
+│           (Puertos / Casos de uso)                │
+├──────────────────────┬───────────────────────────┤
+│                     Domain                        │
+│    Entidades · Value Objects · Repositorios       │
+└──────────────────────────────────────────────────┘
 ```
 
-Las vistas están en `views/` (no dentro de `src/`).
+Las vistas se renderizan con PHP plano (sin motor de templates) y están separadas de la lógica de dominio.
+
+---
+
+## Estructura del proyecto
+
+```
+/
+├── database/
+│   ├── schema.sql          → Esquema completo de la base de datos
+│   └── seeds/seed.php      → Datos de prueba iniciales
+├── public/
+│   ├── index.php           → Punto de entrada (front controller)
+│   ├── router.php          → Router para el servidor embebido
+│   ├── css/classic.css     → Tema Windows clásico
+│   └── js/ui.js            → UI (modo oscuro, toggles)
+├── src/
+│   ├── Domain/
+│   │   ├── Entity/         → Usuario, Paciente, Funcionario, Documento,
+│   │   │                     Encuesta, Pregunta, Respuesta, Traslado, etc.
+│   │   ├── ValueObject/    → RolUsuario, TipoPregunta, etc.
+│   │   └── Repository/     → Interfaces de repositorio
+│   ├── Application/        → Casos de uso / servicios de aplicación
+│   └── Infrastructure/
+│       ├── Persistence/MySQL/  → Implementaciones PDO de repositorios
+│       ├── Web/
+│       │   ├── Controller/    → Controladores
+│       │   ├── Middleware/     → CSRF, rate limiting
+│       │   ├── Router.php     → Enrutador simple
+│       │   └── Routes/web.php → Definición de rutas
+│       └── Service/           → SessionManager, RateLimiter, ErrorHandler
+├── storage/
+│   ├── logs/              → Logs de errores
+│   └── rate-limit/        → Archivos de rate limiting
+├── vendor/                → Dependencias (Composer)
+├── views/
+│   ├── layout/base.php    → Layout principal
+│   ├── auth/              → Login, registro
+│   ├── dashboard/         → Panel principal
+│   ├── perfil/            → Perfil de usuario
+│   ├── documentos/        → Gestión de documentos
+│   ├── encuestas/         → Encuestas y resultados
+│   ├── traslados/         → Ambulancias
+│   ├── conductores/       → Conductores
+│   ├── rutas/             → Rutas
+│   ├── publico/           → Vistas públicas (QR, encuestas)
+│   └── errors/            → 404, 500
+├── .env                   → Configuración local
+├── .env.example           → Template de configuración
+└── composer.json
+```
+
+---
+
+## Base de datos
+
+### Esquema principal
+
+- **`usuario`** — Tabla base (tipo: funcionario | paciente, nombre, apellido, email, documento_identidad, foto).
+- **`funcionario`** — Administradores, superadmins y conductores (username, password_hash, rol, licencia, activo).
+- **`paciente`** — Pacientes (token_acceso, codigo_qr_id, username opcional).
+- **`documento`** — Documentos informativos (título, descripción, archivo, categoría, paciente asociado).
+- **`categoria`** — Categorías de documentos con tipo (tipo_documento | tipo_formulario).
+- **`encuesta`** — Encuestas de satisfacción (título, descripción, activa, creada_por).
+- **`pregunta`** — Preguntas (tipo, texto, opciones JSON, orden).
+- **`respuesta`** — Respuestas (sesion_token, valor_opcion, valor_texto, valor_numerico).
+- **`traslado`** — Traslados en ambulancia (origen, destino, paciente, conductor, estado).
+- **`conductor`** — Conductores registrados (nombre, licencia, activo).
+- **`ruta`** — Rutas nacionales (origen, destino, distancia_km, duracion_estimada).
+
+> Para migrar una base existente sin la columna `foto`:
+> ```sql
+> ALTER TABLE usuario ADD COLUMN foto LONGBLOB NULL AFTER documento_identidad;
+> ```
+
+---
+
+## Roles y permisos
+
+| Rol          | Acceso                                                |
+|-------------|--------------------------------------------------------|
+| `admin`      | Gestión completa: documentos, encuestas, traslados, conductores, rutas. |
+| `superadmin` | Acceso total, incluyendo administración de usuarios.   |
+| `conductor`  | Visión limitada a traslados asignados y rutas.         |
+| `paciente`   | Acceso público vía QR: ver documentos propios, responder encuestas. |
+
+El middleware de autenticación redirige a `/login` si no hay sesión activa, excepto en rutas públicas (`/publico/*`, `/login`, `/registro`).
+
+---
 
 ## Instalación
 
 ```bash
-git clone <repo>
+# 1. Clonar
+git clone <repo-url>
 cd elyra
+
+# 2. Dependencias
 composer install
+
+# 3. Configurar entorno
 cp .env.example .env
-# Editar .env con credenciales de base de datos
-# Crear la base de datos y ejecutar el schema:
-mysql -u usuario -p elyra < database/schema.sql
-# (Opcional) Poblar con datos de prueba:
+# Editar .env con credenciales de base de datos:
+#   DB_HOST=127.0.0.1
+#   DB_PORT=3306
+#   DB_DATABASE=elyra
+#   DB_USERNAME=elyra
+#   DB_PASSWORD=elyra_pass
+
+# 4. Crear base de datos e importar schema
+mysql -u elyra -p elyra < database/schema.sql
+
+# 5. (Opcional) Poblar con datos de prueba
+#     Crea un admin (admin/admin) y datos de ejemplo
 php database/seeds/seed.php
+
+# 6. Iniciar servidor de desarrollo
+php8.5 -S 127.0.0.1:8084 -t public
 ```
+
+> **Importante**: Usar `php8.5` (tiene `pdo_mysql`). `php` por defecto (8.4) no incluye el driver.
+
+---
 
 ## Desarrollo
 
-```bash
-# Servidor embebido
-php8.5 -S 127.0.0.1:8084 -t public
+### Workflow de ramas
 
-# Crear rama desde main
+```bash
 git checkout -b <nombre>-features
-# Trabajar, commitar y abrir PR contra main
+# Trabajar en commits pequeños y descriptivos
+git commit -m "tipo: descripción breve"
+git push origin <nombre>-features
+# Al finalizar, abrir Pull Request contra main
 ```
+
+### Servidor de desarrollo
+
+```bash
+php8.5 -S 127.0.0.1:8084 -t public
+# El servidor recarga automáticamente los cambios en PHP.
+```
+
+### Logs
+
+Los errores se registran en `storage/logs/YYYY-MM-DD.log`. El nivel de detalle se controla con `APP_DEBUG` en `.env`.
+
+---
+
+## API de rutas
+
+### Públicas (sin autenticación)
+
+| Método | Ruta                  | Controlador         | Descripción                     |
+|--------|-----------------------|---------------------|---------------------------------|
+| GET    | `/`                   | PublicController    | Página de inicio (home público) |
+| GET    | `/login`              | AuthController      | Formulario de inicio de sesión  |
+| POST   | `/login`              | AuthController      | Procesar login                  |
+| GET    | `/registro`           | AuthController      | Formulario de registro          |
+| POST   | `/registro`           | AuthController      | Procesar registro               |
+| GET    | `/publico/doc`        | PublicController    | Ver documento vía QR            |
+| GET    | `/publico/archivo`    | PublicController    | Descargar archivo vía QR        |
+| GET    | `/publico/mis-documentos` | PublicController | Documentos del paciente (vía QR)|
+| GET    | `/publico/encuesta`   | PublicController    | Mostrar encuesta                |
+| POST   | `/publico/encuesta`   | PublicController    | Responder encuesta              |
+
+### Autenticadas (requieren sesión)
+
+| Método | Ruta                                | Controlador         | Descripción                  |
+|--------|--------------------------------------|---------------------|------------------------------|
+| GET    | `/dashboard`                         | DashboardController | Panel principal según rol   |
+| GET    | `/logout`                            | AuthController      | Cerrar sesión               |
+| GET    | `/perfil`                            | PerfilController    | Ver perfil propio           |
+| POST   | `/perfil`                            | PerfilController    | Actualizar perfil           |
+| GET    | `/documentos`                        | DocumentoController | Listado general             |
+| GET    | `/documentos/subir`                  | DocumentoController | Formulario de carga         |
+| POST   | `/documentos/subir`                  | DocumentoController | Procesar carga              |
+| GET    | `/documentos/editar`                 | DocumentoController | Formulario de edición       |
+| POST   | `/documentos/editar`                 | DocumentoController | Procesar edición            |
+| GET    | `/documentos/eliminar`               | DocumentoController | Eliminar documento          |
+| GET    | `/documentos/ver`                    | DocumentoController | Ver detalle                 |
+| GET    | `/documentos/archivo`                | DocumentoController | Descargar archivo           |
+| GET    | `/documentos/generales`              | DocumentoController | Documentos generales        |
+| GET    | `/documentos/paciente`               | DocumentoController | Buscar por CI de paciente   |
+| GET    | `/encuestas`                         | EncuestaController  | Listado de encuestas        |
+| GET    | `/encuestas/crear`                   | EncuestaController  | Formulario de creación      |
+| POST   | `/encuestas/crear`                   | EncuestaController  | Procesar creación           |
+| GET    | `/encuestas/resultados`              | EncuestaController  | Resultados con gráficos     |
+| GET    | `/traslados`                         | TrasladoController  | Listado de traslados        |
+| GET    | `/traslados/nuevo`                   | TrasladoController  | Formulario de nuevo traslado|
+| POST   | `/traslados/nuevo`                   | TrasladoController  | Procesar nuevo traslado     |
+| GET    | `/traslados/ver`                     | TrasladoController  | Detalle del traslado        |
+| POST   | `/traslados/actualizar-estado`       | TrasladoController  | Cambiar estado              |
+| GET    | `/traslados/historial`               | TrasladoController  | Historial con filtros       |
+| GET    | `/conductores`                       | ConductorController | Listado de conductores      |
+| GET    | `/conductores/crear`                 | ConductorController | Formulario de creación      |
+| POST   | `/conductores/crear`                 | ConductorController | Procesar creación           |
+| GET    | `/rutas`                             | RutaController      | Listado de rutas            |
+| GET    | `/rutas/crear`                       | RutaController      | Formulario de creación      |
+| POST   | `/rutas/crear`                       | RutaController      | Procesar creación           |
+
+---
 
 ## Tema visual
 
-La interfaz usa un theme Windows clásico (ventanas con `win-panel`, `win-titlebar`, campos `win-field`, botones `win-btn`). Soporta modo oscuro con toggle en la barra de navegación.
+La interfaz emula el estilo de Windows clásico (Windows 9x/2000):
+
+- **Paneles**: `.win-panel` con borde gris oscuro y `.win-titlebar` azul degradado.
+- **Campos de texto**: `.win-field` con bordes biselados (inset/outset).
+- **Botones**: `.win-btn` con relieve 3D y variantes `.win-btn-primary` (azul).
+- **Separadores**: `.win-separator` estilo línea grabada.
+- **Modo oscuro**: Toggle en la barra de navegación que alterna la clase `dark-mode` en `<body>`. Estilos definidos en `public/css/classic.css`.
+
+---
+
+## Roadmap
+
+| Sprint | Estado     | Descripción                                              |
+|--------|-----------|----------------------------------------------------------|
+| S0     | ✔ Completado | Setup inicial, schema, seed, autenticación básica        |
+| S1     | 🔄 En curso | Application Layer: servicios, middlewares, refactors      |
+| S2     | ⬜ Pendiente | Frontend F1: layout general, navbar, sidebar, dashboard  |
+| S3     | ⬜ Pendiente | Frontend F2: gestión de documentos y encuestas           |
+| S4     | ⬜ Pendiente | Frontend F3: módulo de traslados, conductores y rutas    |
+| S5     | ⬜ Pendiente | Frontend F4: perfiles, foto, vistas públicas QR          |
+| S6     | ⬜ Pendiente | Frontend F5: reportes, gráficos avanzados, exportación   |
+| S7     | ⬜ Pendiente | Testing, despliegue, documentación final                 |
+
+---
+
+## Licencia
+
+Proyecto interno del Hospital de Clínicas.
