@@ -72,7 +72,7 @@
                     <td class="text-muted small"><?= htmlspecialchars($doc['subido']) ?></td>
                     <td>
                         <div class="d-flex gap-1">
-                            <button type="button" class="btn btn-sm btn-outline-secondary border-0" title="Vista previa" onclick="Elyra.verDocumento(<?= $doc['id'] ?>, <?= json_encode($doc['titulo']) ?>, <?= json_encode($doc['categoria']) ?>, <?= json_encode($doc['especialidad']) ?>, <?= json_encode($doc['subido']) ?>)">
+                            <button type="button" class="btn btn-sm btn-outline-secondary border-0" title="Vista previa" onclick="Elyra.verDocumento(<?= $doc['id'] ?>, <?= htmlspecialchars(json_encode($doc['titulo']), ENT_QUOTES, 'UTF-8') ?>, <?= htmlspecialchars(json_encode($doc['categoria']), ENT_QUOTES, 'UTF-8') ?>, <?= htmlspecialchars(json_encode($doc['especialidad']), ENT_QUOTES, 'UTF-8') ?>, <?= htmlspecialchars(json_encode($doc['subido']), ENT_QUOTES, 'UTF-8') ?>)">
                                 <i class="bi bi-eye"></i>
                             </button>
                             <a href="/documentos/editar?id=<?= $doc['id'] ?>" class="btn btn-sm btn-outline-secondary border-0" title="Editar">
@@ -108,7 +108,7 @@
             </div>
             <div class="card-item-actions">
                 <button class="btn btn-sm btn-outline-secondary" onclick="Elyra.verQR(<?= $doc['id'] ?>)"><i class="bi bi-qr-code"></i></button>
-                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="Elyra.verDocumento(<?= $doc['id'] ?>, <?= json_encode($doc['titulo']) ?>, <?= json_encode($doc['categoria']) ?>, <?= json_encode($doc['especialidad']) ?>, <?= json_encode($doc['subido']) ?>)"><i class="bi bi-eye"></i></button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="Elyra.verDocumento(<?= $doc['id'] ?>, <?= htmlspecialchars(json_encode($doc['titulo']), ENT_QUOTES, 'UTF-8') ?>, <?= htmlspecialchars(json_encode($doc['categoria']), ENT_QUOTES, 'UTF-8') ?>, <?= htmlspecialchars(json_encode($doc['especialidad']), ENT_QUOTES, 'UTF-8') ?>, <?= htmlspecialchars(json_encode($doc['subido']), ENT_QUOTES, 'UTF-8') ?>)"><i class="bi bi-eye"></i></button>
                 <a href="/documentos/editar?id=<?= $doc['id'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
                 <button class="btn btn-sm btn-outline-secondary" onclick="Elyra.copiarEnlace(<?= $doc['id'] ?>, this)"><i class="bi bi-link-45deg"></i></button>
                 <button class="btn btn-sm btn-outline-danger" onclick="Elyra.confirm(<?= $doc['id'] ?>, '<?= htmlspecialchars($doc['titulo'], ENT_QUOTES) ?>')"><i class="bi bi-trash"></i></button>
