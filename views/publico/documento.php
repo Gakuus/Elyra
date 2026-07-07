@@ -1,6 +1,38 @@
 <?php $titulo = htmlspecialchars($doc['titulo']); ?>
 <?php ob_start(); ?>
 
+<script>
+    window.Elyra = window.Elyra || {};
+
+    if (!window.Elyra.verDocPublico) {
+        window.Elyra.verDocPublico = function (id, titulo) {
+            var embedEl = document.getElementById('publicoPreviewEmbed');
+            var downloadEl = document.getElementById('publicoPreviewDownload');
+            var titleEl = document.getElementById('publicoPreviewTitle');
+            if (!embedEl || !downloadEl || !titleEl) return;
+            titleEl.textContent = titulo;
+            embedEl.src = '/publico/archivo?id=' + id;
+            downloadEl.href = '/publico/archivo?id=' + id + '&descargar=1';
+            new bootstrap.Modal(document.getElementById('docPublicoModal')).show();
+        };
+    }
+
+    if (!window._publicoModalInit) {
+        window._publicoModalInit = true;
+        document.addEventListener('hidden.bs.modal', function (e) {
+            if (e.target && e.target.id === 'docPublicoModal') {
+                var embed = document.getElementById('publicoPreviewEmbed');
+                if (embed) embed.src = '';
+            }
+        });
+    }
+</script>
+
+<style>
+    .public-doc-card { cursor: pointer; transition: box-shadow 0.2s, transform 0.2s; }
+    .public-doc-card:hover { box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important; transform: translateY(-2px); }
+</style>
+
 <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
 
@@ -23,12 +55,6 @@
             </div>
         </div>
 
-        <div class="text-center my-3">
-            <a href="/publico/archivo?id=<?= $doc['id'] ?>&descargar=1" class="btn btn-outline-primary">
-                <i class="bi bi-download me-1"></i> Descargar PDF
-            </a>
-        </div>
-
         <div class="public-doc-feedback mt-4 pt-3 border-top">
             <p class="fw-semibold mb-2 text-center">¿Te result&oacute; &uacute;til este documento?</p>
             <div class="d-flex gap-3 justify-content-center">
@@ -42,6 +68,12 @@
             <div class="feedback-msg text-center small text-muted mt-2 d-none" id="feedbackMsg"></div>
         </div>
 
+        <div class="text-center mt-3">
+            <a href="/publico/archivo?id=<?= $doc['id'] ?>&descargar=1" class="btn btn-outline-primary">
+                <i class="bi bi-download me-1"></i> Descargar PDF
+            </a>
+        </div>
+
     </div>
 </div>
 
@@ -53,7 +85,7 @@
                     <h5 class="modal-title text-truncate" id="publicoPreviewTitle"></h5>
                 </div>
                 <div class="d-flex gap-2 flex-shrink-0">
-                    <a id="publicoPreviewDownload" class="btn btn-sm btn-primary" target="_blank" title="Descargar PDF">
+                    <a id="publicoPreviewDownload" class="btn btn-sm btn-primary" title="Descargar PDF">
                         <i class="bi bi-download"></i>
                     </a>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -65,33 +97,6 @@
         </div>
     </div>
 </div>
-
-<script>
-    window.Elyra = window.Elyra || {};
-
-    window.Elyra.verDocPublico = function (id, titulo) {
-        var titleEl = document.getElementById('publicoPreviewTitle');
-        var embedEl = document.getElementById('publicoPreviewEmbed');
-        var downloadEl = document.getElementById('publicoPreviewDownload');
-        if (!embedEl || !titleEl || !downloadEl) return;
-        titleEl.textContent = titulo;
-        embedEl.src = '/publico/archivo?id=' + id;
-        downloadEl.href = '/publico/archivo?id=' + id + '&descargar=1';
-        new bootstrap.Modal(document.getElementById('docPublicoModal')).show();
-    };
-
-    document.addEventListener('hidden.bs.modal', function (e) {
-        if (e.target && e.target.id === 'docPublicoModal') {
-            var embed = document.getElementById('publicoPreviewEmbed');
-            if (embed) embed.src = '';
-        }
-    });
-</script>
-
-<style>
-    .public-doc-card { cursor: pointer; transition: box-shadow 0.2s, transform 0.2s; }
-    .public-doc-card:hover { box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important; transform: translateY(-2px); }
-</style>
 
 <?php $contenido = ob_get_clean(); ?>
 <?php require __DIR__ . '/../layout/base.php'; ?>
