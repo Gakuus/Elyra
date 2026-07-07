@@ -218,7 +218,7 @@ class UsuarioRepository implements UsuarioRepositoryInterface
     public function updatePaciente(Paciente $paciente): void
     {
         $stmt = $this->pdo->prepare("
-            UPDATE usuario SET nombre = ?, apellido = ?, email = ?, documento_identidad = ?, foto = ?
+            UPDATE usuario SET nombre = ?, apellido = ?, email = ?, documento_identidad = ?
             WHERE id = ?
         ");
         $stmt->execute([
@@ -226,7 +226,6 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             $paciente->getApellido(),
             $paciente->getEmail(),
             $paciente->getDocumentoIdentidad(),
-            $paciente->getFoto(),
             $paciente->getId(),
         ]);
 
@@ -246,7 +245,7 @@ class UsuarioRepository implements UsuarioRepositoryInterface
     public function updateFuncionario(Funcionario $funcionario): void
     {
         $stmt = $this->pdo->prepare("
-            UPDATE usuario SET nombre = ?, apellido = ?, email = ?, documento_identidad = ?, foto = ?
+            UPDATE usuario SET nombre = ?, apellido = ?, email = ?, documento_identidad = ?
             WHERE id = ?
         ");
         $stmt->execute([
@@ -254,7 +253,6 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             $funcionario->getApellido(),
             $funcionario->getEmail(),
             $funcionario->getDocumentoIdentidad(),
-            $funcionario->getFoto(),
             $funcionario->getId(),
         ]);
 
@@ -270,6 +268,12 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             $funcionario->getRol()->value(),
             $funcionario->getId(),
         ]);
+    }
+
+    public function updateFoto(int $userId, ?string $foto): void
+    {
+        $stmt = $this->pdo->prepare("UPDATE usuario SET foto = ? WHERE id = ?");
+        $stmt->execute([$foto, $userId]);
     }
 
     public function findAllFuncionarios(?bool $activo = null): array

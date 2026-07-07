@@ -65,13 +65,7 @@ class PerfilController extends BaseController
                 $this->render('perfil/index', ['error' => 'La cédula debe tener exactamente 8 dígitos.', 'user' => $user]);
                 return;
             }
-
-            try {
-                $user->setDocumentoIdentidad($ci);
-            } catch (\Throwable $th) {
-                $this->render('perfil/index', ['error' => 'Esa cédula ya está registrada por otro usuario.', 'user' => $user]);
-                return;
-            }
+            $user->setDocumentoIdentidad($ci);
         }
 
         $password = $_POST['password'] ?? '';
@@ -89,17 +83,6 @@ class PerfilController extends BaseController
             $user->setPasswordHash(password_hash($password, PASSWORD_BCRYPT));
         }
 
-        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-            $error = $this->validarFoto($_FILES['foto']);
-            if ($error) {
-                $this->render('perfil/index', ['error' => $error, 'user' => $user]);
-                return;
-            }
-
-            $contenido = file_get_contents($_FILES['foto']['tmp_name']);
-            $user->setFoto($contenido);
-        }
-
         $esPaciente = $user->getTipo() === 'paciente';
 
         try {
@@ -109,8 +92,23 @@ class PerfilController extends BaseController
                 $this->usuarioRepo->updateFuncionario($user);
             }
         } catch (\Throwable $th) {
-            $this->render('perfil/index', ['error' => 'Error al guardar. Verificá que los datos no estén duplicados.', 'user' => $user]);
+            $msg = 'Error al guardar.';
+            if (str_contains($th->getMessage(), 'Duplicate entry')) {
+                $msg = 'Ese valor ya está registrado por otro usuario (cédula o email duplicado).';
+            }
+            $this->render('perfil/index', ['error' => $msg, 'user' => $user]);
             return;
+        }
+
+        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+            $error = $this->validarFoto($_FILES['foto']);
+            if ($error) {
+                $this->render('perfil/index', ['error' => $error, 'user' => $user]);
+                return;
+            }
+
+            $contenido = file_get_contents($_FILES['foto']['tmp_name']);
+            $this->usuarioRepo->updateFoto((int) $user->getId(), $contenido);
         }
 
         $_SESSION['user_nombre'] = $user->getNombreCompleto();
