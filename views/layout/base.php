@@ -15,7 +15,12 @@
 </head>
 <body>
 
-<?php if (\Elyra\Infrastructure\Service\SessionManager::isAuthenticated()): ?>
+<?php
+$currentSess = \Elyra\Infrastructure\Service\SessionManager::class;
+$isPaciente = $currentSess::isPaciente();
+?>
+
+<?php if ($currentSess::isAuthenticated()): ?>
 
 <?php
 $currentUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -69,6 +74,25 @@ function renderBreadcrumbs(string $uri, array $map): void {
                     </a>
                 </li>
 
+                <?php if ($isPaciente): ?>
+                <li class="nav-item">
+                    <a class="nav-link<?= str_starts_with($currentUri, '/documentos') ? ' active' : '' ?>" href="/documentos">
+                        <i class="bi bi-file-text me-1"></i> Documentos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link<?= str_starts_with($currentUri, '/encuestas') ? ' active' : '' ?>" href="/encuestas">
+                        <i class="bi bi-bar-chart me-1"></i> Encuestas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link<?= str_starts_with($currentUri, '/traslados') ? ' active' : '' ?>" href="/traslados">
+                        <i class="bi bi-truck me-1"></i> Traslados
+                    </a>
+                </li>
+                <?php endif; ?>
+
+                <?php if (!$isPaciente): ?>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle<?= str_starts_with($currentUri, '/documentos') || str_starts_with($currentUri, '/encuestas') ? ' active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-file-text me-1"></i> Documentaci&oacute;n
@@ -95,6 +119,7 @@ function renderBreadcrumbs(string $uri, array $map): void {
                         <li><a class="dropdown-item" href="/conductores"><i class="bi bi-people me-2"></i>Conductores</a></li>
                     </ul>
                 </li>
+                <?php endif; ?>
             </ul>
             <div class="d-flex align-items-center gap-3">
                 <button id="darkModeToggle" class="btn btn-outline-light btn-sm" aria-label="Alternar modo oscuro">
@@ -103,6 +128,11 @@ function renderBreadcrumbs(string $uri, array $map): void {
 <span class="text-light-emphasis small">
     <i class="bi bi-person-circle"></i> <?= htmlspecialchars($_SESSION['user_nombre'] ?? 'Usuario') ?>
 </span>
+                <?php if ($isPaciente): ?>
+                <a href="/perfil" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-gear"></i> Perfil
+                </a>
+                <?php endif; ?>
                 <a href="/logout" class="btn btn-outline-light btn-sm">
                     <i class="bi bi-box-arrow-right"></i> Salir
                 </a>
@@ -137,5 +167,6 @@ function renderBreadcrumbs(string $uri, array $map): void {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/js/elyra.js?v=4" defer></script>
 <script src="/js/components/ui.js?v=4" defer></script>
+<?= $scripts ?? '' ?>
 </body>
 </html>

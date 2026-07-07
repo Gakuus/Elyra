@@ -175,7 +175,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
     public function update(Documento $documento): void
     {
         $stmt = $this->pdo->prepare("
-            UPDATE documento SET titulo = ?, descripcion = ?, categoria_id = ?, especialidad_id = ?, activo = ?
+            UPDATE documento SET titulo = ?, descripcion = ?, categoria_id = ?, especialidad_id = ?, paciente_id = ?, activo = ?
             WHERE id = ?
         ");
         $stmt->execute([
@@ -183,6 +183,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
             $documento->getDescripcion(),
             $documento->getCategoriaId(),
             $documento->getEspecialidadId(),
+            $documento->getPacienteId(),
             $documento->isActivo() ? 1 : 0,
             $documento->getId(),
         ]);

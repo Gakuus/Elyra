@@ -22,7 +22,14 @@ class UsuarioRepository implements UsuarioRepositoryInterface
     public function findById(int $id): ?Usuario
     {
         $stmt = $this->pdo->prepare("
-            SELECT u.*, f.*, p.token_acceso, p.codigo_qr_id
+            SELECT u.*,
+                   f.id as f_id, f.rol, f.username as f_username, f.password_hash as f_password_hash,
+                   f.licencia, f.telefono as f_telefono, f.activo as f_activo,
+                   p.token_acceso, p.codigo_qr_id,
+                   COALESCE(f.username, p.username) as username,
+                   COALESCE(f.password_hash, p.password_hash) as password_hash,
+                   COALESCE(f.telefono, p.telefono) as telefono,
+                   COALESCE(f.activo, p.activo) as activo
             FROM usuario u
             LEFT JOIN funcionario f ON f.id = u.id
             LEFT JOIN paciente p ON p.id = u.id
@@ -107,16 +114,23 @@ class UsuarioRepository implements UsuarioRepositoryInterface
 
         if (!$row) return null;
 
-        return new Paciente(
-            id: (int) $row['id'],
-            nombre: $row['nombre'],
-            apellido: $row['apellido'],
-            email: $row['email'],
-            documentoIdentidad: $row['documento_identidad'],
-            tokenAcceso: $row['token_acceso'],
-            codigoQrId: $row['codigo_qr_id'] !== null ? (int) $row['codigo_qr_id'] : null,
-            createdAt: $row['created_at']
-        );
+        return $this->hydratePaciente($row);
+    }
+
+    public function findPacienteByUsername(string $username): ?Paciente
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT u.*, p.*
+            FROM usuario u
+            JOIN paciente p ON p.id = u.id
+            WHERE p.username = ?
+        ");
+        $stmt->execute([$username]);
+        $row = $stmt->fetch();
+
+        if (!$row) return null;
+
+        return $this->hydratePaciente($row);
     }
 
     public function saveFuncionario(Funcionario $funcionario): Funcionario
@@ -175,10 +189,18 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             $id = (int) $this->pdo->lastInsertId();
 
             $stmt = $this->pdo->prepare("
-                INSERT INTO paciente (id, token_acceso, codigo_qr_id)
-                VALUES (?, ?, ?)
+                INSERT INTO paciente (id, token_acceso, codigo_qr_id, username, password_hash, telefono, activo)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             ");
-            $stmt->execute([$id, $paciente->getTokenAcceso(), $paciente->getCodigoQrId()]);
+            $stmt->execute([
+                $id,
+                $paciente->getTokenAcceso(),
+                $paciente->getCodigoQrId(),
+                $paciente->getUsername(),
+                $paciente->getPasswordHash(),
+                $paciente->getTelefono(),
+                $paciente->isActivo() ? 1 : 0,
+            ]);
 
             $this->pdo->commit();
             $paciente->setId($id);
@@ -187,6 +209,33 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             $this->pdo->rollBack();
             throw $e;
         }
+    }
+
+    public function updatePaciente(Paciente $paciente): void
+    {
+        $stmt = $this->pdo->prepare("
+            UPDATE usuario SET nombre = ?, apellido = ?, email = ?, documento_identidad = ?
+            WHERE id = ?
+        ");
+        $stmt->execute([
+            $paciente->getNombre(),
+            $paciente->getApellido(),
+            $paciente->getEmail(),
+            $paciente->getDocumentoIdentidad(),
+            $paciente->getId(),
+        ]);
+
+        $stmt = $this->pdo->prepare("
+            UPDATE paciente SET username = ?, telefono = ?, activo = ?, password_hash = COALESCE(?, password_hash)
+            WHERE id = ?
+        ");
+        $stmt->execute([
+            $paciente->getUsername(),
+            $paciente->getTelefono(),
+            $paciente->isActivo() ? 1 : 0,
+            $paciente->getPasswordHash(),
+            $paciente->getId(),
+        ]);
     }
 
     public function updateFuncionario(Funcionario $funcionario): void
@@ -267,16 +316,7 @@ class UsuarioRepository implements UsuarioRepositoryInterface
 
         $result = [];
         foreach ($rows as $row) {
-            $result[] = new Paciente(
-                id: (int) $row['id'],
-                nombre: $row['nombre'],
-                apellido: $row['apellido'],
-                email: $row['email'],
-                documentoIdentidad: $row['documento_identidad'],
-                tokenAcceso: $row['token_acceso'],
-                codigoQrId: $row['codigo_qr_id'] !== null ? (int) $row['codigo_qr_id'] : null,
-                createdAt: $row['created_at']
-            );
+            $result[] = $this->hydratePaciente($row);
         }
         return $result;
     }
@@ -287,9 +327,27 @@ class UsuarioRepository implements UsuarioRepositoryInterface
         $stmt->execute([$id]);
     }
 
+    private function hydratePaciente(array $row): Paciente
+    {
+        return new Paciente(
+            id: (int) $row['id'],
+            nombre: $row['nombre'],
+            apellido: $row['apellido'],
+            email: $row['email'],
+            documentoIdentidad: $row['documento_identidad'],
+            tokenAcceso: $row['token_acceso'] ?? null,
+            codigoQrId: isset($row['codigo_qr_id']) ? (int) $row['codigo_qr_id'] : null,
+            username: $row['username'] ?? null,
+            passwordHash: $row['password_hash'] ?? null,
+            telefono: $row['telefono'] ?? null,
+            activo: isset($row['activo']) ? (bool) $row['activo'] : true,
+            createdAt: $row['created_at']
+        );
+    }
+
     private function hydrate(array $row): Usuario
     {
-        if (!empty($row['username'])) {
+        if (!empty($row['rol'])) {
             return new Funcionario(
                 id: (int) $row['id'],
                 nombre: $row['nombre'],
@@ -306,15 +364,6 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             );
         }
 
-        return new Paciente(
-            id: (int) $row['id'],
-            nombre: $row['nombre'],
-            apellido: $row['apellido'],
-            email: $row['email'],
-            documentoIdentidad: $row['documento_identidad'],
-            tokenAcceso: $row['token_acceso'] ?? null,
-            codigoQrId: isset($row['codigo_qr_id']) ? (int) $row['codigo_qr_id'] : null,
-            createdAt: $row['created_at']
-        );
+        return $this->hydratePaciente($row);
     }
 }

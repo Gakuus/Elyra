@@ -47,6 +47,10 @@ CREATE TABLE codigo_qr (
 CREATE TABLE paciente (
     id INT PRIMARY KEY,
     token_acceso VARCHAR(64) UNIQUE,
+    username VARCHAR(50) UNIQUE,
+    password_hash VARCHAR(255),
+    telefono VARCHAR(20),
+    activo BOOLEAN DEFAULT TRUE,
     codigo_qr_id INT NULL,
     FOREIGN KEY (id) REFERENCES usuario(id) ON DELETE CASCADE,
     FOREIGN KEY (codigo_qr_id) REFERENCES codigo_qr(id) ON DELETE SET NULL

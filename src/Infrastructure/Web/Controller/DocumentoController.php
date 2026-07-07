@@ -37,6 +37,10 @@ class DocumentoController extends BaseController
         $page = max(1, (int) ($_GET['pagina'] ?? 1));
         $perPage = 5;
 
+        if (SessionManager::isPaciente()) {
+            $pacienteId = SessionManager::getUserId();
+        }
+
         $documentos = $this->docRepo->findAll($categoriaId, $search ?: null, $pacienteId, $page, $perPage);
         $total = $this->docRepo->count($categoriaId, $search ?: null, $pacienteId);
         $totalPaginas = max(1, (int) ceil($total / $perPage));
@@ -44,7 +48,7 @@ class DocumentoController extends BaseController
         $this->render('documentos/index', [
             'documentos' => array_map(fn (Documento $d) => $this->docToArray($d), $documentos),
             'tiposDocumento' => $this->categoriaArray($this->categoriaRepo->findByTipo('tipo_documento')),
-            'pacientes' => $this->pacienteArray($this->usuarioRepo->findAllPacientes()),
+            'pacientes' => SessionManager::isPaciente() ? [] : $this->pacienteArray($this->usuarioRepo->findAllPacientes()),
             'total' => $total,
             'pagina' => $page,
             'totalPaginas' => $totalPaginas,
@@ -57,6 +61,7 @@ class DocumentoController extends BaseController
     public function subir(): void
     {
         $this->requireAuth();
+        $this->denyPaciente();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->handleUpload();
@@ -158,6 +163,7 @@ class DocumentoController extends BaseController
     public function editar(): void
     {
         $this->requireAuth();
+        $this->denyPaciente();
 
         $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
         if ($id <= 0) {
@@ -234,7 +240,7 @@ class DocumentoController extends BaseController
             qrPath: $doc->getQrPath(),
             especialidadId: $especialidadId,
             encuestaId: $doc->getEncuestaId(),
-            pacienteId: $pacienteId ?? $doc->getPacienteId(),
+            pacienteId: $pacienteId,
             activo: true,
             createdAt: $doc->getCreatedAt()
         );
@@ -251,6 +257,7 @@ class DocumentoController extends BaseController
     public function eliminar(): void
     {
         $this->requireAuth();
+        $this->denyPaciente();
 
         $id = (int) ($_GET['id'] ?? 0);
         if ($id <= 0) {
@@ -269,6 +276,11 @@ class DocumentoController extends BaseController
 
         $doc = $id > 0 ? $this->docRepo->findById($id) : null;
 
+        if (SessionManager::isPaciente() && ($doc === null || $doc->getPacienteId() !== SessionManager::getUserId())) {
+            $this->redirect('/documentos');
+            return;
+        }
+
         $this->render('documentos/ver', [
             'doc' => $doc ? $this->docToArray($doc) : null,
         ] + $this->viewCategorias());
@@ -282,6 +294,11 @@ class DocumentoController extends BaseController
         $doc = $id > 0 ? $this->docRepo->findById($id) : null;
         if (!$doc) {
             http_response_code(404);
+            exit;
+        }
+
+        if (SessionManager::isPaciente() && $doc->getPacienteId() !== SessionManager::getUserId()) {
+            http_response_code(403);
             exit;
         }
 

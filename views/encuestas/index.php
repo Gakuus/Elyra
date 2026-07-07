@@ -1,10 +1,15 @@
-<?php $titulo = 'Encuestas'; ?>
+<?php
+$titulo = 'Encuestas';
+$isPaciente = \Elyra\Infrastructure\Service\SessionManager::isPaciente();
+?>
 <?php ob_start(); ?>
 
 <div class="action-bar">
+    <?php if (!$isPaciente): ?>
     <a href="/encuestas/crear" class="btn btn-primary">
         <i class="bi bi-plus-lg me-1"></i> Nueva encuesta
     </a>
+    <?php endif; ?>
 </div>
 
 <?php if (empty($encuestas)): ?>
@@ -12,7 +17,9 @@
         <div class="display-6 text-muted mb-3"><i class="bi bi-bar-chart"></i></div>
         <h5 class="fw-semibold">No hay encuestas</h5>
         <p class="text-muted mb-4">A&uacute;n no se ha creado ninguna encuesta.</p>
+        <?php if (!$isPaciente): ?>
         <a href="/encuestas/crear" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> Crear primera encuesta</a>
+        <?php endif; ?>
     </div>
 <?php else: ?>
     <div class="table-responsive">
@@ -35,10 +42,14 @@
                         </td>
                         <td><span class="badge bg-secondary bg-opacity-10 text-secondary"><?= $e['preguntas'] ?></span></td>
                         <td>
+                            <?php if ($isPaciente): ?>
+                                <span class="badge bg-<?= $e['activa'] ? 'success' : 'secondary' ?> bg-opacity-10 text-<?= $e['activa'] ? 'success' : 'secondary' ?>"><?= $e['activa'] ? 'Activa' : 'Inactiva' ?></span>
+                            <?php else: ?>
                             <div class="form-check form-switch mb-0">
                                 <input class="form-check-input" type="checkbox" role="switch" id="toggle-<?= $e['id'] ?>"<?= $e['activa'] ? ' checked' : '' ?> data-encuesta-id="<?= $e['id'] ?>">
                                 <label class="form-check-label small" for="toggle-<?= $e['id'] ?>"><?= $e['activa'] ? 'Activa' : 'Inactiva' ?></label>
                             </div>
+                            <?php endif; ?>
                         </td>
                         <td class="text-muted small"><?= htmlspecialchars($e['creada']) ?></td>
                         <td>
