@@ -260,6 +260,44 @@
         }
     };
 
+    window.Elyra.verDocumento = function (id, titulo, categoria, especialidad, subido, activo) {
+        var titleEl = document.getElementById('previewTitle');
+        var metaEl = document.getElementById('previewMeta');
+        var embedEl = document.getElementById('previewEmbed');
+        var downloadEl = document.getElementById('previewDownload');
+
+        if (!embedEl) return;
+
+        titleEl.textContent = titulo;
+
+        var badges = '';
+        if (especialidad) {
+            badges += '<span class="badge bg-info bg-opacity-10 text-info me-1">' + escapeHtml(especialidad) + '</span>';
+        }
+        badges += '<span class="badge bg-primary bg-opacity-10 text-primary me-1">' + escapeHtml(categoria) + '</span>';
+        badges += '<small class="text-muted">Subido el ' + escapeHtml(subido) + '</small>';
+        metaEl.innerHTML = badges;
+
+        embedEl.src = '/documentos/archivo?id=' + id;
+        downloadEl.href = '/documentos/archivo?id=' + id + '&descargar=1';
+
+        var modal = new bootstrap.Modal(document.getElementById('docPreviewModal'));
+        modal.show();
+    };
+
+    document.addEventListener('hidden.bs.modal', function (e) {
+        if (e.target.id === 'docPreviewModal') {
+            var embed = document.getElementById('previewEmbed');
+            if (embed) embed.src = '';
+        }
+    });
+
+    function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
     function initEncuestaToggles() {
         var toggles = document.querySelectorAll('[data-encuesta-id]');
         toggles.forEach(function (t) {
