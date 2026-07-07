@@ -29,6 +29,12 @@
     </div>
     <?php endif; ?>
 
+    <div class="d-flex justify-content-center gap-2 mb-4">
+        <a href="/publico/archivo?id=<?= $doc['id'] ?>&descargar=1" class="btn btn-primary">
+            <i class="bi bi-download me-1"></i> Descargar PDF
+        </a>
+    </div>
+
     <div class="public-doc-feedback">
         <p class="fw-semibold mb-2">¿Te result&oacute; &uacute;til este documento?</p>
         <div class="d-flex gap-3 justify-content-center">
