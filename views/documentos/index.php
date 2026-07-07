@@ -72,9 +72,9 @@
                     <td class="text-muted small"><?= htmlspecialchars($doc['subido']) ?></td>
                     <td>
                         <div class="d-flex gap-1">
-                            <button type="button" class="btn btn-sm btn-outline-secondary border-0" title="Vista previa" onclick="Elyra.verDocumento(<?= $doc['id'] ?>, <?= htmlspecialchars(json_encode($doc['titulo']), ENT_QUOTES, 'UTF-8') ?>, <?= htmlspecialchars(json_encode($doc['categoria']), ENT_QUOTES, 'UTF-8') ?>, <?= htmlspecialchars(json_encode($doc['especialidad']), ENT_QUOTES, 'UTF-8') ?>, <?= htmlspecialchars(json_encode($doc['subido']), ENT_QUOTES, 'UTF-8') ?>)">
+                            <a href="/documentos/ver?id=<?= $doc['id'] ?>" class="btn btn-sm btn-outline-secondary border-0" title="Ver detalle">
                                 <i class="bi bi-eye"></i>
-                            </button>
+                            </a>
                             <a href="/documentos/editar?id=<?= $doc['id'] ?>" class="btn btn-sm btn-outline-secondary border-0" title="Editar">
                                 <i class="bi bi-pencil"></i>
                             </a>
@@ -108,7 +108,7 @@
             </div>
             <div class="card-item-actions">
                 <button class="btn btn-sm btn-outline-secondary" onclick="Elyra.verQR(<?= $doc['id'] ?>)"><i class="bi bi-qr-code"></i></button>
-                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="Elyra.verDocumento(<?= $doc['id'] ?>, <?= htmlspecialchars(json_encode($doc['titulo']), ENT_QUOTES, 'UTF-8') ?>, <?= htmlspecialchars(json_encode($doc['categoria']), ENT_QUOTES, 'UTF-8') ?>, <?= htmlspecialchars(json_encode($doc['especialidad']), ENT_QUOTES, 'UTF-8') ?>, <?= htmlspecialchars(json_encode($doc['subido']), ENT_QUOTES, 'UTF-8') ?>)"><i class="bi bi-eye"></i></button>
+                <a href="/documentos/ver?id=<?= $doc['id'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a>
                 <a href="/documentos/editar?id=<?= $doc['id'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
                 <button class="btn btn-sm btn-outline-secondary" onclick="Elyra.copiarEnlace(<?= $doc['id'] ?>, this)"><i class="bi bi-link-45deg"></i></button>
                 <button class="btn btn-sm btn-outline-danger" onclick="Elyra.confirm(<?= $doc['id'] ?>, '<?= htmlspecialchars($doc['titulo'], ENT_QUOTES) ?>')"><i class="bi bi-trash"></i></button>
@@ -140,48 +140,6 @@
 
 <div class="mt-3">
     <a href="/encuestas" class="btn btn-outline-primary btn-sm"><i class="bi bi-bar-chart me-1"></i> Ir a Encuestas</a>
-</div>
-
-<script>
-    window.Elyra = window.Elyra || {};
-    window.Elyra.verDocumento = window.Elyra.verDocumento || function (id, titulo, categoria, especialidad, subido) {
-        var embedEl = document.getElementById('previewEmbed');
-        if (!embedEl) return;
-        var titleEl = document.getElementById('previewTitle');
-        var metaEl = document.getElementById('previewMeta');
-        var downloadEl = document.getElementById('previewDownload');
-        titleEl.textContent = titulo;
-        var badges = '';
-        if (especialidad) { badges += '<span class="badge bg-info bg-opacity-10 text-info me-1">' + especialidad + '</span>'; }
-        badges += '<span class="badge bg-primary bg-opacity-10 text-primary me-1">' + categoria + '</span>';
-        badges += '<small class="text-muted">Subido el ' + subido + '</small>';
-        metaEl.innerHTML = badges;
-        embedEl.src = '/documentos/archivo?id=' + id;
-        downloadEl.href = '/documentos/archivo?id=' + id + '&descargar=1';
-        new bootstrap.Modal(document.getElementById('docPreviewModal')).show();
-    };
-</script>
-
-<div class="modal fade" id="docPreviewModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-fullscreen modal-dialog-centered">
-        <div class="modal-content bg-body">
-            <div class="modal-header border-bottom-0">
-                <div class="me-3 overflow-hidden">
-                    <h5 class="modal-title text-truncate" id="previewTitle"></h5>
-                    <div id="previewMeta" class="small mt-1"></div>
-                </div>
-                <div class="d-flex gap-2 flex-shrink-0">
-                    <a id="previewDownload" class="btn btn-sm btn-primary" title="Descargar PDF">
-                        <i class="bi bi-download"></i>
-                    </a>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-            </div>
-            <div class="modal-body p-0 d-flex">
-                <embed id="previewEmbed" type="application/pdf" class="w-100" style="height: 90vh; border: none;">
-            </div>
-        </div>
-    </div>
 </div>
 
 <?php $contenido = ob_get_clean(); ?>
