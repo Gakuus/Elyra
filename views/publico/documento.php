@@ -51,21 +51,19 @@
 </div>
 
 <div class="modal fade" id="docPublicoModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-fullscreen modal-dialog-centered">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content bg-body">
-            <div class="modal-header border-bottom-0">
-                <div class="me-3 overflow-hidden">
-                    <h5 class="modal-title text-truncate" id="publicoPreviewTitle"></h5>
-                </div>
-                <div class="d-flex gap-2 flex-shrink-0">
+            <div class="modal-header">
+                <h5 class="modal-title text-truncate" id="publicoPreviewTitle"></h5>
+                <div class="d-flex gap-2 flex-shrink-0 ms-2">
                     <a id="publicoPreviewDownload" class="btn btn-sm btn-primary" title="Descargar PDF">
                         <i class="bi bi-download"></i>
                     </a>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
             </div>
-            <div class="modal-body p-0 d-flex">
-                <embed id="publicoPreviewEmbed" type="application/pdf" class="w-100" style="height: 90vh; border: none;">
+            <div class="modal-body p-0">
+                <embed id="publicoPreviewEmbed" type="application/pdf" class="w-100" style="min-height: 80vh; border: none;">
             </div>
         </div>
     </div>
