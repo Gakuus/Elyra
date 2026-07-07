@@ -30,26 +30,26 @@
                         <?php endif; ?>
                     </div>
 
-                    <div class="row g-2 mb-2">
-                        <div class="col-sm-6">
-                            <div class="win-label mb-1">Nombre</div>
-                            <div class="win-field w-100" style="background: #f0f0f0;" readonly><?= htmlspecialchars($user->getNombreCompleto()) ?></div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="win-label mb-1">Cédula de Identidad</div>
-                            <?php $ci = $user->getDocumentoIdentidad(); ?>
-                            <?php if ($ci): ?>
-                                <div class="win-field w-100" style="background: #f0f0f0;" readonly><?= htmlspecialchars($ci) ?></div>
-                            <?php else: ?>
-                                <input type="text" name="documento_identidad" class="win-field w-100" maxlength="8" pattern="\d{8}" inputmode="numeric" placeholder="Ingrese 8 dígitos" value="">
-                                <div class="win-text small" style="font-size: 10px; margin-top: 2px;">Solo se puede establecer una vez.</div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-
-                    <div class="win-separator mb-2"></div>
-
                     <form method="post" enctype="multipart/form-data">
+
+                        <div class="row g-2 mb-2">
+                            <div class="col-sm-6">
+                                <div class="win-label mb-1">Nombre</div>
+                                <div class="win-field w-100" style="background: #f0f0f0;" readonly><?= htmlspecialchars($user->getNombreCompleto()) ?></div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="win-label mb-1">Cédula de Identidad</div>
+                                <?php $ci = $user->getDocumentoIdentidad(); ?>
+                                <?php if ($ci): ?>
+                                    <div class="win-field w-100" style="background: #f0f0f0;" readonly><?= htmlspecialchars($ci) ?></div>
+                                <?php else: ?>
+                                    <input type="text" name="documento_identidad" class="win-field w-100" maxlength="8" pattern="\d{8}" inputmode="numeric" placeholder="Ingrese 8 dígitos" value="">
+                                    <div class="win-text small" style="font-size: 10px; margin-top: 2px;">Solo se puede establecer una vez.</div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+
+                        <div class="win-separator mb-2"></div>
                         <input type="hidden" name="_csrf_token" value="<?= \Elyra\Infrastructure\Service\SessionManager::getCsrfToken() ?>">
 
                         <div class="mb-2">
