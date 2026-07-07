@@ -1,7 +1,7 @@
 # Planificación de Sprints — Elyra
 
-> **Contexto:** Proyecto de egreso. Arquitectura hexagonal, PHP 8.4 + MySQL, Bootstrap 5 vanilla JS.
-> **Estado actual:** Login + Homepage pública + Dashboard admin. Controladores stub. Sin dominio, sin persistencia, sin seguridad real.
+> **Contexto:** Proyecto de egreso. Arquitectura hexagonal, PHP 8.5 + MySQL, Bootstrap 5 vanilla JS.
+> **Estado actual (Jul 2026):** Sprint 0 completo. Backend: dominio, infraestructura, servicios y web layer listos. Frontend: vistas implementadas con tema Windows clásico. Falta la capa de Aplicación (Use Cases) y 2 repos MySQL.
 > **Enfoque:** Security-first. Cada sprint incluye medidas de seguridad explícitas.
 
 ---
@@ -12,8 +12,6 @@
 > **El backend SIEMPRE valida todo, aunque el frontend ya lo haya validado.**
 > **No hay contraseñas en texto plano. No hay tokens en JS. No hay secrets en `.env` commiteado.**
 > **Si se vulnera una de estas reglas, la tarea se rechaza en code review.**
-
-Ver checklist completo en `docs/pendientes-backend.md` (secciones X.1–X.10 y S.1–S.12).
 
 ---
 
@@ -30,78 +28,87 @@ Ver checklist completo en `docs/pendientes-backend.md` (secciones X.1–X.10 y S
 | File upload | MIME type + extensión + tamaño + almacenar fuera de webroot | 1 |
 | Error handling | `set_exception_handler()` sin stack traces en prod | 0 |
 | CSP headers | `Content-Security-Policy` restrictiva | 0 |
-| Rol-based access | admin / superadmin / conductor | 0 |
+| Rol-based access | admin / superadmin / conductor / paciente | 0 |
 
 ---
 
-## Sprint 0 — Fundación & Seguridad (1-2 sem)
+## Sprint 0 — Fundación & Seguridad ✅ COMPLETADO
 
 **Objetivo:** Base sólida y segura antes de escribir cualquier feature.
 
 ### Backend
 
-| # | Tarea | Depende | Archivos destino |
-|---|-------|---------|------------------|
-| B0.1 | Unificar PDO en `Infrastructure/Persistence/MySQL/Connection.php` (eliminar `config/database.php`) | — | `src/Infrastructure/Persistence/MySQL/Connection.php` |
-| B0.2 | Domain Entities: `Usuario`, `Funcionario`, `Paciente`, `Documento`, `Categoria`, `Encuesta`, `Pregunta`, `Respuesta`, `Traslado`, `ElementoTraslado`, `Ruta`, `Vehiculo`, `HistorialEstado`, `CodigoQR` | — | `src/Domain/Entity/*.php` |
-| B0.3 | Value Objects: `Email`, `CodigoQR`, `EstadoTraslado`, `TipoElemento`, `TipoPregunta`, `RolUsuario` | B0.2 | `src/Domain/ValueObject/*.php` |
-| B0.4 | Repository interfaces: `UsuarioRepositoryInterface`, `DocumentoRepositoryInterface`, `EncuestaRepositoryInterface`, `TrasladoRepositoryInterface`, `ConductorRepositoryInterface` | B0.2 | `src/Domain/Repository/*Interface.php` |
-| B0.5 | Auth system: login con `password_verify()` contra BD, logout con session destroy + regenerate | — | `src/Infrastructure/Service/AuthService.php`, refactor `AuthController` |
-| B0.6 | CSRF system: generar token, validar en POST, middleware base | — | `src/Infrastructure/Web/Middleware/CsrfMiddleware.php` |
-| B0.7 | Input validation helper: sanitize, validate types, whitelist | — | `src/Infrastructure/Service/Validator.php` |
-| B0.8 | Error handler: `set_exception_handler()` + logger básico | — | `src/Infrastructure/Service/ErrorHandler.php`, refactor `index.php` |
-| B0.9 | Session security: timeout 30min, regenerate on login, HttpOnly+Secure+SameSite | B0.5 | `src/Infrastructure/Service/SessionManager.php` |
-| B0.10 | Rate limiter: login attempts (5/15min IP) + throttle helper | — | `src/Infrastructure/Service/RateLimiter.php` |
-| B0.11 | Seeders: admin user (password hasheado), categorías iniciales, rutas básicas | B0.1 | `database/seeds/seed.php` |
-| B0.12 | Refactor `index.php`: middleware pipeline (session → auth → csrf → ratelimit → route) | B0.6–B0.10 | `public/index.php` |
-| B0.13 | Route params: reemplazar `web.php` plano por router con soporte `{id}` | — | `src/Infrastructure/Web/Router.php`, `web.php` |
+| # | Tarea | Estado |
+|---|-------|--------|
+| B0.1 | Unificar PDO en `Connection.php` (singleton, lee de `$_ENV`) | ✅ |
+| B0.2 | Domain Entities: `Usuario`, `Funcionario`, `Paciente`, `Documento`, `Categoria`, `Encuesta`, `Pregunta`, `Respuesta`, `Traslado`, `ElementoTraslado`, `Ruta`, `Vehiculo`, `HistorialEstado`, `CodigoQR` | ✅ |
+| B0.3 | Value Objects: `Email`, `CodigoQR`, `EstadoTraslado`, `TipoElemento`, `TipoPregunta`, `RolUsuario` | ✅ |
+| B0.4 | Repository Interfaces: `Usuario`, `Documento`, `Encuesta`, `Traslado`, `Conductor`, `Categoria` | ✅ |
+| B0.5 | Auth system: login con `password_verify()`, logout con session destroy | ✅ |
+| B0.6 | CSRF system: `CsrfMiddleware` con token por sesión | ✅ |
+| B0.7 | Input validation: `Validator` helper | ✅ |
+| B0.8 | Error handler: `set_exception_handler()` sin stack traces | ✅ |
+| B0.9 | Session security: timeout 30min, regenerate on login, HttpOnly+Secure+SameSite | ✅ |
+| B0.10 | Rate limiter: login 5/15min IP + throttle | ✅ |
+| B0.11 | Seeders: admin, categorías, rutas, encuesta satisfacción | ✅ |
+| B0.12 | `index.php`: middleware pipeline (session → auth → csrf → ratelimit → route) | ✅ |
+| B0.13 | Router con patrones regex y parámetros `{id}` | ✅ |
 
 ### Frontend
 
-| # | Tarea | Depende | Archivos destino | Estado |
-|---|-------|---------|------------------|--------|
-| F0.1 | Página 404 personalizada (acorde al diseño) | — | `views/errors/404.php`, CSS | ✅ |
-| F0.2 | Sistema de toasts (CSS + vanilla JS, auto-destruir 4s) | — | `public/js/elyra.js`, CSS en `elyra.css` | ✅ |
-| F0.3 | Breadcrumbs en layout admin (desde `$currentUri`) | — | Actualizar `views/layout/base.php` | ✅ |
-| F0.4 | CSRF token en `fetch()`: helper JS que agrega header `X-CSRF-Token` | F0.3 | `public/js/elyra.js` | ✅ |
+| # | Tarea | Estado |
+|---|-------|--------|
+| F0.1 | Página 404 personalizada | ✅ |
+| F0.2 | Sistema de toasts (auto-destruir 4s) | ✅ |
+| F0.3 | Breadcrumbs en layout admin | ✅ |
+| F0.4 | CSRF token en `fetch()` + formularios | ✅ |
+| F0.5 | Dark mode con toggle, localStorage y `prefers-color-scheme` | ✅ |
 
-### Security Deliverables Sprint 0
+### Security Deliverables
 - [x] Passwords hasheados con Argon2id
 - [x] CSRF en todos los formularios y fetch
-- [x] Prepared statements obligatorios (CR en code review)
+- [x] Prepared statements obligatorios
 - [x] Session con timeout y regeneración
 - [x] Rate limiting en login
 - [x] Error handler sin leak de información
 - [x] CSP headers configurados
 - [x] Input sanitization en toda entrada
 
-### Frontend Deliverables Sprint 0
-- [x] Página 404 personalizada
-- [x] Sistema de toasts (Bootstrap + JS, auto-destruir 4s)
-- [x] Breadcrumbs en layout admin
-- [x] CSRF token en fetch() + formularios
-- [x] Dark mode con toggle, localStorage y prefers-color-scheme
-
 ---
 
-## Sprint 1 — Documentos: CRUD Completo (2 sem)
+## Sprint 1 — Application Layer + Repos Faltantes (2-3 sem)
 
-**Objetivo:** Ciclo completo de vida de un documento: subir, listar, ver, editar, eliminar + QR.
+**Objetivo:** Implementar la capa de Casos de Uso (Application Layer) para desacoplar controllers de repos, implementar los 2 repos MySQL faltantes, y refactorizar controllers para inyectar use cases.
 
 ### Backend
 
 | # | Tarea | Depende | Archivos destino |
 |---|-------|---------|------------------|
-| B1.1 | MySQL Repository: `DocumentoRepository`, `CategoriaRepository`, `CodigoQRRepository` | B0.4 | `src/Infrastructure/Persistence/MySQL/*Repository.php` |
-| B1.2 | Use Case: `SubirDocumentoUseCase` (validar PDF, generar QR, persistir) | B0.7, B1.1 | `src/Application/UseCases/SubirDocumentoUseCase.php` |
-| B1.3 | Use Case: `ListarDocumentosUseCase` (paginación, filtro categoría, búsqueda) | B1.1 | `src/Application/UseCases/ListarDocumentosUseCase.php` |
-| B1.4 | Use Case: `EditarDocumentoUseCase` (solo título, descripción, categoría) | B1.1 | `src/Application/UseCases/EditarDocumentoUseCase.php` |
-| B1.5 | Use Case: `EliminarDocumentoUseCase` (baja lógica, desactivar QR) | B1.1 | `src/Application/UseCases/EliminarDocumentoUseCase.php` |
-| B1.6 | Use Case: `VerDocumentoUseCase` (detalle completo con QR) | B1.1 | `src/Application/UseCases/VerDocumentoUseCase.php` |
-| B1.7 | QR Service: generar QR con `chillerlan/php-qrcode` o phpqrcode | — | `src/Infrastructure/Service/QRGeneratorService.php` |
-| B1.8 | File Storage: guardar PDF fuera de webroot (`storage/docs/`), servir via PHP | — | `src/Infrastructure/Service/FileStorageService.php` |
-| B1.9 | Refactor `DocumentoController`: inyectar casos de uso, validar requests | B1.2–B1.6 | `src/Infrastructure/Web/Controller/DocumentoController.php` |
-| B1.10 | Endpoint público: servir PDF por token QR (sin auth) | B1.8 | `PublicController::verDocumento()` |
+| B1.1 | Use Case: `SubirDocumentoUseCase` (validar PDF, generar QR, persistir) | B0.7 | `src/Application/UseCases/Documento/SubirDocumentoUseCase.php` |
+| B1.2 | Use Case: `ListarDocumentosUseCase` (paginación, filtro categoría, búsqueda) | — | `src/Application/UseCases/Documento/ListarDocumentosUseCase.php` |
+| B1.3 | Use Case: `EditarDocumentoUseCase` (solo título, descripción, categoría) | — | `src/Application/UseCases/Documento/EditarDocumentoUseCase.php` |
+| B1.4 | Use Case: `EliminarDocumentoUseCase` (baja lógica, desactivar QR) | — | `src/Application/UseCases/Documento/EliminarDocumentoUseCase.php` |
+| B1.5 | Use Case: `VerDocumentoUseCase` (detalle completo con QR) | — | `src/Application/UseCases/Documento/VerDocumentoUseCase.php` |
+| B1.6 | MySQL Repository: `TrasladoRepository` (implementa `TrasladoRepositoryInterface`) | B0.4 | `src/Infrastructure/Persistence/MySQL/TrasladoRepository.php` |
+| B1.7 | Use Case: `RegistrarTrasladoUseCase` (validar conductor, fechas, transacción) | B0.7, B1.6 | `src/Application/UseCases/Traslado/RegistrarTrasladoUseCase.php` |
+| B1.8 | Use Case: `ActualizarEstadoTrasladoUseCase` (máquina de estados, historial, timestamps) | B1.6 | `src/Application/UseCases/Traslado/ActualizarEstadoTrasladoUseCase.php` |
+| B1.9 | Use Case: `ListarTrasladosUseCase` (filtros: estado, conductor, fecha) | B1.6 | `src/Application/UseCases/Traslado/ListarTrasladosUseCase.php` |
+| B1.10 | Use Case: `VerDetalleTrasladoUseCase` (timeline completo + datos) | B1.6 | `src/Application/UseCases/Traslado/VerDetalleTrasladoUseCase.php` |
+| B1.11 | Use Case: `HistorialTrasladosUseCase` (paginación, filtros avanzados) | B1.6 | `src/Application/UseCases/Traslado/HistorialTrasladosUseCase.php` |
+| B1.12 | MySQL Repository: `ConductorRepository` (implementa `ConductorRepositoryInterface`) | B0.4 | `src/Infrastructure/Persistence/MySQL/ConductorRepository.php` |
+| B1.13 | Use Case: `CrearConductorUseCase`, `ListarConductoresUseCase`, `ActualizarConductorUseCase` | B1.12 | `src/Application/UseCases/Conductor/*.php` |
+| B1.14 | Use Cases CRUD: `CrearRutaUseCase`, `ListarRutasUseCase`, `ActualizarRutaUseCase` | — | `src/Application/UseCases/Ruta/*.php` |
+| B1.15 | Use Case: `CrearEncuestaUseCase` (encuesta + preguntas en transacción) | B0.7 | `src/Application/UseCases/Encuesta/CrearEncuestaUseCase.php` |
+| B1.16 | Use Case: `PublicarEncuestaUseCase` (activar/desactivar) | — | `src/Application/UseCases/Encuesta/PublicarEncuestaUseCase.php` |
+| B1.17 | Use Case: `ResponderEncuestaUseCase` (validar required, guardar respuestas, sesión anónima) | B0.7 | `src/Application/UseCases/Encuesta/ResponderEncuestaUseCase.php` |
+| B1.18 | Use Case: `ObtenerResultadosUseCase` (agregaciones, conteos, textos libres) | — | `src/Application/UseCases/Encuesta/ObtenerResultadosUseCase.php` |
+| B1.19 | QR Service: generar QR con `chillerlan/php-qrcode` — `QRGeneratorService` | — | `src/Infrastructure/Service/QRGeneratorService.php` |
+| B1.20 | File Storage: guardar PDF fuera de webroot (`storage/docs/`), servir via PHP — `FileStorageService` | — | `src/Infrastructure/Service/FileStorageService.php` |
+| B1.21 | Refactor `DocumentoController`: inyectar use cases, eliminar llamadas directas a repos | B1.1–B1.5 | `src/Infrastructure/Web/Controller/DocumentoController.php` |
+| B1.22 | Refactor `TrasladoController`: inyectar use cases | B1.7–B1.11 | `src/Infrastructure/Web/Controller/TrasladoController.php` |
+| B1.23 | Refactor `EncuestaController`: inyectar use cases | B1.15–B1.18 | `src/Infrastructure/Web/Controller/EncuestaController.php` |
+| B1.24 | Refactor `ConductorController`, `RutaController`: inyectar use cases | B1.13–B1.14 | `src/Infrastructure/Web/Controller/*.php` |
+| B1.25 | Endpoint público: servir PDF por token QR (sin auth) | B1.20 | `PublicController::verDocumento()` |
 
 **Seguridad:**
 - Validación de PDF: MIME type `application/pdf`, magic bytes, extensión `.pdf`
@@ -109,124 +116,129 @@ Ver checklist completo en `docs/pendientes-backend.md` (secciones X.1–X.10 y S
 - Almacenar fuera de webroot (`storage/docs/`)
 - Token QR: UUIDv4 aleatorio, no secuencial, no adivinable
 - Path traversal prevention en FileStorageService
+- Validar transiciones de estado en backend (no confiar en frontend)
+- Solo `admin`/`superadmin` puede cancelar traslados
+- Conductor solo puede ver sus traslados asignados
+- Auditoría: `historial_estado` registra quién cambió cada estado
+- Sesión anónima para responder encuestas
 
-### Frontend
-
-| # | Tarea | Depende | Archivos destino |
-|---|-------|---------|------------------|
-| F1.1 | Listado documentos (tabla responsive + cards mobile, search, filter categoría, paginación) | — | `views/documentos/index.php` | ✅ |
-| F1.2 | Subir documento (drag & drop nativo, barra progreso, form con título/categoría/descripción) | — | `views/documentos/subir.php` |
-| F1.3 | Editar documento (formulario con datos precargados) | — | `views/documentos/editar.php` |
-| F1.4 | Modal QR (QRCode.js, botón copiar link, botón imprimir) | — | `views/documentos/_modal_qr.php` |
-| F1.5 | Modal confirmación eliminar | — | `views/documentos/_modal_eliminar.php` |
-| F1.6 | Vista pública documento (mobile-first, visor PDF embed, feedback emojis) | — | `views/publico/documento.php` (refactor) |
-| F1.7 | Dashboard admin: actualizar stat cards con datos reales | B1.2 | `views/dashboard/index.php` |
-
----
-
-## Sprint 2 — Encuestas: CRUD + Resultados (2 sem)
-
-**Objetivo:** Crear encuestas con preguntas dinámicas, responder desde mobile, ver resultados con gráficos.
-
-### Backend
-
-| # | Tarea | Depende | Archivos destino |
-|---|-------|---------|------------------|
-| B2.1 | MySQL Repository: `EncuestaRepository`, `PreguntaRepository`, `RespuestaRepository` | B0.4 | `src/Infrastructure/Persistence/MySQL/*Repository.php` |
-| B2.2 | Use Case: `CrearEncuestaUseCase` (encuesta + preguntas en transacción) | B0.7, B2.1 | `src/Application/UseCases/CrearEncuestaUseCase.php` |
-| B2.3 | Use Case: `PublicarEncuestaUseCase` (activar/desactivar) | B2.1 | `src/Application/UseCases/PublicarEncuestaUseCase.php` |
-| B2.4 | Use Case: `ResponderEncuestaUseCase` (validar required, guardar respuestas, sesión anónima) | B0.7, B2.1 | `src/Application/UseCases/ResponderEncuestaUseCase.php` |
-| B2.5 | Use Case: `ObtenerResultadosUseCase` (agregaciones, conteos, textos libres) | B2.1 | `src/Application/UseCases/ObtenerResultadosUseCase.php` |
-| B2.6 | Refactor `EncuestaController` | B2.2–B2.5 | `src/Infrastructure/Web/Controller/EncuestaController.php` |
-
-**Seguridad:**
-- Sesión anónima para responder (token en session, no cookie de auth)
-- Rate limiting en envío de respuestas (1 encuesta/5min por sesión)
-- Validar que `encuesta_id` exista y esté activa
-- Sanitizar texto libre (XSS en resultados)
-
-### Frontend
-
-| # | Tarea | Depende | Archivos destino |
-|---|-------|---------|------------------|
-| F2.1 | Listado encuestas (tabla + estado activa/inactiva con toggle) | — | `views/encuestas/index.php` |
-| F2.2 | Crear encuesta (JS dinámico: agregar/quitar preguntas, tipos multiple/escala/texto) | — | `views/encuestas/crear.php` |
-| F2.3 | Vista pública responder (mobile-first, validación client-side) | — | `views/publico/encuesta.php` (refactor) |
-| F2.4 | Resultados con Chart.js (barras para multiple_choice, torta para escala, listado texto libre) | — | `views/encuestas/resultados.php` |
-
----
-
-## Sprint 3 — Traslados: CRUD + Dashboard (2 sem)
-
-**Objetivo:** Gestión completa de traslados con timeline, máquina de estados y dashboard en tiempo real.
-
-### Backend
-
-| # | Tarea | Depende | Archivos destino |
-|---|-------|---------|------------------|
-| B3.1 | MySQL Repository: `TrasladoRepository`, `ElementoTrasladoRepository`, `HistorialEstadoRepository` | B0.4 | `src/Infrastructure/Persistence/MySQL/*Repository.php` |
-| B3.2 | Use Case: `RegistrarTrasladoUseCase` (validar conductor, fechas, transacción) | B0.7, B3.1 | `src/Application/UseCases/RegistrarTrasladoUseCase.php` |
-| B3.3 | Use Case: `ActualizarEstadoTrasladoUseCase` (máquina de estados, historial, timestamps) | B3.1 | `src/Application/UseCases/ActualizarEstadoTrasladoUseCase.php` |
-| B3.4 | Use Case: `ListarTrasladosUseCase` (filtros: estado, conductor, fecha) | B3.1 | `src/Application/UseCases/ListarTrasladosUseCase.php` |
-| B3.5 | Use Case: `VerDetalleTrasladoUseCase` (timeline completo + datos) | B3.1 | `src/Application/UseCases/VerDetalleTrasladoUseCase.php` |
-| B3.6 | Use Case: `HistorialTrasladosUseCase` (paginación, filtros avanzados) | B3.1 | `src/Application/UseCases/HistorialTrasladosUseCase.php` |
-| B3.7 | Refactor `TrasladoController` | B3.2–B3.6 | `src/Infrastructure/Web/Controller/TrasladoController.php` |
-| B3.8 | Generación automática de código de traslado (`TR-XXX`, secuencial por año) | B3.1 | `TrasladoRepository::nextCodigo()` |
-
-**Máquina de estados:**
+**Máquina de estados traslados:**
 ```
 Pendiente → En curso → En destino → En retorno → Completado
     ↓
   Cancelado (desde cualquier estado antes de Completado)
 ```
 
-**Seguridad:**
-- Validar transiciones de estado en backend (no confiar en frontend)
-- Solo `admin`/`superadmin` puede cancelar traslados
-- Conductor solo puede ver sus traslados asignados
-- Auditoría: `historial_estado` registra quién cambió cada estado
-
 ### Frontend
 
-| # | Tarea | Depende | Archivos destino |
-|---|-------|---------|------------------|
-| F3.1 | Dashboard traslados (stat cards: pendientes/en_curso/completados hoy/total + tabla activos) | — | `views/traslados/index.php` |
-| F3.2 | Nuevo traslado (form: conductor, copiloto, elemento, tipo, origen/destino, ruta, fechas) | — | `views/traslados/nuevo.php` |
-| F3.3 | Detalle + timeline vertical (CSS puro, estados coloreados, fecha/hora) | — | `views/traslados/ver.php` |
-| F3.4 | Modal actualizar estado (solo transiciones válidas según estado actual) | — | `views/traslados/_modal_estado.php` |
-| F3.5 | Historial traslados (tabla + filtros: fecha, conductor, estado) | — | `views/traslados/historial.php` |
-| F3.6 | Stat cards cliqueables: filtran tabla por estado (JS) | F3.1 | JS en `public/js/elyra.js` |
+Ya implementado en sprints previos. No hay tareas nuevas para este sprint.
+
+| # | Tarea | Estado |
+|---|-------|--------|
+| F1.1 | Listado documentos (tabla responsive, search, filtro, paginación) | ✅ |
+| F1.2 | Subir documento (drag & drop, barra progreso) | ✅ |
+| F1.3 | Editar documento (formulario con datos precargados) | ✅ |
+| F1.4 | Modal QR (QRCode.js, copiar link, imprimir) | ✅ |
+| F1.5 | Modal confirmación eliminar | ✅ |
+| F1.6 | Vista pública documento (mobile-first, visor PDF embed) | ✅ |
+| F1.7 | Dashboard admin con stat cards reales | ✅ |
+| F1.8 | Listado encuestas (tabla + toggle activo/inactivo) | ✅ |
+| F1.9 | Crear encuesta (JS dinámico: agregar/quitar preguntas) | ✅ |
+| F1.10 | Vista pública responder encuesta | ✅ |
+| F1.11 | Resultados con Chart.js (barras, torta, texto libre) | ✅ |
+| F1.12 | Dashboard traslados (stat cards + tabla activos) | ✅ |
+| F1.13 | Nuevo traslado (form completo) | ✅ |
+| F1.14 | Detalle + timeline vertical (CSS puro) | ✅ |
+| F1.15 | Modal actualizar estado (transiciones válidas) | ✅ |
+| F1.16 | Historial traslados (tabla + filtros) | ✅ |
+| F1.17 | Listado conductores (tabla + búsqueda) | ✅ |
+| F1.18 | Crear/editar conductor | ✅ |
+| F1.19 | Listado rutas (tabla origen/destino/km) | ✅ |
+| F1.20 | Crear/editar ruta | ✅ |
+| F1.21 | Breadcrumbs en todas las vistas admin | ✅ |
+| F1.22 | Tema Windows clásico (`.win-panel`, `.win-titlebar`, `.win-table`, etc.) | ✅ |
+| F1.23 | Documentos separados: generales / por paciente / paciente autenticado | ✅ |
+| F1.24 | Buscador por CI de 8 dígitos en documentos de paciente | ✅ |
 
 ---
 
-## Sprint 4 — Conductores, Rutas, Vehículos + Pulido (1 sem)
+## Sprint 2 — Panel Paciente (1 sem)
 
-**Objetivo:** CRUD de módulos de soporte + mejoras finales de UX.
+**Objetivo:** Vista dedicada para pacientes autenticados con su información personal, documentos, encuestas y traslados. Todo con estilo Windows clásico.
 
-### Backend
-
-| # | Tarea | Depende | Archivos destino |
-|---|-------|---------|------------------|
-| B4.1 | MySQL Repository: `ConductorRepository` (hereda de UsuarioRepository), `RutaRepository`, `VehiculoRepository` | B0.4 | `src/Infrastructure/Persistence/MySQL/*Repository.php` |
-| B4.2 | Use Cases CRUD: `CrearConductorUseCase`, `ListarConductoresUseCase`, `ActualizarConductorUseCase` | B0.7, B4.1 | `src/Application/UseCases/*.php` |
-| B4.3 | Use Cases CRUD: `CrearRutaUseCase`, `ListarRutasUseCase`, `ActualizarRutaUseCase` | B0.7, B4.1 | `src/Application/UseCases/*.php` |
-| B4.4 | Use Cases CRUD: `CrearVehiculoUseCase`, `ListarVehiculosUseCase` | B0.7, B4.1 | `src/Application/UseCases/*.php` |
-| B4.5 | Refactor `ConductorController`, `RutaController` | B4.2–B4.4 | `src/Infrastructure/Web/Controller/*.php` |
-
-### Frontend
-
-| # | Tarea | Depende | Archivos destino |
-|---|-------|---------|------------------|
-| F4.1 | Listado conductores (tabla + búsqueda + estado activo/inactivo) | — | `views/conductores/index.php` (refactor) |
-| F4.2 | Crear/editar conductor (formulario con todos los campos de funcionario) | — | `views/conductores/crear.php` (refactor) |
-| F4.3 | Listado rutas (tabla con origen, destino, km) | — | `views/rutas/index.php` (refactor) |
-| F4.4 | Crear/editar ruta | — | `views/rutas/crear.php` (refactor) |
-| F4.5 | Breadcrumbs en todas las vistas admin | — | Todas las vistas |
-| F4.6 | Unificar modales (confirmación small, formulario medium, QR medium) | — | `views/layout/_modales.php` |
+| # | Tarea | Archivos destino |
+|---|-------|------------------|
+| F2.1 | Dashboard paciente rediseñado: avatar con iniciales, datos personales, cards de resumen (docs, encuestas, traslados) | `views/dashboard/paciente.php`, `public/css/classic.css` |
+| F2.2 | Historial de documentos del paciente (tabla win-table, búsqueda, filtro por tipo) | `views/documentos/index.php` (refactor vista paciente) |
+| F2.3 | Encuestas pendientes vs completadas con progress bar y acceso directo | `views/dashboard/paciente.php` |
+| F2.4 | Traslados asignados al paciente (si aplica como conductor) con timeline reducido | `views/dashboard/paciente.php` |
+| F2.5 | Perfil paciente editable: cambiar contraseña, email, teléfono desde panel clásico | `views/perfil/index.php` (refactor) |
+| F2.6 | Navegación paciente con win-navbar propio (menú reducido: Inicio, Mis Docs, Encuestas, Perfil) | `views/layout/base.php` |
 
 ---
 
-## Sprint 5 — Testing, Auditoría & Preparación Despliegue (1 sem)
+## Sprint 3 — Reportes & Gráficos (1-2 sem)
+
+**Objetivo:** Dashboard administrativo con gráficos en tiempo real, exportación de reportes y estadísticas del sistema. Estilo Windows clásico en paneles y charts.
+
+| # | Tarea | Archivos destino |
+|---|-------|------------------|
+| F3.1 | Dashboard admin con gráficos Chart.js: docs por categoría (torta), traslados por mes (barras), encuestas respondidas (lineal) | `views/dashboard/index.php`, `public/js/elyra.js` |
+| F3.2 | Top pacientes con más documentos (tabla + mini gráfico) | `views/dashboard/index.php` |
+| F3.3 | Vista de estadísticas generales: cards con totales, promedios, evolución mensual | `views/dashboard/estadisticas.php` |
+| F3.4 | Exportar listados a CSV (docs, traslados, encuestas) con botón win-btn en tablas | Vistas de listados + `controllers` |
+| F3.5 | Exportar reporte completo a PDF (dashboard + gráficos) | `views/dashboard/exportar.php`, `public/js/elyra.js` |
+| F3.6 | Filtros por rango de fechas en dashboard y reportes (date picker clásico) | `public/css/classic.css`, vistas de dashboard |
+
+---
+
+## Sprint 4 — UX Avanzado (1-2 sem)
+
+**Objetivo:** Funcionalidades de interacción avanzada: calendario de traslados, mapa de rutas, búsqueda global y drag & drop. Todo integrado al tema Windows clásico.
+
+| # | Tarea | Archivos destino |
+|---|-------|------------------|
+| F4.1 | Calendario de traslados con FullCalendar o vanilla JS: vista mensual, eventos por estado (coloreados), clic para ver detalle | `views/traslados/calendario.php`, `public/js/elyra.js` |
+| F4.2 | Mapa de rutas con Leaflet + OpenStreetMap: mostrar origen/destino/paradas en mapa interactivo | `views/traslados/mapa.php`, `views/rutas/index.php` |
+| F4.3 | Búsqueda global: searchbar en win-navbar que busca en docs, pacientes, traslados y encuestas con resultados en dropdown | `views/layout/base.php`, `public/js/elyra.js` |
+| F4.4 | Drag & drop en dashboard admin: reordenar widgets (stat cards, gráficos, tablas) con persistencia en localStorage | `views/dashboard/index.php`, `public/js/elyra.js` |
+| F4.5 | Notificaciones toast mejoradas: stack de toasts, tipos (éxito/error/warning/info), auto-destruir con progreso visual | `public/js/elyra.js`, `public/css/classic.css` |
+| F4.6 | Atajos de teclado: Ctrl+Enter para guardar, Escape para cerrar modal, / para buscar | `public/js/elyra.js` |
+
+---
+
+## Sprint 5 — PWA & Mobile (1 sem)
+
+**Objetivo:** Convertir la app en Progressive Web App instalable con soporte offline parcial y experiencia mobile óptima. Tema clásico adaptado a pantallas pequeñas.
+
+| # | Tarea | Archivos destino |
+|---|-------|------------------|
+| F5.1 | Manifest.json con iconos, nombre corto, tema color, display standalone | `public/manifest.json` |
+| F5.2 | Service worker: cachear CSS/JS/img, servir offline page cuando no hay red | `public/sw.js` |
+| F5.3 | Botón "Instalar app" en win-statusbar cuando el navegador soporte beforeinstallprompt | `views/layout/base.php`, `public/js/elyra.js` |
+| F5.4 | Responsive final: probar y ajustar todas las vistas en <576px, tablet y desktop | Todas las vistas + `public/css/classic.css` |
+| F5.5 | Touch optimizations: aumentar targets táctiles a 44px, swipe gestures en listados | `public/css/classic.css` |
+| F5.6 | Offline page personalizada con estilo Windows clásico (windlogo, mensaje) | `views/errors/offline.php`, `public/css/classic.css` |
+
+---
+
+## Sprint 6 — Polish & Accesibilidad (1 sem)
+
+**Objetivo:** Último pulido de calidad: animaciones, accesibilidad WCAG AA, rendimiento y consistencia visual.
+
+| # | Tarea | Archivos destino |
+|---|-------|------------------|
+| F6.1 | Animaciones CSS fluidas: hover en win-btn, fade en modales, slide en timeline, skeleton screens en carga | `public/css/classic.css` |
+| F6.2 | Loading states: botón con spinner al enviar, esqueletos en tablas mientras cargan, placeholder en imágenes | Vistas + `public/js/elyra.js` |
+| F6.3 | Navegación por teclado completa: Tab order lógico, focus visible, skip-to-content link | Todas las vistas |
+| F6.4 | Contraste WCAG AA (4.5:1 mínimo): verificar y ajustar colores del tema clásico | `public/css/classic.css` |
+| F6.5 | Aria labels en todos los componentes interactivos: botones, enlaces, iconos, modales, tablas | Vistas |
+| F6.6 | Lazy loading de Chart.js y QRCode.js: solo cargar en páginas que los usan (code splitting manual) | `views/layout/base.php` |
+| F6.7 | Unificar modales: altura/anchura consistentes, animación de entrada, scroll lock, foco atrapado | `views/layout/_modales.php` |
+
+---
+
+## Sprint 7 — Testing, Auditoría & Preparación Despliegue (1-2 sem)
 
 **Objetivo:** Calidad, seguridad y deployabilidad.
 
@@ -234,65 +246,64 @@ Pendiente → En curso → En destino → En retorno → Completado
 
 | # | Tarea | Depende |
 |---|-------|---------|
-| B5.1 | Tests unitarios: Value Objects, Domain Services, Use Cases | Todos los anteriores |
-| B5.2 | Tests de integración: Repositories MySQL (con base de datos de test) | B5.1 |
-| B5.3 | Tests de seguridad: CSRF bypass, SQL injection, XSS, path traversal | B5.1 |
-| B5.4 | Auditoría OWASP Top 10 (lista de verificación) | — |
-| B5.5 | Performance test: generación QR < 3s, carga de listados < 2s | — |
-| B5.6 | Script de deploy: migraciones, seeders, config servidor | — |
-| B5.7 | Documentación técnica: README actualizado, setup instructions | — |
+| B7.1 | Tests unitarios: Value Objects, Domain Services, Use Cases | Sprint 1 |
+| B7.2 | Tests de integración: Repositories MySQL (con base de datos de test) | B7.1 |
+| B7.3 | Tests de seguridad: CSRF bypass, SQL injection, XSS, path traversal | B7.1 |
+| B7.4 | Auditoría OWASP Top 10 (lista de verificación) | — |
+| B7.5 | Script de deploy: migraciones, seeders, config servidor | — |
+| B7.6 | Dockerizar la aplicación (Dockerfile + docker-compose.yml) | — |
+| B7.7 | Documentación técnica: README actualizado, setup instructions | — |
 
 ### Frontend
 
-| # | Tarea | Depende |
-|---|-------|---------|
-| F5.1 | Pruebas responsive en mobile <576px, tablet, desktop | Todos los anteriores |
-| F5.2 | Auditoría de accesibilidad: contraste 4.5:1, navegación teclado, aria-labels | — |
-| F5.3 | Carga lazy de Chart.js y QRCode.js (solo en páginas que los usan) | — |
-| F5.4 | Prueba de flujo completo: login → subir doc → ver QR → escanear → ver doc → responder encuesta | — |
+| # | Tarea |
+|---|-------|
+| F7.1 | Prueba de flujo completo: login → subir doc → ver QR → escanear → ver doc → responder encuesta |
+| F7.2 | Performance audit: Lighthouse, carga inicial < 3s, PWA audit |
+| F7.3 | Última revisión de contraste y legibilidad en tema clásico |
 
 ---
 
 ## Resumen
 
-| Sprint | Semanas | Backend | Frontend | Total tareas |
-|--------|---------|---------|----------|-------------|
-| **0** — Fundación & Seguridad | 1-2 | 13 | 4 | 17 |
-| **1** — Documentos CRUD | 2 | 10 | 7 | 17 |
-| **2** — Encuestas | 2 | 6 | 4 | 10 |
-| **3** — Traslados | 2 | 8 | 6 | 14 |
-| **4** — Conductores/Rutas + Pulido | 1 | 5 | 6 | 11 |
-| **5** — Testing & Deploy | 1 | 7 | 4 | 11 |
-| **Total** | **8-10 sem** | **49** | **31** | **80** |
+| Sprint | Semanas | Backend | Frontend | Total |
+|--------|---------|---------|----------|-------|
+| **0** — Fundación & Seguridad | ✅ | 13 | 5 | 18 |
+| **1** — Application Layer + Repos | 2-3 | 25 | — | 25 |
+| **2** — Panel Paciente | 1 | — | 6 | 6 |
+| **3** — Reportes & Gráficos | 1-2 | — | 6 | 6 |
+| **4** — UX Avanzado | 1-2 | — | 6 | 6 |
+| **5** — PWA & Mobile | 1 | — | 6 | 6 |
+| **6** — Polish & Accesibilidad | 1 | — | 7 | 7 |
+| **7** — Testing & Deploy | 1-2 | 7 | 3 | 10 |
+| **Total** | **8-12 sem** | **45** | **39** | **84** |
 
 ## Dependencias Clave
 
 ```
-Sprint 0 ──────────────────────────────────┐
-    │                                       │
-    ├── Sprint 1 (Documentos) ───┐          │
-    │                            │          │
-    ├── Sprint 2 (Encuestas) ◄───┘          │
-    │                                        │
-    └── Sprint 3 (Traslados) ───────────────┘
-                                              │
-                    Sprint 4 (Conductores/Rutas)
-                                              │
-                    Sprint 5 (Testing/Deploy) ◄┘
+Sprint 0 (completado) ──────────────────────────────────┐
+                                                          │
+               Sprint 1 (Application Layer) ◄─────────────┘
+                            │
+        ┌───────────────────┼───────────────────┐
+        ▼                   ▼                   ▼
+  Sprint 2 (Panel Pte) ──┐                     │
+        │                 │                     │
+        ▼                 ▼                     │
+  Sprint 3 (Reportes) ──┐                      │
+        │                 │                     │
+        ▼                 ▼                     │
+  Sprint 4 (UX Avanz) ──┐                      │
+        │                 │                     │
+        ▼                 ▼                     ▼
+  Sprint 5 (PWA) ◄───────┘              Sprint 7 (Testing)
+        │                                      │
+        ▼                                      │
+  Sprint 6 (Polish) ◄──────────────────────────┘
 ```
 
-- Sprint 0 es **requisito** para todos los demás
-- Sprint 1 y 2 pueden solaparse parcialmente (equipos separados)
-- Sprint 3 puede empezar después de Sprint 0 (no depende de 1 o 2)
-- Sprint 4 puede empezar después de Sprint 3
-- Sprint 5 es final
-
-## Riesgos y Mitigaciones
-
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Cambio de requerimientos del hospital | Media | Alto | Sprints cortos (1-2 sem), mostrar incrementos temprano |
-| Dependencia del sistema de autenticación del hospital | Alta | Alto | Implementar auth propio como fallback (Sprint 0), integrar después |
-| Aprendizaje de arquitectura hexagonal | Media | Medio | Pair programming, code reviews |
-| Falta de datos reales para pruebas | Baja | Medio | Seeders con datos ficticios realistas |
-| Problemas de deploy en servidores del DTI | Media | Alto | Dockerizar la aplicación, script de deploy automatizado |
+- **Sprint 0** es prerrequisito de todo — ✅ completado
+- **Sprint 1** es prerrequisito de Sprint 7 (testing)
+- **Sprints 2–6** son secuenciales entre sí pero **independientes de Sprint 1** (puro frontend)
+- **Sprint 7** requiere Sprint 1 (testing backend) y Sprint 6 (frontend completo)
+- Todos los sprints frontend mantienen el **tema Windows clásico** como identidad visual
