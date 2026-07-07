@@ -27,9 +27,10 @@ class Funcionario extends Usuario
         ?string $licencia = null,
         ?string $telefono = null,
         bool $activo = true,
+        ?string $foto = null,
         ?string $createdAt = null
     ) {
-        parent::__construct($id, 'funcionario', $nombre, $apellido, $email, $documentoIdentidad, $createdAt);
+        parent::__construct($id, 'funcionario', $nombre, $apellido, $email, $documentoIdentidad, $foto, $createdAt);
         $this->username = $username;
         $this->passwordHash = $passwordHash;
         $this->licencia = $licencia;
@@ -56,6 +57,11 @@ class Funcionario extends Usuario
     public function getTelefono(): ?string
     {
         return $this->telefono;
+    }
+
+    public function setTelefono(?string $telefono): void
+    {
+        $this->telefono = $telefono;
     }
 
     public function isActivo(): bool

@@ -63,7 +63,7 @@ function renderBreadcrumbs(string $uri, array $map): void {
 
 <nav class="win-navbar navbar navbar-expand-lg">
     <div class="container-fluid px-4">
-        <span class="fw-bold px-2" style="font-family: Tahoma, 'MS Sans Serif', sans-serif; font-size: 13px;">Elyra</span>
+        <span class="navbar-brand px-2">Elyra</span>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Abrir men\u00fa">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -125,14 +125,12 @@ function renderBreadcrumbs(string $uri, array $map): void {
                 <?php endif; ?>
             </ul>
             <div class="d-flex align-items-center gap-2">
-                <span class="win-text small">
-                    <i class="bi bi-person-circle"></i> <?= htmlspecialchars($_SESSION['user_nombre'] ?? 'Usuario') ?>
-                </span>
-                <?php if ($isPaciente): ?>
+                <button id="darkModeToggle" class="win-btn win-btn-sm" title="Alternar modo oscuro">
+                    <i class="bi bi-sun-fill"></i>
+                </button>
                 <a href="/perfil" class="win-btn win-btn-sm">
-                    <i class="bi bi-gear"></i> Perfil
+                    <i class="bi bi-person-circle"></i> <?= htmlspecialchars($_SESSION['user_nombre'] ?? 'Usuario') ?>
                 </a>
-                <?php endif; ?>
                 <a href="/logout" class="win-btn win-btn-sm">
                     <i class="bi bi-box-arrow-right"></i> Salir
                 </a>

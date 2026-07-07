@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Elyra\Infrastructure\Web\Controller;
 
-use Elyra\Domain\Entity\Paciente;
 use Elyra\Infrastructure\Persistence\MySQL\UsuarioRepository;
 use Elyra\Infrastructure\Service\SessionManager;
-use Elyra\Infrastructure\Service\Validator;
 
 class PerfilController extends BaseController
 {
@@ -21,45 +19,53 @@ class PerfilController extends BaseController
     public function index(): void
     {
         $this->requireAuth();
-        $this->requireRole('paciente');
 
         $userId = SessionManager::getUserId();
-        $paciente = $this->usuarioRepo->findById($userId);
-
-        if (!$paciente || !($paciente instanceof Paciente)) {
-            $this->render('perfil/index', ['error' => 'Paciente no encontrado.', 'paciente' => null]);
-            return;
-        }
+        $user = $this->usuarioRepo->findById($userId);
 
         $this->render('perfil/index', [
-            'paciente' => $paciente,
+            'user' => $user,
         ]);
     }
 
     public function actualizar(): void
     {
         $this->requireAuth();
-        $this->requireRole('paciente');
 
         $userId = SessionManager::getUserId();
-        $paciente = $this->usuarioRepo->findById($userId);
+        $user = $this->usuarioRepo->findById($userId);
 
-        if (!$paciente || !($paciente instanceof Paciente)) {
+        if (!$user) {
             $this->redirect('/perfil');
             return;
         }
 
-        $telefono = trim($_POST['telefono'] ?? '');
         $email = trim($_POST['email'] ?? '');
+        $telefono = trim($_POST['telefono'] ?? '');
 
         if ($telefono !== '' && !preg_match('/^[0-9]{8,9}$/', $telefono)) {
-            $this->render('perfil/index', ['error' => 'El teléfono debe tener 8 o 9 dígitos.', 'paciente' => $paciente]);
+            $this->render('perfil/index', ['error' => 'El teléfono debe tener 8 o 9 dígitos.', 'user' => $user]);
             return;
         }
 
         if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $this->render('perfil/index', ['error' => 'Email inválido.', 'paciente' => $paciente]);
+            $this->render('perfil/index', ['error' => 'Email inválido.', 'user' => $user]);
             return;
+        }
+
+        $user->setEmail($email !== '' ? $email : null);
+
+        if (method_exists($user, 'setTelefono')) {
+            $user->setTelefono($telefono !== '' ? $telefono : null);
+        }
+
+        $ci = trim($_POST['documento_identidad'] ?? '');
+        if ($ci !== '' && $user->getDocumentoIdentidad() === null) {
+            if (!preg_match('/^\d{8}$/', $ci)) {
+                $this->render('perfil/index', ['error' => 'La cédula debe tener exactamente 8 dígitos.', 'user' => $user]);
+                return;
+            }
+            $user->setDocumentoIdentidad($ci);
         }
 
         $password = $_POST['password'] ?? '';
@@ -67,28 +73,77 @@ class PerfilController extends BaseController
 
         if ($password !== '') {
             if (strlen($password) < 6) {
-                $this->render('perfil/index', ['error' => 'La contraseña debe tener al menos 6 caracteres.', 'paciente' => $paciente]);
+                $this->render('perfil/index', ['error' => 'La contraseña debe tener al menos 6 caracteres.', 'user' => $user]);
                 return;
             }
             if ($password !== $password2) {
-                $this->render('perfil/index', ['error' => 'Las contraseñas no coinciden.', 'paciente' => $paciente]);
+                $this->render('perfil/index', ['error' => 'Las contraseñas no coinciden.', 'user' => $user]);
                 return;
             }
-            $paciente->setPasswordHash(password_hash($password, PASSWORD_BCRYPT));
+            $user->setPasswordHash(password_hash($password, PASSWORD_BCRYPT));
         }
 
-        if ($telefono !== '') {
-            $paciente->setTelefono($telefono);
+        $esPaciente = $user->getTipo() === 'paciente';
+
+        try {
+            if ($esPaciente) {
+                $this->usuarioRepo->updatePaciente($user);
+            } else {
+                $this->usuarioRepo->updateFuncionario($user);
+            }
+        } catch (\Throwable $th) {
+            $msg = 'Error al guardar.';
+            if (str_contains($th->getMessage(), 'Duplicate entry')) {
+                $msg = 'Ese valor ya está registrado por otro usuario (cédula o email duplicado).';
+            }
+            $this->render('perfil/index', ['error' => $msg, 'user' => $user]);
+            return;
         }
 
-        if ($email !== '') {
-            $paciente->setEmail($email);
+        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+            $error = $this->validarFoto($_FILES['foto']);
+            if ($error) {
+                $this->render('perfil/index', ['error' => $error, 'user' => $user]);
+                return;
+            }
+
+            $contenido = file_get_contents($_FILES['foto']['tmp_name']);
+            $this->usuarioRepo->updateFoto((int) $user->getId(), $contenido);
         }
 
-        $this->usuarioRepo->updatePaciente($paciente);
+        $_SESSION['user_nombre'] = $user->getNombreCompleto();
 
-        $_SESSION['user_nombre'] = $paciente->getNombreCompleto();
+        $this->render('perfil/index', ['success' => 'Datos actualizados correctamente.', 'user' => $user]);
+    }
 
-        $this->render('perfil/index', ['success' => 'Datos actualizados correctamente.', 'paciente' => $paciente]);
+    private function validarFoto(array $file): ?string
+    {
+        $allowedMime = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        $allowedExt = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime = finfo_file($finfo, $file['tmp_name']);
+        finfo_close($finfo);
+
+        if (!in_array($mime, $allowedMime, true)) {
+            return 'La foto debe ser JPEG, PNG, GIF o WebP.';
+        }
+
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if (!in_array($ext, $allowedExt, true)) {
+            return 'Extensión de archivo no permitida.';
+        }
+
+        if ($file['size'] > 2 * 1024 * 1024) {
+            return 'La foto no debe superar los 2MB.';
+        }
+
+        $img = @imagecreatefromstring(file_get_contents($file['tmp_name']));
+        if ($img === false) {
+            return 'El archivo no es una imagen válida.';
+        }
+        imagedestroy($img);
+
+        return null;
     }
 }

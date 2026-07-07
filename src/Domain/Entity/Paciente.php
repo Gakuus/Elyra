@@ -25,9 +25,10 @@ class Paciente extends Usuario
         ?string $passwordHash = null,
         ?string $telefono = null,
         bool $activo = true,
+        ?string $foto = null,
         ?string $createdAt = null
     ) {
-        parent::__construct($id, 'paciente', $nombre, $apellido, $email, $documentoIdentidad, $createdAt);
+        parent::__construct($id, 'paciente', $nombre, $apellido, $email, $documentoIdentidad, $foto, $createdAt);
         $this->tokenAcceso = $tokenAcceso;
         $this->codigoQrId = $codigoQrId;
         $this->username = $username;

@@ -337,7 +337,7 @@
     var theme = (function () {
         var stored = localStorage.getItem('elyra-theme');
         if (stored) return stored;
-        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        return 'light';
     })();
 
     function applyTheme(t) {

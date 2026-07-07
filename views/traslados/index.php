@@ -4,7 +4,7 @@
 <div class="row justify-content-center">
     <div class="col-lg-10 col-xl-9">
 
-        <div class="win-panel mb-3">
+        <div class="win-panel mb-2">
             <div class="win-titlebar d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-truck me-1"></i> Traslados en ambulancia</span>
                 <div class="d-flex gap-1">
@@ -18,7 +18,7 @@
             </div>
 
             <div class="p-3">
-                <div class="row g-2 mb-3">
+                <div class="row g-2 mb-2">
                     <div class="col-md-3">
                         <div class="win-panel text-center p-2" style="cursor: pointer;" data-filtro="pendiente">
                             <div class="fw-bold win-text" style="font-size: 20px;"><?= $pendientes ?></div>

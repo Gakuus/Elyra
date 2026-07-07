@@ -4,14 +4,14 @@
 <div class="row justify-content-center">
     <div class="col-lg-10 col-xl-9">
 
-        <div class="win-panel mb-3">
+        <div class="win-panel mb-2">
             <div class="win-titlebar"><i class="bi bi-house-door me-1"></i> Panel de Control</div>
             <div class="p-3 win-text" style="font-size: 12px;">
                 Bienvenido al sistema de gesti&oacute;n hospitalaria Elyra.
             </div>
         </div>
 
-        <div class="row g-2 mb-3">
+        <div class="row g-2 mb-2">
             <div class="col-md-6 col-lg-3">
                 <div class="win-panel text-center">
                     <div class="p-3">

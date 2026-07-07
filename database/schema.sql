@@ -1,7 +1,9 @@
 -- =============================================================
 -- ELYRA — Hospital de Clínicas
 -- Esquema de Base de Datos MySQL
--- Versión: 6.1 (herencia normalizada: 14 tablas + relación paciente escanea QR)
+-- Versión: 6.2 (agregado foto LONGBLOB a usuario)
+-- Migración desde 6.1:
+--   ALTER TABLE usuario ADD COLUMN foto LONGBLOB NULL AFTER documento_identidad;
 -- =============================================================
 
 CREATE DATABASE IF NOT EXISTS elyra
@@ -24,6 +26,7 @@ CREATE TABLE usuario (
     apellido VARCHAR(100) NOT NULL,
     email VARCHAR(150) UNIQUE,
     documento_identidad VARCHAR(20) UNIQUE,
+    foto LONGBLOB NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

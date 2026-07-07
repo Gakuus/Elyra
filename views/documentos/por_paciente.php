@@ -7,7 +7,7 @@ $frontendLimit = 8;
 <div class="row justify-content-center">
     <div class="col-lg-10 col-xl-9">
 
-        <div class="win-panel mb-3">
+        <div class="win-panel mb-2">
             <div class="win-titlebar"><i class="bi bi-file-text me-1"></i> Documentos de Paciente</div>
             <div class="p-3">
                 <form method="get" class="row justify-content-center">
@@ -25,19 +25,24 @@ $frontendLimit = 8;
         </div>
 
         <?php if (!empty($ci) && !empty($ciError)): ?>
-            <div class="win-msg win-msg-warning mb-3 text-center fw-bold">
+            <div class="win-msg win-msg-warning mb-2 text-center fw-bold">
                 <i class="bi bi-exclamation-triangle me-1"></i> <?= $ciError ?>
             </div>
 
         <?php elseif (!empty($ci) && !empty($ciPaciente)):
             $iniciales = mb_strtoupper(mb_substr($ciPaciente->getNombre(), 0, 1) . mb_substr($ciPaciente->getApellido(), 0, 1));
         ?>
-            <div class="win-panel mb-3">
+            <div class="win-panel mb-2">
                 <div class="win-titlebar"><i class="bi bi-person me-1"></i> Ficha del paciente</div>
                 <div class="p-3 text-center">
-                    <div class="d-inline-flex align-items-center justify-content-center text-white fw-bold mb-2 win-avatar" style="width: 80px; height: 80px; font-size: 30px;">
-                        <?= htmlspecialchars($iniciales) ?>
-                    </div>
+                    <?php $pfoto = $ciPaciente->getFotoBase64(); ?>
+                    <?php if ($pfoto): ?>
+                        <img src="<?= $pfoto ?>" alt="Foto de <?= htmlspecialchars($ciPaciente->getNombreCompleto()) ?>" class="win-avatar mb-2" style="width: 80px; height: 80px; object-fit: cover;">
+                    <?php else: ?>
+                        <div class="d-inline-flex align-items-center justify-content-center text-white fw-bold mb-2 win-avatar" style="width: 80px; height: 80px; font-size: 30px;">
+                            <?= htmlspecialchars($iniciales) ?>
+                        </div>
+                    <?php endif; ?>
                     <h5 class="fw-bold mb-1 win-text"><?= htmlspecialchars($ciPaciente->getNombreCompleto()) ?></h5>
                     <div class="d-flex justify-content-center gap-3 mb-2 win-text" style="font-size: 11px;">
                         <span><i class="bi bi-person-badge me-1"></i> CI: <?= htmlspecialchars($ci) ?></span>
@@ -56,7 +61,7 @@ $frontendLimit = 8;
             </div>
 
             <?php if (!empty($documentos)): ?>
-                <div class="win-panel mb-3">
+                <div class="win-panel mb-2">
                     <div class="win-titlebar-gray d-flex justify-content-between align-items-center">
                         <span><i class="bi bi-list-ul me-1"></i> Documentos</span>
                         <form method="get" class="d-flex gap-1">
@@ -96,7 +101,7 @@ $frontendLimit = 8;
             <?php else: ?>
                 <div class="win-panel">
                     <div class="win-titlebar-gray"><i class="bi bi-list-ul me-1"></i> Documentos</div>
-                    <div class="p-4 text-center win-text" style="font-size: 12px;">
+                    <div class="p-3 text-center win-text" style="font-size: 12px;">
                         <i class="bi bi-inbox fs-1 d-block mb-2"></i>
                         <span>Este paciente no tiene documentos asignados.</span>
                     </div>
@@ -104,7 +109,7 @@ $frontendLimit = 8;
             <?php endif; ?>
 
         <?php elseif (empty($ci)): ?>
-            <div class="text-center py-5 win-text">
+            <div class="text-center py-3 win-text">
                 <i class="bi bi-person-search display-3 d-block mb-3 text-secondary opacity-50"></i>
                 <p>Ingres&aacute; una c&eacute;dula de identidad para buscar los documentos del paciente.</p>
             </div>

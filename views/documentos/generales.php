@@ -7,7 +7,7 @@ $frontendLimit = 8;
 <div class="row justify-content-center">
     <div class="col-lg-10 col-xl-9">
 
-        <div class="win-panel mb-3">
+        <div class="win-panel mb-2">
             <div class="win-titlebar d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-globe me-1"></i> Documentos Generales</span>
                 <a href="/documentos/subir" class="win-btn win-btn-primary py-0 px-3" style="font-size: 11px;">
@@ -32,7 +32,7 @@ $frontendLimit = 8;
 
         <?php if (empty($documentos)): ?>
             <div class="win-panel">
-                <div class="p-4 text-center win-text" style="font-size: 12px;">
+                <div class="p-3 text-center win-text" style="font-size: 12px;">
                     <i class="bi bi-inbox fs-1 d-block mb-2"></i>
                     <span>No hay documentos generales.</span>
                 </div>
@@ -40,7 +40,7 @@ $frontendLimit = 8;
         <?php else: ?>
             <?php $docs = $documentos; ?>
             <?php $isPaciente = false; ?>
-            <div class="win-panel mb-3">
+            <div class="win-panel mb-2">
                 <div class="win-inset m-2">
                     <div id="docs-table-wrapper">
                     <?php require __DIR__ . '/_table.php'; ?>
