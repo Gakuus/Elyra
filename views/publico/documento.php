@@ -1,33 +1,6 @@
 <?php $titulo = htmlspecialchars($doc['titulo']); ?>
 <?php ob_start(); ?>
 
-<script>
-    window.Elyra = window.Elyra || {};
-
-    if (!window.Elyra.verDocPublico) {
-        window.Elyra.verDocPublico = function (id, titulo) {
-            var embedEl = document.getElementById('publicoPreviewEmbed');
-            var downloadEl = document.getElementById('publicoPreviewDownload');
-            var titleEl = document.getElementById('publicoPreviewTitle');
-            if (!embedEl || !downloadEl || !titleEl) return;
-            titleEl.textContent = titulo;
-            embedEl.src = '/publico/archivo?id=' + id;
-            downloadEl.href = '/publico/archivo?id=' + id + '&descargar=1';
-            new bootstrap.Modal(document.getElementById('docPublicoModal')).show();
-        };
-    }
-
-    if (!window._publicoModalInit) {
-        window._publicoModalInit = true;
-        document.addEventListener('hidden.bs.modal', function (e) {
-            if (e.target && e.target.id === 'docPublicoModal') {
-                var embed = document.getElementById('publicoPreviewEmbed');
-                if (embed) embed.src = '';
-            }
-        });
-    }
-</script>
-
 <style>
     .public-doc-card { cursor: pointer; transition: box-shadow 0.2s, transform 0.2s; }
     .public-doc-card:hover { box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important; transform: translateY(-2px); }

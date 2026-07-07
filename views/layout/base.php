@@ -135,7 +135,7 @@ function renderBreadcrumbs(string $uri, array $map): void {
 <?php endif; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/js/elyra.js?v=2" defer></script>
-<script src="/js/components/ui.js?v=2" defer></script>
+<script src="/js/elyra.js?v=3" defer></script>
+<script src="/js/components/ui.js?v=3" defer></script>
 </body>
 </html>

@@ -260,6 +260,24 @@
         }
     };
 
+    window.Elyra.verDocPublico = function (id, titulo) {
+        var embedEl = document.getElementById('publicoPreviewEmbed');
+        var downloadEl = document.getElementById('publicoPreviewDownload');
+        var titleEl = document.getElementById('publicoPreviewTitle');
+        if (!embedEl || !downloadEl || !titleEl) return;
+        titleEl.textContent = titulo;
+        embedEl.src = '/publico/archivo?id=' + id;
+        downloadEl.href = '/publico/archivo?id=' + id + '&descargar=1';
+        new bootstrap.Modal(document.getElementById('docPublicoModal')).show();
+    };
+
+    document.addEventListener('hidden.bs.modal', function (e) {
+        if (e.target.id === 'docPublicoModal') {
+            var embed = document.getElementById('publicoPreviewEmbed');
+            if (embed) embed.src = '';
+        }
+    });
+
     window.Elyra.verDocumento = function (id, titulo, categoria, especialidad, subido, activo) {
         var titleEl = document.getElementById('previewTitle');
         var metaEl = document.getElementById('previewMeta');
