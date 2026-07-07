@@ -105,6 +105,8 @@ class DocumentoController extends BaseController
             return;
         }
 
+        $contenidoPdf = file_get_contents($archivo['tmp_name']);
+
         $safeName = preg_replace('/[^a-zA-Z0-9_-]/', '_', pathinfo($archivo['name'], PATHINFO_FILENAME));
         $safeName = mb_substr($safeName, 0, 80);
         $filename = $safeName . '_' . time() . '.pdf';
@@ -133,7 +135,7 @@ class DocumentoController extends BaseController
             especialidadId: $especialidadId,
             activo: true
         );
-        $doc->setArchivoContenido(file_get_contents($archivo['tmp_name']));
+        $doc->setArchivoContenido($contenidoPdf);
 
         $this->docRepo->save($doc);
 
