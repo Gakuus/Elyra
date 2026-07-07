@@ -279,10 +279,10 @@ class DocumentoController extends BaseController
             exit;
         }
 
-        $mime = 'application/pdf';
+        $disposition = !empty($_GET['descargar']) ? 'attachment' : 'inline';
 
-        header('Content-Type: ' . $mime);
-        header('Content-Disposition: inline; filename="' . $doc->getArchivoNombre() . '"');
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: ' . $disposition . '; filename="' . $doc->getArchivoNombre() . '"');
         header('Content-Length: ' . strlen($contenido));
         header('Cache-Control: private, max-age=3600');
         echo $contenido;

@@ -194,7 +194,7 @@
                 var parent = this.closest('.public-doc-feedback');
                 var msg = parent.querySelector('#feedbackMsg');
                 btns.forEach(function (b) { b.disabled = true; });
-                msg.textContent = 'Gracias por tu opini&oacute;n.';
+                msg.textContent = 'Gracias por tu opinión.';
                 msg.classList.remove('d-none');
             });
         });
@@ -259,6 +259,65 @@
             window.Elyra.toast('Enlace copiado al portapapeles');
         }
     };
+
+    window.Elyra.verDocPublico = function (id, titulo) {
+        var modalEl = document.getElementById('docPublicoModal');
+        var embedEl = document.getElementById('publicoPreviewEmbed');
+        var titleEl = document.getElementById('publicoPreviewTitle');
+        if (!modalEl || !embedEl || !titleEl) return;
+        titleEl.textContent = titulo;
+        embedEl.src = '';
+        var modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+        modal.show();
+        modalEl.addEventListener('shown.bs.modal', function () {
+            embedEl.src = '/publico/archivo?id=' + id;
+        }, { once: true });
+    };
+
+    document.addEventListener('hidden.bs.modal', function (e) {
+        if (e.target.id === 'docPublicoModal') {
+            var embed = document.getElementById('publicoPreviewEmbed');
+            if (embed) embed.src = '';
+        }
+    });
+
+    window.Elyra.verDocumento = function (id, titulo, categoria, especialidad, subido) {
+        var titleEl = document.getElementById('previewTitle');
+        var metaEl = document.getElementById('previewMeta');
+        var embedEl = document.getElementById('previewEmbed');
+        var downloadEl = document.getElementById('previewDownload');
+
+        if (!embedEl) return;
+
+        titleEl.textContent = titulo;
+
+        var badges = '';
+        if (especialidad) {
+            badges += '<span class="badge bg-info bg-opacity-10 text-info me-1">' + escapeHtml(especialidad) + '</span>';
+        }
+        badges += '<span class="badge bg-primary bg-opacity-10 text-primary me-1">' + escapeHtml(categoria) + '</span>';
+        badges += '<small class="text-muted">Subido el ' + escapeHtml(subido) + '</small>';
+        metaEl.innerHTML = badges;
+
+        embedEl.src = '/documentos/archivo?id=' + id;
+        downloadEl.href = '/documentos/archivo?id=' + id + '&descargar=1';
+
+        var modal = new bootstrap.Modal(document.getElementById('docPreviewModal'));
+        modal.show();
+    };
+
+    document.addEventListener('hidden.bs.modal', function (e) {
+        if (e.target.id === 'docPreviewModal') {
+            var embed = document.getElementById('previewEmbed');
+            if (embed) embed.src = '';
+        }
+    });
+
+    function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
 
     function initEncuestaToggles() {
         var toggles = document.querySelectorAll('[data-encuesta-id]');

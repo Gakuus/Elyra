@@ -18,7 +18,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
 
     private const JOIN_CATEGORIA = ' JOIN categoria c ON c.id = d.categoria_id';
     private const JOIN_ESPECIALIDAD = ' LEFT JOIN categoria e ON e.id = d.especialidad_id';
-    private const SELECT_COLS = 'd.*, c.nombre as categoria_nombre, e.nombre as especialidad_nombre';
+    private const SELECT_COLS = 'd.id, d.titulo, d.descripcion, d.archivo_path, d.archivo_nombre, d.codigo_qr_id, d.qr_path, d.categoria_id, d.especialidad_id, d.encuesta_id, d.subido_por, d.activo, d.created_at, d.updated_at, c.nombre as categoria_nombre, e.nombre as especialidad_nombre';
 
     public function findById(int $id): ?Documento
     {

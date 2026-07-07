@@ -27,14 +27,17 @@
         </div>
     </div>
     <div class="d-flex gap-2">
+        <a href="/documentos/archivo?id=<?= $doc['id'] ?>&descargar=1" class="btn btn-primary">
+            <i class="bi bi-download me-1"></i> Descargar PDF
+        </a>
         <button type="button" class="btn btn-outline-secondary" onclick="Elyra.verQR(<?= $doc['id'] ?>)" title="Ver QR">
-            <i class="bi bi-qr-code"></i> QR
+            <i class="bi bi-qr-code"></i>
         </button>
         <a href="/documentos/editar?id=<?= $doc['id'] ?>" class="btn btn-outline-primary">
-            <i class="bi bi-pencil"></i> Editar
+            <i class="bi bi-pencil"></i>
         </a>
         <a href="/documentos" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> Volver
+            <i class="bi bi-arrow-left"></i>
         </a>
     </div>
 </div>

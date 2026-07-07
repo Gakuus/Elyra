@@ -61,8 +61,10 @@ class PublicController extends BaseController
             return;
         }
 
+        $disposition = !empty($_GET['descargar']) ? 'attachment' : 'inline';
+
         header('Content-Type: application/pdf');
-        header('Content-Disposition: inline; filename="' . $doc->getArchivoNombre() . '"');
+        header('Content-Disposition: ' . $disposition . '; filename="' . $doc->getArchivoNombre() . '"');
         header('Content-Length: ' . strlen($contenido));
         header('Cache-Control: public, max-age=3600');
         echo $contenido;
