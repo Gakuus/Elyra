@@ -6,8 +6,8 @@
     <a href="/traslados/nuevo" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i> Nuevo traslado</a>
 </div>
 
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
+<div class="panel mb-4">
+    <div class="panel-body">
         <form method="GET" class="row g-2 align-items-end">
             <div class="col-md-3">
                 <label class="form-label small text-muted">Buscar</label>
@@ -38,14 +38,14 @@
             </div>
             <div class="col-md-3 d-flex gap-2">
                 <button type="submit" class="btn btn-primary btn-sm flex-grow-1"><i class="bi bi-funnel me-1"></i> Filtrar</button>
-                <a href="/traslados/historial" class="btn btn-outline-secondary btn-sm"><i class="bi bi-x-circle"></i></a>
+                <a href="/traslados/historial" class="btn btn-sm"><i class="bi bi-x-circle"></i></a>
             </div>
         </form>
     </div>
 </div>
 
-<div class="card border-0 shadow-sm">
-    <div class="card-body p-0">
+<div class="panel">
+    <div class="panel-body p-0">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
@@ -83,8 +83,8 @@
                                 <td><?= htmlspecialchars($t['destino'] ?? '-') ?></td>
                                 <td><?= htmlspecialchars($t['conductor'] ?? '-') ?></td>
                                 <td class="text-nowrap"><?= htmlspecialchars($t['fecha'] ?? '') ?></td>
-                                <td><span class="badge bg-<?= $cls ?> bg-opacity-10 text-<?= $cls ?>"><?= $estadosList[$t['estado']] ?? $t['estado'] ?></span></td>
-                                <td class="text-end"><a href="/traslados/ver?id=<?= $t['id'] ?>" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a></td>
+                                <td><span class="badge badge-<?= htmlspecialchars($t['estado']) ?>"><?= $estadosList[$t['estado']] ?? $t['estado'] ?></span></td>
+                                <td class="text-end"><a href="/traslados/ver?id=<?= $t['id'] ?>" class="btn btn-sm"><i class="bi bi-eye"></i></a></td>
                             </tr>
                         <?php endforeach; ?>
                     <?php endif; ?>

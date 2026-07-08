@@ -26,38 +26,50 @@
   - [2.4 Política de Subida y Gestión de Archivos](#24-política-de-subida-y-gestión-de-archivos)
   - [2.5 Política de Logs, Auditoría y Trazabilidad](#25-política-de-logs-auditoría-y-trazabilidad)
   - [2.6 Política de Protección de Datos Personales](#26-política-de-protección-de-datos-personales)
-- [3. Arquitectura de Seguridad](#3-arquitectura-de-seguridad)
-  - [3.1 Capas de Defensa (Defense in Depth)](#31-capas-de-defensa-defense-in-depth)
-  - [3.2 Diagrama de Flujo Seguro](#32-diagrama-de-flujo-seguro)
-  - [3.3 Seguridad en la Base de Datos](#33-seguridad-en-la-base-de-datos)
-  - [3.4 Seguridad en la Red y Transporte](#34-seguridad-en-la-red-y-transporte)
-- [4. Protocolos de Seguridad Implementados](#4-protocolos-de-seguridad-implementados)
-  - [4.1 Protección contra CSRF](#41-protección-contra-csrf)
-  - [4.2 Protección contra XSS](#42-protección-contra-xss)
-  - [4.3 Protección contra SQL Injection](#43-protección-contra-sql-injection)
-  - [4.4 Protección de Sesión](#44-protección-de-sesión)
-  - [4.5 Protección de Contraseñas](#45-protección-de-contraseñas)
-  - [4.6 Content Security Policy (CSP)](#46-content-security-policy-csp)
-  - [4.7 Headers de Seguridad HTTP](#47-headers-de-seguridad-http)
-  - [4.8 Rate Limiting](#48-rate-limiting)
-  - [4.9 Validación y Sanitización de Entrada](#49-validación-y-sanitización-de-entrada)
-  - [4.10 Subida Segura de Archivos](#410-subida-segura-de-archivos)
-  - [4.11 Protección contra Path Traversal](#411-protección-contra-path-traversal)
-  - [4.12 Protección contra Session Fixation](#412-protección-contra-session-fixation)
-  - [4.13 Protección contra Clickjacking](#413-protección-contra-clickjacking)
-  - [4.14 MIME Sniffing Prevention](#414-mime-sniffing-prevention)
-  - [4.15 Manejo Seguro de Errores](#415-manejo-seguro-de-errores)
-- [5. Principales Amenazas](#5-principales-amenazas)
-  - [5.1 Metodología STRIDE](#51-metodología-stride)
-  - [5.2 Matriz de Amenazas](#52-matriz-de-amenazas)
-  - [5.3 Modelado de Amenazas por Módulo](#53-modelado-de-amenazas-por-módulo)
-- [6. Controles Implementados](#6-controles-implementados)
-  - [6.1 Controles Técnicos](#61-controles-técnicos)
-  - [6.2 Controles de Configuración](#62-controles-de-configuración)
-  - [6.3 Mapeo contra PRD](#63-mapeo-contra-prd)
-  - [6.4 Mapeo contra Ley 18.331](#64-mapeo-contra-ley-18331)
-- [7. Plan de Respuesta a Incidentes](#7-plan-de-respuesta-a-incidentes)
-- [8. Recomendaciones para Producción](#8-recomendaciones-para-producción)
+- [3. Reglas de Desarrollo Backend](#3-reglas-de-desarrollo-backend)
+  - [3.1 Estándares de Código](#31-estándares-de-código)
+  - [3.2 Reglas de Arquitectura (Hexagonal)](#32-reglas-de-arquitectura-hexagonal)
+  - [3.3 Reglas de Base de Datos](#33-reglas-de-base-de-datos)
+  - [3.4 Reglas de Validación de Entrada](#34-reglas-de-validación-de-entrada)
+  - [3.5 Reglas de Manejo de Errores](#35-reglas-de-manejo-de-errores)
+  - [3.6 Reglas de Sesión y Autenticación](#36-reglas-de-sesión-y-autenticación)
+  - [3.7 Reglas de Archivos](#37-reglas-de-archivos)
+  - [3.8 Reglas de Logging](#38-reglas-de-logging)
+  - [3.9 Reglas de Git y Commits](#39-reglas-de-git-y-commits)
+  - [3.10 Reglas de Dependencias](#310-reglas-de-dependencias)
+  - [3.11 Reglas de Vistas (Frontend PHP)](#311-reglas-de-vistas-frontend-php)
+- [4. Arquitectura de Seguridad](#4-arquitectura-de-seguridad)
+  - [4.1 Capas de Defensa (Defense in Depth)](#41-capas-de-defensa-defense-in-depth)
+  - [4.2 Diagrama de Flujo Seguro](#42-diagrama-de-flujo-seguro)
+  - [4.3 Seguridad en la Base de Datos](#43-seguridad-en-la-base-de-datos)
+  - [4.4 Seguridad en la Red y Transporte](#44-seguridad-en-la-red-y-transporte)
+- [5. Protocolos de Seguridad Implementados](#5-protocolos-de-seguridad-implementados)
+  - [5.1 Protección contra CSRF](#51-protección-contra-csrf)
+  - [5.2 Protección contra XSS](#52-protección-contra-xss)
+  - [5.3 Protección contra SQL Injection](#53-protección-contra-sql-injection)
+  - [5.4 Protección de Sesión](#54-protección-de-sesión)
+  - [5.5 Protección de Contraseñas](#55-protección-de-contraseñas)
+  - [5.6 Content Security Policy (CSP)](#56-content-security-policy-csp)
+  - [5.7 Headers de Seguridad HTTP](#57-headers-de-seguridad-http)
+  - [5.8 Rate Limiting](#58-rate-limiting)
+  - [5.9 Validación y Sanitización de Entrada](#59-validación-y-sanitización-de-entrada)
+  - [5.10 Subida Segura de Archivos](#510-subida-segura-de-archivos)
+  - [5.11 Protección contra Path Traversal](#511-protección-contra-path-traversal)
+  - [5.12 Protección contra Session Fixation](#512-protección-contra-session-fixation)
+  - [5.13 Protección contra Clickjacking](#513-protección-contra-clickjacking)
+  - [5.14 MIME Sniffing Prevention](#514-mime-sniffing-prevention)
+  - [5.15 Manejo Seguro de Errores](#515-manejo-seguro-de-errores)
+- [6. Principales Amenazas](#6-principales-amenazas)
+  - [6.1 Metodología STRIDE](#61-metodología-stride)
+  - [6.2 Matriz de Amenazas](#62-matriz-de-amenazas)
+  - [6.3 Modelado de Amenazas por Módulo](#63-modelado-de-amenazas-por-módulo)
+- [7. Controles Implementados](#7-controles-implementados)
+  - [7.1 Controles Técnicos](#71-controles-técnicos)
+  - [7.2 Controles de Configuración](#72-controles-de-configuración)
+  - [7.3 Mapeo contra PRD](#73-mapeo-contra-prd)
+  - [7.4 Mapeo contra Ley 18.331](#74-mapeo-contra-ley-18331)
+- [8. Plan de Respuesta a Incidentes](#8-plan-de-respuesta-a-incidentes)
+- [9. Recomendaciones para Producción](#9-recomendaciones-para-producción)
 
 ---
 
@@ -229,9 +241,149 @@ Elyra, como sistema que procesa datos personales de pacientes y funcionarios de 
 
 ---
 
-## 3. Arquitectura de Seguridad
+## 3. Reglas de Desarrollo Backend
 
-### 3.1 Capas de Defensa (Defense in Depth)
+### 3.1 Estándares de Código
+
+| ID | Regla | Detalle | Obligatorio |
+|----|-------|---------|-------------|
+| B-01 | **Tipado estricto** | Todo archivo PHP debe comenzar con `declare(strict_types=1)` | Sí |
+| B-02 | **PSR-4 autoloading** | Namespaces y directorios deben coincidir con PSR-4 | Sí |
+| B-03 | **PSR-12 estilo** | El código debe seguir PSR-12 (llaves, indentación, espacios) | Sí |
+| B-04 | **Sin errores silenciados** | No usar `@` para suprimir errores | Sí |
+| B-05 | **Sin funciones deprecadas** | No usar `mysql_*`, `ereg_*`, `create_function()`, etc. | Sí |
+| B-06 | **Sin eval, extract, compact** | Estas funciones están prohibidas | Sí |
+| B-07 | **Sin goto** | Prohibido | Sí |
+| B-08 | **Variables definidas** | Toda variable debe ser inicializada antes de usarse | Sí |
+| B-09 | **Comentarios mínimos** | El código debe ser autoexplicativo; no agregar comentarios obvios | Recomendado |
+| B-10 | **Nombres en inglés** | Clases, métodos y variables en inglés (salvo vistas y contenido de UI) | Sí |
+| B-11 | **Métodos cortos** | Un método no debe superar ~40 líneas | Recomendado |
+| B-12 | **Una responsabilidad por clase** | Principio de responsabilidad única (SRP) | Sí |
+
+### 3.2 Reglas de Arquitectura (Hexagonal)
+
+| ID | Regla | Detalle | Sanción |
+|----|-------|---------|---------|
+| B-20 | **Capa Domain** | Entidades, Value Objects e interfaces de repositorio. Sin dependencias de infraestructura | ❌ Error |
+| B-21 | **Capa Application** | Casos de uso y servicios de aplicación. Depende solo de Domain | ❌ Error |
+| B-22 | **Capa Infrastructure** | Implementaciones concretas (controladores, repositorios PDO, servicios). Depende de Domain y Application | ❌ Error |
+| B-23 | **Entities solo getters/setters** | Las entidades no deben contener lógica de negocio compleja ni acceso a BD | ❌ Error |
+| B-24 | **Controladores delgados** | Los controladores solo validan entrada, llaman servicios y renderizan vistas | ❌ Error |
+| B-25 | **Repositorios solo datos** | Los repositorios solo hacen CRUD, no lógica de negocio | ❌ Error |
+| B-26 | **Vistas sin lógica** | Las vistas solo renderizan datos recibidos del controlador; sin queries ni lógica de negocio | ❌ Error |
+| B-27 | **Inyección de dependencias** | Las dependencias se pasan por constructor, no se instancian dentro de la clase | Recomendado |
+
+### 3.3 Reglas de Base de Datos
+
+| ID | Regla | Detalle |
+|----|-------|---------|
+| B-30 | **Prepared statements siempre** | Toda consulta SQL debe usar `PDO::prepare()` + `execute()`. Prohibida la concatenación de strings para construir queries |
+| B-31 | **PDO exceptions** | `PDO::ATTR_ERRMODE` debe ser `PDO::ERRMODE_EXCEPTION` en la conexión |
+| B-32 | **Fetch mode explícito** | Usar `PDO::FETCH_ASSOC` o `fetchObject()`; no confiar en el default |
+| B-33 | **Transacciones** | Las operaciones que modifican múltiples tablas deben ejecutarse dentro de `beginTransaction()/commit()/rollBack()` |
+| B-34 | **Tipos en execute** | Los parámetros deben pasarse en el orden correcto a `execute([$p1, $p2, ...])` |
+| B-35 | **Columnas explícitas** | En lo posible, evitar `SELECT *`; nombrar las columnas necesarias |
+| B-36 | **Sin procedimientos almacenados** | Toda la lógica en PHP, no en la BD | Recomendado |
+| B-37 | **Migraciones** | Los cambios de esquema deben documentarse; no modificar la BD directamente en producción |
+
+### 3.4 Reglas de Validación de Entrada
+
+| ID | Regla | Detalle | Dónde |
+|----|-------|---------|-------|
+| B-40 | **Validar en servidor siempre** | Nunca confiar solo en validación del cliente (HTML/JS) | Controlador |
+| B-41 | **Sanitizar antes de usar** | `trim()`, casting de tipos, filtros (`filter_var()`) antes de procesar | Controlador |
+| B-42 | **Escape en la salida** | `htmlspecialchars($var, ENT_QUOTES, 'UTF-8')` en toda salida HTML | Vista |
+| B-43 | **Validar formato** | Email: `filter_var($email, FILTER_VALIDATE_EMAIL)`. Teléfono: regex. CI: regex 8 dígitos | Controlador |
+| B-44 | **Validar rangos** | IDs numéricos: `(int)` + verificar > 0. Paginación: mínimo 1 | Controlador |
+| B-45 | **Rechazar datos inválidos** | Si un campo no pasa validación, mostrar error al usuario y no procesar | Controlador |
+| B-46 | **No confiar en métodos HTTP** | Validar datos POST/GET/REQUEST con el mismo rigor independientemente del método | Controlador |
+| B-47 | **CSRF en todo POST** | Todo formulario POST debe incluir y validar token CSRF | Middleware |
+
+### 3.5 Reglas de Manejo de Errores
+
+| ID | Regla | Detalle |
+|----|-------|---------|
+| B-50 | **Excepciones, no return codes** | Usar `try/catch`/`throw` en lugar de códigos de error numéricos |
+| B-51 | **No silenciar excepciones** | Capturar excepciones solo si se va a manejar; no dejar `catch` vacíos |
+| B-52 | **Loggear siempre** | Toda excepción capturada debe registrarse en el log |
+| B-53 | **No exponer detalles al usuario** | En producción, mostrar mensaje genérico; los detalles van al log |
+| B-54 | **ErrorHandler global** | Usar `set_exception_handler()` y `set_error_handler()` para capturar no capturadas |
+| B-55 | **HTTP status codes correctos** | 200 (éxito), 400 (bad request), 401 (no auth), 403 (forbidden), 404 (not found), 500 (error) |
+| B-56 | **Recursos liberados** | En `finally` o después de usar, cerrar recursos (archivos, streams) si no se usa GC automático |
+
+### 3.6 Reglas de Sesión y Autenticación
+
+| ID | Regla | Detalle |
+|----|-------|---------|
+| B-60 | **Password hashing** | Siempre `password_hash($pwd, PASSWORD_BCRYPT)`, nunca hash propio |
+| B-61 | **Password verification** | Siempre `password_verify()`, nunca comparación directa de hashes |
+| B-62 | **Regenerar ID post-login** | `session_regenerate_id(true)` después de autenticar |
+| B-63 | **Destruir sesión en logout** | `session_destroy()` + eliminar cookie |
+| B-64 | **Timeout de sesión** | Verificar `$_SESSION['last_activity']` en cada request; redirigir a login si excede 30 min |
+| B-65 | **Verificar auth en cada ruta protegida** | No asumir que el middleware ya verificó; verificar en el controlador si es necesario |
+| B-66 | **No almacenar contraseñas en sesión** | Guardar solo `user_id`, `user_nombre` y `user_rol` |
+| B-67 | **CSRF token por sesión** | Generar `bin2hex(random_bytes(32))` una vez por sesión; validar en cada POST |
+
+### 3.7 Reglas de Archivos
+
+| ID | Regla | Detalle |
+|----|-------|---------|
+| B-70 | **Validar con finfo** | Usar `finfo(FILEINFO_MIME_TYPE)`, no confiar en `$_FILES['file']['type']` |
+| B-71 | **Allowlist de extensiones** | Solo extensiones permitidas; no usar denylist |
+| B-72 | **Límite de tamaño** | Validar `$_FILES['file']['size']` contra máximo definido |
+| B-73 | **Renombrar archivos** | No usar el nombre original del usuario; generar nombre seguro (prefijo + timestamp) |
+| B-74 | **Fuera de document root** | Almacenar en `storage/` (fuera de `public/`), servidos por controlador |
+| B-75 | **Imágenes: verificar contenido** | Usar `imagecreatefromstring()` para validar que es una imagen real |
+| B-76 | **Sin permisos de ejecución** | Los archivos subidos no deben tener permisos 755 (usar 644) |
+
+### 3.8 Reglas de Logging
+
+| ID | Regla | Detalle |
+|----|-------|---------|
+| B-80 | **Loggear errores** | Toda excepción no manejada debe ir al log |
+| B-81 | **Loggear autenticación** | Intentos de login fallidos (username, IP, timestamp) |
+| B-82 | **Loggear operaciones críticas** | Altas, bajas y modificaciones de datos sensibles |
+| B-83 | **Sin datos sensibles** | No loguear passwords, tokens completos, contenido de documentos |
+| B-84 | **Formato estructurado** | Incluir: timestamp, nivel, mensaje, archivo, línea, contexto |
+| B-85 | **Rotación de logs** | Un archivo por día; configurar rotación para evitar llenar disco |
+
+### 3.9 Reglas de Git y Commits
+
+| ID | Regla | Detalle |
+|----|-------|---------|
+| B-90 | **Commits atómicos** | Un commit por cambio lógico; no mezclar cambios no relacionados |
+| B-91 | **Mensajes descriptivos** | Formato: `tipo: descripción breve` (ej: `fix: validar CI duplicado en registro`) |
+| B-92 | **Sin secrets en el repo** | No committear `.env`, contraseñas, tokens, claves privadas |
+| B-93 | **No committear dependencias** | `vendor/` y `node_modules/` en `.gitignore` |
+| B-94 | **No committear storage** | `storage/logs/`, `storage/rate-limit/`, `storage/docs/` en `.gitignore` |
+| B-95 | **Ramas features** | Trabajar en ramas, no directamente en `main` |
+| B-96 | **PR con revisión** | Todo merge a `main` debe pasar por Pull Request |
+
+### 3.10 Reglas de Dependencias
+
+| ID | Regla | Detalle |
+|----|-------|---------|
+| B-100 | **Composer privado** | Solo usar paquetes de Packagist oficial; no agregar repositorios VCS no verificados |
+| B-101 | **Versionado explícito** | Definir versiones en `composer.json` con constraint (`^x.y`) |
+| B-102 | **Lock file** | Committear `composer.lock` para entornos reproducibles |
+| B-103 | **Auditar dependencias** | Revisar `composer audit` periódicamente en busca de vulnerabilidades |
+| B-104 | **Sin dependencias innecesarias** | Evaluar si realmente se necesita antes de agregar un paquete |
+
+### 3.11 Reglas de Vistas (Frontend PHP)
+
+| ID | Regla | Detalle |
+|----|-------|---------|
+| B-110 | **Sin lógica de negocio en vistas** | Las vistas solo renderizan datos; no hacen queries ni procesan datos |
+| B-111 | **Escape obligatorio** | Toda variable que contenga entrada de usuario debe pasar por `htmlspecialchars()` |
+| B-112 | **Sin PHP tags cortos** | Usar `<?php` en lugar de `<?` o `<?=` (excepto `<?=` con `echo` implícito en PHP 8+) |
+| B-113 | **Separación de layout** | Usar `require __DIR__ . '/../layout/base.php'` con `$contenido` para heredar layout |
+| B-114 | **Sin SQL en vistas** | Prohibido hacer consultas a la BD dentro de archivos de vista |
+
+---
+
+## 4. Arquitectura de Seguridad
+
+### 4.1 Capas de Defensa (Defense in Depth)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -281,7 +433,7 @@ Elyra, como sistema que procesa datos personales de pacientes y funcionarios de 
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 3.2 Diagrama de Flujo Seguro
+### 4.2 Diagrama de Flujo Seguro
 
 ```
 Cliente (navegador)
@@ -357,7 +509,7 @@ Cliente (navegador)
     (red interna del hospital)
 ```
 
-### 3.3 Seguridad en la Base de Datos
+### 4.3 Seguridad en la Base de Datos
 
 | Aspecto | Implementación |
 |---------|---------------|
@@ -370,7 +522,7 @@ Cliente (navegador)
 | **Integridad referencial** | Claves foráneas con `ON DELETE CASCADE` donde corresponde (ej: `pregunta → encuesta`, `respuesta → pregunta`) |
 | **Tipo de tabla** | InnoDB (transaccional, con soporte de FK) |
 
-### 3.4 Seguridad en la Red y Transporte
+### 4.4 Seguridad en la Red y Transporte
 
 | Aspecto | Estado | Detalle técnico |
 |---------|--------|-----------------|
@@ -386,9 +538,9 @@ Cliente (navegador)
 
 ---
 
-## 4. Protocolos de Seguridad Implementados
+## 5. Protocolos de Seguridad Implementados
 
-### 4.1 Protección contra CSRF (Cross-Site Request Forgery)
+### 5.1 Protección contra CSRF (Cross-Site Request Forgery)
 
 **Qué es**: Un atacante engaña al navegador de un usuario autenticado para que ejecute acciones no deseadas en una aplicación web.
 
@@ -412,7 +564,7 @@ Cliente (navegador)
 
 **Cobertura**: Todos los formularios del sistema (login, registro, perfil, documentos, encuestas, traslados, conductores, rutas).
 
-### 4.2 Protección contra XSS (Cross-Site Scripting)
+### 5.2 Protección contra XSS (Cross-Site Scripting)
 
 **Qué es**: Un atacante inyecta scripts maliciosos en páginas web vistas por otros usuarios.
 
@@ -434,7 +586,7 @@ Además:
   • Tipado estricto (declare(strict_types=1)) evita type juggling
 ```
 
-### 4.3 Protección contra SQL Injection
+### 5.3 Protección contra SQL Injection
 
 **Qué es**: Un atacante inserta código SQL malicioso en los parámetros de entrada para manipular la base de datos.
 
@@ -453,7 +605,7 @@ $stmt->execute([$nombre, $email, $id]);
 
 **Verificación adicional**: `declare(strict_types=1)` fuerza tipos correctos en los parámetros.
 
-### 4.4 Protección de Sesión
+### 5.4 Protección de Sesión
 
 **Qué es**: Conjunto de medidas para proteger la sesión del usuario contra secuestro, fijación y ataques relacionados.
 
@@ -469,7 +621,7 @@ $stmt->execute([$nombre, $email, $id]);
 | Regeneración post-login | `session_regenerate_id(true)` | AuthController |
 | Destrucción al logout | `session_destroy()` + `setcookie(session_name(), '', time() - 3600, '/')` | AuthController |
 
-### 4.5 Protección de Contraseñas
+### 5.5 Protección de Contraseñas
 
 **Qué es**: Almacenamiento y verificación segura de contraseñas.
 
@@ -495,7 +647,7 @@ if (password_verify($password, $hashAlmacenado)) {
 - Cada hash incluye salt único, previniendo ataques de rainbow tables.
 - El costo se puede aumentar con el tiempo sin romper hashes existentes.
 
-### 4.6 Content Security Policy (CSP)
+### 5.6 Content Security Policy (CSP)
 
 **Qué es**: Política que define qué recursos puede cargar y ejecutar el navegador, mitigando XSS y otras inyecciones.
 
@@ -520,12 +672,12 @@ base-uri 'self';                                  # Base URI restringido
 form-action 'self';                               # Formularios solo a mismo origen
 ```
 
-### 4.7 Headers de Seguridad HTTP
+### 5.7 Headers de Seguridad HTTP
 
 Se envían en todas las respuestas HTTP del sistema:
 
 ```
-Content-Security-Policy: (ver sección 4.6)
+Content-Security-Policy: (ver sección 5.6)
 X-Content-Type-Options: nosniff                   # Evita MIME sniffing
 X-Frame-Options: SAMEORIGIN                       # Evita clickjacking
 X-XSS-Protection: 0                               # Desactiva heurística antigua del navegador
@@ -534,7 +686,7 @@ Strict-Transport-Security: max-age=31536000;       # HSTS (producción)
   includeSubDomains
 ```
 
-### 4.8 Rate Limiting
+### 5.8 Rate Limiting
 
 **Qué es**: Control de la frecuencia de solicitudes para prevenir abusos, fuerza bruta y denegación de servicio.
 
@@ -544,7 +696,7 @@ Strict-Transport-Security: max-age=31536000;       # HSTS (producción)
 - Límite de requests por IP por minuto (configurable).
 - Si se excede: HTTP 429 (Too Many Requests) con mensaje explicativo.
 
-### 4.9 Validación y Sanitización de Entrada
+### 5.9 Validación y Sanitización de Entrada
 
 **Qué es**: Verificación de que todos los datos ingresados por el usuario cumplen con el formato y tipo esperado.
 
@@ -562,7 +714,7 @@ Strict-Transport-Security: max-age=31536000;       # HSTS (producción)
 
 **Además**: `declare(strict_types=1)` en todos los archivos PHP garantiza que los tipos escalares pasados a funciones coincidan exactamente con los declarados.
 
-### 4.10 Subida Segura de Archivos
+### 5.10 Subida Segura de Archivos
 
 **Flujo completo de validación**:
 
@@ -576,7 +728,7 @@ Strict-Transport-Security: max-age=31536000;       # HSTS (producción)
 7. Almacenar fuera del document root
 ```
 
-### 4.11 Protección contra Path Traversal
+### 5.11 Protección contra Path Traversal
 
 **Qué es**: Ataque que manipula rutas de archivos para acceder a directorios no autorizados.
 
@@ -585,7 +737,7 @@ Strict-Transport-Security: max-age=31536000;       # HSTS (producción)
 - No se permite al usuario especificar rutas de archivo.
 - Los archivos se sirven mediante un controlador, no directamente desde el sistema de archivos.
 
-### 4.12 Protección contra Session Fixation
+### 5.12 Protección contra Session Fixation
 
 **Qué es**: Ataque donde el atacante fuerza a la víctima a usar un ID de sesión conocido.
 
@@ -593,7 +745,7 @@ Strict-Transport-Security: max-age=31536000;       # HSTS (producción)
 - `session_regenerate_id(true)` se llama inmediatamente después de un login exitoso, invalidando cualquier ID de sesión previo.
 - La sesión se destruye completamente en el logout.
 
-### 4.13 Protección contra Clickjacking
+### 5.13 Protección contra Clickjacking
 
 **Qué es**: Técnica donde el atacante incrusta la página objetivo en un iframe transparente para engañar al usuario.
 
@@ -601,14 +753,14 @@ Strict-Transport-Security: max-age=31536000;       # HSTS (producción)
 - Header `X-Frame-Options: SAMEORIGIN` — solo permite iframes del mismo origen.
 - CSP con `frame-src 'self'` como capa adicional.
 
-### 4.14 MIME Sniffing Prevention
+### 5.14 MIME Sniffing Prevention
 
 **Qué es**: Técnica donde el navegador intenta adivinar el tipo MIME de un recurso, potencialmente ejecutando contenido malicioso.
 
 **Implementación**:
 - Header `X-Content-Type-Options: nosniff` — obliga al navegador a respetar el Content-Type declarado.
 
-### 4.15 Manejo Seguro de Errores
+### 5.15 Manejo Seguro de Errores
 
 **Qué es**: Gestión de errores que no expone información sensible de la aplicación al usuario.
 
@@ -620,9 +772,9 @@ Strict-Transport-Security: max-age=31536000;       # HSTS (producción)
 
 ---
 
-## 5. Principales Amenazas
+## 6. Principales Amenazas
 
-### 5.1 Metodología STRIDE
+### 6.1 Metodología STRIDE
 
 Se aplica el modelo **STRIDE** (Microsoft) para categorizar amenazas por tipo:
 
@@ -635,29 +787,29 @@ Se aplica el modelo **STRIDE** (Microsoft) para categorizar amenazas por tipo:
 | **D**enial of Service | Denegación de servicio | Abuso de la ruta pública de descarga de QR |
 | **E**levation of Privilege | Elevación de privilegios | Un conductor accede al panel de admin |
 
-### 5.2 Matriz de Amenazas
+### 6.2 Matriz de Amenazas
 
 | ID | Amenaza | STRIDE | Activo | Prob. | Impacto | Riesgo | Controles |
 |----|---------|--------|--------|-------|---------|--------|-----------|
-| T-01 | **SQL Injection** en formularios | T | BD | Baja | Crítico | Medio | Prepared statements 100% (4.3) |
-| T-02 | **XSS** en campos de texto | T, I | Navegador | Media | Alto | Alto | `htmlspecialchars()` (4.2), CSP (4.6) |
-| T-03 | **CSRF** en formularios admin | T, E | Sesión | Media | Alto | Alto | Token CSRF (4.1) |
-| T-04 | **Session Fixation** | S | Sesión | Baja | Alto | Medio | Regeneración post-login (4.12) |
+| T-01 | **SQL Injection** en formularios | T | BD | Baja | Crítico | Medio | Prepared statements 100% (5.3) |
+| T-02 | **XSS** en campos de texto | T, I | Navegador | Media | Alto | Alto | `htmlspecialchars()` (5.2), CSP (5.6) |
+| T-03 | **CSRF** en formularios admin | T, E | Sesión | Media | Alto | Alto | Token CSRF (5.1) |
+| T-04 | **Session Fixation** | S | Sesión | Baja | Alto | Medio | Regeneración post-login (5.12) |
 | T-05 | **Fuerza bruta** a login | S | Cuentas | Alta | Alto | **Alto** | Pendiente bloqueo (ver R-P-01) |
-| T-06 | **Subida de archivo malicioso** | T | Servidor | Baja | Crítico | Medio | Validación MIME + extensión + tamaño (4.10) |
-| T-07 | **Path Traversal** | I, T | Archivos | Baja | Alto | Medio | Nombres seguros, controlador intermedio (4.11) |
+| T-06 | **Subida de archivo malicioso** | T | Servidor | Baja | Crítico | Medio | Validación MIME + extensión + tamaño (5.10) |
+| T-07 | **Path Traversal** | I, T | Archivos | Baja | Alto | Medio | Nombres seguros, controlador intermedio (5.11) |
 | T-08 | **Acceso no autorizado** a rutas admin | E, I | Datos | Media | Crítico | Alto | Autenticación + roles (2.3) |
-| T-09 | **Fuga de info** en errores | I | Configuración | Baja | Medio | Bajo | ErrorHandler en producción (4.15) |
-| T-10 | **DoS** en rutas públicas | D | Disponibilidad | Media | Alto | Alto | Rate limiting (4.8) |
+| T-09 | **Fuga de info** en errores | I | Configuración | Baja | Medio | Bajo | ErrorHandler en producción (5.15) |
+| T-10 | **DoS** en rutas públicas | D | Disponibilidad | Media | Alto | Alto | Rate limiting (5.8) |
 | T-11 | **Timing attack** a bcrypt | S | Hashes | Baja | Bajo | Bajo | bcrypt es inherentemente resistente |
-| T-12 | **Clickjacking** | E, I | UI | Baja | Medio | Bajo | X-Frame-Options + CSP (4.13) |
+| T-12 | **Clickjacking** | E, I | UI | Baja | Medio | Bajo | X-Frame-Options + CSP (5.13) |
 | T-13 | **Man-in-the-Middle** | I, T | Tráfico | Media | Alto | Alto | HTTPS en producción |
 | T-14 | **Exposición de datos en logs** | I | Datos | Baja | Alto | Bajo | Logs sin datos sensibles (2.5) |
 | T-15 | **Cross-Site History Manipulation** | I | Navegador | Baja | Bajo | Bajo | CSP + Referrer-Policy |
 | T-16 | **Robo de token QR** | S, I | Acceso paciente | Media | Medio | Medio | Token UUID v4, asociado a paciente específico |
 | T-17 | **Inyección de cabeceras HTTP** | T | Respuesta | Baja | Medio | Bajo | Headers fijos, sin entrada de usuario en headers |
 
-### 5.3 Modelado de Amenazas por Módulo
+### 6.3 Modelado de Amenazas por Módulo
 
 #### Módulo de Identidad
 
@@ -707,29 +859,29 @@ Historial ───────── T-09 (exposición indebida de datos)
 
 ---
 
-## 6. Controles Implementados
+## 7. Controles Implementados
 
-### 6.1 Controles Técnicos
+### 7.1 Controles Técnicos
 
 | ID | Tipo | Descripción | Localización | Protocolo relacionado |
 |----|------|-------------|--------------|----------------------|
-| C-01 | Preventivo | Prepared statements PDO en 100% de queries | Todos los repositorios | 4.3 (SQLi) |
-| C-02 | Preventivo | `htmlspecialchars()` en toda salida HTML | Todas las vistas | 4.2 (XSS) |
-| C-03 | Preventivo | Token CSRF + validación en POST | `SessionManager`, `CsrfMiddleware` | 4.1 (CSRF) |
-| C-04 | Preventivo | Regeneración de ID de sesión post-login | `AuthController::doLogin()` | 4.12 (Session Fixation) |
-| C-05 | Preventivo | Validación MIME con `finfo` + extensión + tamaño | `DocumentoController`, `PerfilController` | 4.10 (Subida segura) |
-| C-06 | Preventivo | Archivos fuera de document root | `storage/docs/` | 4.11 (Path Traversal) |
-| C-07 | Preventivo | Headers CSP, X-Frame-Options, X-Content-Type | Middleware en `index.php` | 4.6, 4.7, 4.13, 4.14 |
-| C-08 | Detectivo | Log de errores y excepciones | `ErrorHandler` | 4.15 (Manejo de errores) |
+| C-01 | Preventivo | Prepared statements PDO en 100% de queries | Todos los repositorios | 5.3 (SQLi) |
+| C-02 | Preventivo | `htmlspecialchars()` en toda salida HTML | Todas las vistas | 5.2 (XSS) |
+| C-03 | Preventivo | Token CSRF + validación en POST | `SessionManager`, `CsrfMiddleware` | 5.1 (CSRF) |
+| C-04 | Preventivo | Regeneración de ID de sesión post-login | `AuthController::doLogin()` | 5.12 (Session Fixation) |
+| C-05 | Preventivo | Validación MIME con `finfo` + extensión + tamaño | `DocumentoController`, `PerfilController` | 5.10 (Subida segura) |
+| C-06 | Preventivo | Archivos fuera de document root | `storage/docs/` | 5.11 (Path Traversal) |
+| C-07 | Preventivo | Headers CSP, X-Frame-Options, X-Content-Type | Middleware en `index.php` | 5.6, 5.7, 5.13, 5.14 |
+| C-08 | Detectivo | Log de errores y excepciones | `ErrorHandler` | 5.15 (Manejo de errores) |
 | C-09 | Detectivo | Log de cambios de estado de traslados | `TrasladoRepository` | 2.5 (Auditoría) |
-| C-10 | Preventivo | Rate limiting en rutas públicas | `RateLimiter` middleware | 4.8 (Rate Limiting) |
-| C-11 | Preventivo | `declare(strict_types=1)` en todo el código | Todos los archivos PHP | 4.9 (Validación) |
-| C-12 | Preventivo | bcrypt para hash de contraseñas | `AuthController`, `PerfilController` | 4.5 (Contraseñas) |
-| C-13 | Preventivo | Validación de email con `filter_var()` | `PerfilController` | 4.9 (Validación) |
-| C-14 | Preventivo | Cookie HTTP-only + Secure (producción) | Config PHP | 4.4 (Sesión) |
-| C-15 | Preventivo | `session_destroy()` en logout | `AuthController::logout()` | 4.4 (Sesión) |
+| C-10 | Preventivo | Rate limiting en rutas públicas | `RateLimiter` middleware | 5.8 (Rate Limiting) |
+| C-11 | Preventivo | `declare(strict_types=1)` en todo el código | Todos los archivos PHP | 5.9 (Validación) |
+| C-12 | Preventivo | bcrypt para hash de contraseñas | `AuthController`, `PerfilController` | 5.5 (Contraseñas) |
+| C-13 | Preventivo | Validación de email con `filter_var()` | `PerfilController` | 5.9 (Validación) |
+| C-14 | Preventivo | Cookie HTTP-only + Secure (producción) | Config PHP | 5.4 (Sesión) |
+| C-15 | Preventivo | `session_destroy()` en logout | `AuthController::logout()` | 5.4 (Sesión) |
 
-### 6.2 Controles de Configuración
+### 7.2 Controles de Configuración
 
 | ID | Configuración | Archivo |
 |----|--------------|---------|
@@ -742,7 +894,7 @@ Historial ───────── T-09 (exposición indebida de datos)
 | CF-07 | `storage/` excluido del repositorio | `.gitignore` |
 | CF-08 | `vendor/` excluido del repositorio | `.gitignore` |
 
-### 6.3 Mapeo contra PRD
+### 7.3 Mapeo contra PRD
 
 | PRD ID | Requisito | Control(es) | Estado |
 |--------|-----------|-------------|--------|
@@ -760,7 +912,7 @@ Historial ───────── T-09 (exposición indebida de datos)
 | SEG-12 | Headers de seguridad | C-07 | ✔ |
 | NFR-07 | Protección SQLi, XSS, CSRF | C-01, C-02, C-03 | ✔ |
 
-### 6.4 Mapeo contra Ley 18.331
+### 7.4 Mapeo contra Ley 18.331
 
 | Ley 18.331 | Artículo | Requisito | Control(es) | Estado |
 |------------|----------|-----------|-------------|--------|
@@ -777,9 +929,9 @@ Historial ───────── T-09 (exposición indebida de datos)
 
 ---
 
-## 7. Plan de Respuesta a Incidentes
+## 8. Plan de Respuesta a Incidentes
 
-### 7.1 Clasificación
+### 8.1 Clasificación
 
 | Nivel | Descripción | Tiempo de respuesta | Ejemplo |
 |-------|-------------|---------------------|---------|
@@ -788,7 +940,7 @@ Historial ───────── T-09 (exposición indebida de datos)
 | **Alto** | Posible exposición de datos | 4 horas | Intento de SQL injection, XSS reportado |
 | **Crítico** | Brecha de datos confirmada o caída del sistema | 1 hora | Acceso no autorizado a datos de pacientes, DoS sostenido |
 
-### 7.2 Procedimiento
+### 8.2 Procedimiento
 
 ```
 DETECCIÓN
@@ -844,7 +996,7 @@ DOCUMENTACIÓN
     └── Notificar a URCDP si aplica (Art. 9-bis Ley 18.331)
 ```
 
-### 7.3 Notificación a URCDP
+### 8.3 Notificación a URCDP
 
 Si ocurre una violación de datos personales que implique riesgo para los derechos de los titulares:
 
@@ -854,7 +1006,7 @@ Si ocurre una violación de datos personales que implique riesgo para los derech
 
 ---
 
-## 8. Recomendaciones para Producción
+## 9. Recomendaciones para Producción
 
 | ID | Recomendación | Prioridad | Amenaza que mitiga | Fundamento legal |
 |----|--------------|-----------|-------------------|------------------|

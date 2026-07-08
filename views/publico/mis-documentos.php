@@ -5,16 +5,15 @@ use Elyra\Infrastructure\Service\SessionManager;
 $titulo = 'Mis documentos';
 ?>
 <!DOCTYPE html>
-<html lang="es" data-bs-theme="light">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars($titulo) ?> — Elyra</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="/css/elyra.css?v=7">
+    <link rel="stylesheet" href="/css/web20.css">
 </head>
-<body class="bg-light">
+<body style="background:#f2f2f2;">
 
 <div class="container py-5">
     <div class="text-center mb-4">
@@ -24,7 +23,7 @@ $titulo = 'Mis documentos';
 
     <?php if (empty($documentos)): ?>
     <div class="text-center py-5">
-        <div class="display-6 text-muted mb-3"><i class="bi bi-file-earmark-x"></i></div>
+        <div style="font-size:32px;color:var(--text-muted);margin-bottom:10px;"><i class="bi bi-file-earmark-x"></i></div>
         <h5 class="fw-semibold">No hay documentos</h5>
         <p class="text-muted mb-0">A&uacute;n no ten&eacute;s documentos asignados.</p>
     </div>
@@ -33,13 +32,13 @@ $titulo = 'Mis documentos';
         <?php foreach ($documentos as $doc): ?>
         <?php if (!$doc['activo']) continue; ?>
         <div class="col-md-6 col-lg-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body d-flex flex-column">
-                    <h6 class="card-title fw-semibold mb-1"><?= htmlspecialchars($doc['titulo']) ?></h6>
+            <div class="panel h-100">
+                <div class="panel-body d-flex flex-column">
+                    <h6 class="fw-semibold mb-1"><?= htmlspecialchars($doc['titulo']) ?></h6>
                     <div class="mb-2">
-                        <span class="badge bg-primary bg-opacity-10 text-primary"><?= htmlspecialchars($doc['categoria']) ?></span>
+                        <span class="badge" style="background:#D9EDF7;color:#31708F;border:1px solid #BCE8F1;"><?= htmlspecialchars($doc['categoria']) ?></span>
                         <?php if ($doc['especialidad']): ?>
-                        <span class="badge bg-info bg-opacity-10 text-info"><?= htmlspecialchars($doc['especialidad']) ?></span>
+                        <span class="badge" style="background:#DFF0D8;color:#3C763D;border:1px solid #C1E2B3;"><?= htmlspecialchars($doc['especialidad']) ?></span>
                         <?php endif; ?>
                     </div>
                     <?php if ($doc['descripcion']): ?>
@@ -47,7 +46,7 @@ $titulo = 'Mis documentos';
                     <?php endif; ?>
                     <div class="mt-auto d-flex justify-content-between align-items-center">
                         <small class="text-muted"><?= htmlspecialchars($doc['subido']) ?></small>
-                        <a href="/publico/doc?id=<?= $doc['id'] ?>" class="btn btn-sm btn-outline-primary">
+                        <a href="/publico/doc?id=<?= $doc['id'] ?>" class="btn btn-primary btn-sm">
                             <i class="bi bi-eye me-1"></i> Ver
                         </a>
                     </div>
@@ -59,6 +58,5 @@ $titulo = 'Mis documentos';
     <?php endif; ?>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

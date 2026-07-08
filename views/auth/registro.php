@@ -1,121 +1,103 @@
 <?php $titulo = 'Registrarse'; ?>
 <?php ob_start(); ?>
-<div class="login-wrapper">
-    <div class="login-card" style="max-width: 500px;">
-        <div class="login-logo">
-            <img src="/img/elyralogo.png" alt="Elyra">
+<div class="login-page">
+    <div class="login-box" style="max-width: 500px;">
+        <div class="login-box-header">
+            Hospital de Clínicas
         </div>
-        <h2 class="login-title">Hospital de Cl&iacute;nicas</h2>
-        <p class="login-subtitle">Crear cuenta de usuario</p>
-
-        <?php if (isset($error)): ?>
-            <div class="login-alert">
-                <i class="bi bi-exclamation-triangle-fill"></i>
-                <span><?= htmlspecialchars($error) ?></span>
+        <div class="login-box-body">
+            <div class="login-box-logo">
+                <img src="/img/elyralogo.png" alt="Elyra">
             </div>
-        <?php endif; ?>
+            <div class="login-box-title">Crear cuenta de usuario</div>
+            <p class="text-muted small text-center mb-3">Completá tus datos para registrarte</p>
 
-        <form method="post">
-            <input type="hidden" name="_csrf_token" value="<?= \Elyra\Infrastructure\Service\SessionManager::getCsrfToken() ?>">
+            <?php if (isset($error)): ?>
+                <div class="msg msg-error mb-3">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span><?= htmlspecialchars($error) ?></span>
+                </div>
+            <?php endif; ?>
 
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="nombre" class="form-label small">Nombre <span class="text-danger">*</span></label>
-                    <div class="login-input-group">
-                        <i class="bi bi-person input-icon"></i>
-                        <input type="text" id="nombre" name="nombre" class="form-control" required maxlength="100" placeholder="Nombre" value="<?= htmlspecialchars($_POST['nombre'] ?? '') ?>">
+            <form method="post">
+                <input type="hidden" name="_csrf_token" value="<?= \Elyra\Infrastructure\Service\SessionManager::getCsrfToken() ?>">
+
+                <div class="d-flex gap-2">
+                    <div class="form-group w-100">
+                        <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
+                        <input type="text" id="nombre" name="nombre" class="form-input w-100" required maxlength="100" placeholder="Nombre" value="<?= htmlspecialchars($_POST['nombre'] ?? '') ?>">
+                    </div>
+                    <div class="form-group w-100">
+                        <label for="apellido" class="form-label">Apellido <span class="text-danger">*</span></label>
+                        <input type="text" id="apellido" name="apellido" class="form-input w-100" required maxlength="100" placeholder="Apellido" value="<?= htmlspecialchars($_POST['apellido'] ?? '') ?>">
                     </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label for="apellido" class="form-label small">Apellido <span class="text-danger">*</span></label>
-                    <div class="login-input-group">
-                        <i class="bi bi-person input-icon"></i>
-                        <input type="text" id="apellido" name="apellido" class="form-control" required maxlength="100" placeholder="Apellido" value="<?= htmlspecialchars($_POST['apellido'] ?? '') ?>">
+
+                <div class="form-group">
+                    <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                    <input type="email" id="email" name="email" class="form-input w-100" required maxlength="150" placeholder="correo@gmail.com" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+                </div>
+
+                <div class="form-group">
+                    <label for="documento" class="form-label">Cédula <span class="text-danger">*</span></label>
+                    <input type="text" id="documento" name="documento" class="form-input w-100" required maxlength="8" pattern="[0-9]{8}" placeholder="Número de cédula (8 dígitos)" value="<?= htmlspecialchars($_POST['documento'] ?? '') ?>">
+                </div>
+
+                <div class="d-flex gap-2">
+                    <div class="form-group w-100">
+                        <label for="username" class="form-label">Usuario <span class="text-danger">*</span></label>
+                        <input type="text" id="username" name="username" class="form-input w-100" required minlength="3" maxlength="50" placeholder="Usuario" value="<?= htmlspecialchars($_POST['username'] ?? '') ?>">
+                    </div>
+                    <div class="form-group w-100">
+                        <label for="telefono" class="form-label">Teléfono</label>
+                        <input type="tel" id="telefono" name="telefono" class="form-input w-100" maxlength="9" pattern="[0-9]{8,9}" placeholder="098765432" value="<?= htmlspecialchars($_POST['telefono'] ?? '') ?>">
                     </div>
                 </div>
-            </div>
 
-            <div class="mb-3">
-                <label for="email" class="form-label small">Email <span class="text-danger">*</span></label>
-                <div class="login-input-group">
-                    <i class="bi bi-envelope input-icon"></i>
-                    <input type="email" id="email" name="email" class="form-control" required maxlength="150" placeholder="correo@gmail.com" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label for="documento" class="form-label small">C&eacute;dula <span class="text-danger">*</span></label>
-                <div class="login-input-group">
-                    <i class="bi bi-card-text input-icon"></i>
-                    <input type="text" id="documento" name="documento" class="form-control" required maxlength="8" pattern="[0-9]{8}" placeholder="N&uacute;mero de c&eacute;dula (8 d&iacute;gitos)" value="<?= htmlspecialchars($_POST['documento'] ?? '') ?>">
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="username" class="form-label small">Usuario <span class="text-danger">*</span></label>
-                    <div class="login-input-group">
-                        <i class="bi bi-person-badge input-icon"></i>
-                        <input type="text" id="username" name="username" class="form-control" required minlength="3" maxlength="50" placeholder="Usuario" value="<?= htmlspecialchars($_POST['username'] ?? '') ?>">
+                <div class="d-flex gap-2">
+                    <div class="form-group w-100">
+                        <label for="password" class="form-label">Contraseña <span class="text-danger">*</span></label>
+                        <div class="d-flex align-items-center gap-1">
+                            <input type="password" id="password" name="password" class="form-input w-100" required minlength="6" placeholder="Mín. 6 caracteres">
+                            <button type="button" class="btn btn-sm btn-toggle-pw" tabindex="-1" onclick="togglePw('password', 'pwIcon')" style="flex-shrink:0;">
+                                <i class="bi bi-eye-slash" id="pwIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group w-100">
+                        <label for="password2" class="form-label">Repetir contraseña <span class="text-danger">*</span></label>
+                        <div class="d-flex align-items-center gap-1">
+                            <input type="password" id="password2" name="password2" class="form-input w-100" required minlength="6" placeholder="Repetir contraseña">
+                            <button type="button" class="btn btn-sm btn-toggle-pw" tabindex="-1" onclick="togglePw('password2', 'pwIcon2')" style="flex-shrink:0;">
+                                <i class="bi bi-eye-slash" id="pwIcon2"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label for="telefono" class="form-label small">Tel&eacute;fono</label>
-                    <div class="login-input-group">
-                        <i class="bi bi-telephone input-icon"></i>
-                        <input type="tel" id="telefono" name="telefono" class="form-control" maxlength="9" pattern="[0-9]{8,9}" placeholder="098765432" value="<?= htmlspecialchars($_POST['telefono'] ?? '') ?>">
-                    </div>
-                </div>
-            </div>
 
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label for="password" class="form-label small">Contrase&ntilde;a <span class="text-danger">*</span></label>
-                    <div class="login-input-group">
-                        <i class="bi bi-lock input-icon"></i>
-                        <input type="password" id="password" name="password" class="form-control input-icon-end-padding" required minlength="6" placeholder="M&iacute;n. 6 caracteres">
-                        <button type="button" class="btn btn-link input-icon-end toggle-password" tabindex="-1" data-target="password">
-                            <i class="bi bi-eye-slash"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <label for="password2" class="form-label small">Repetir contrase&ntilde;a <span class="text-danger">*</span></label>
-                    <div class="login-input-group">
-                        <i class="bi bi-lock input-icon"></i>
-                        <input type="password" id="password2" name="password2" class="form-control input-icon-end-padding" required minlength="6" placeholder="Repetir contrase&ntilde;a">
-                        <button type="button" class="btn btn-link input-icon-end toggle-password" tabindex="-1" data-target="password2">
-                            <i class="bi bi-eye-slash"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
+                <button type="submit" class="btn btn-primary btn-lg w-100 mt-2">Crear cuenta</button>
+            </form>
 
-            <button type="submit" class="btn btn-primary w-100 login-btn">Crear cuenta</button>
-        </form>
-
-        <p class="text-center mt-3 mb-0 small">
-            <a href="/login" class="text-decoration-none">¿Ya ten&eacute;s cuenta? Inici&aacute; sesi&oacute;n</a>
-        </p>
+            <p class="text-center mt-3 mb-0 small">
+                <a href="/login">¿Ya tenés cuenta? Iniciá sesión</a>
+            </p>
+        </div>
     </div>
 </div>
 <?php $contenido = ob_get_clean(); ?>
 <?php $scripts = <<<HTML
 <script>
-document.querySelectorAll('.toggle-password').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-        var target = document.getElementById(this.dataset.target);
-        if (!target) return;
-        var icon = this.querySelector('i');
-        if (target.type === 'password') {
-            target.type = 'text';
-            icon.className = 'bi bi-eye';
-        } else {
-            target.type = 'password';
-            icon.className = 'bi bi-eye-slash';
-        }
-    });
-});
+function togglePw(id, iconId) {
+    var pw = document.getElementById(id);
+    var icon = document.getElementById(iconId);
+    if (pw.type === 'password') {
+        pw.type = 'text';
+        icon.className = 'bi bi-eye';
+    } else {
+        pw.type = 'password';
+        icon.className = 'bi bi-eye-slash';
+    }
+}
 </script>
 HTML;
 ?>

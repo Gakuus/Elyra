@@ -5,22 +5,22 @@
     <div class="col-lg-8">
 
         <?php if (isset($error)): ?>
-            <div class="alert alert-danger d-flex align-items-center gap-2">
+            <div class="msg msg-error d-flex align-items-center gap-2">
                 <i class="bi bi-exclamation-triangle-fill"></i>
                 <span><?= htmlspecialchars($error) ?></span>
             </div>
         <?php endif; ?>
 
-        <div class="card border-0 shadow-sm">
-            <div class="card-body p-4">
-                <h5 class="card-title mb-3"><i class="bi bi-upload me-2 text-primary"></i>Subir nuevo documento</h5>
+        <div class="panel">
+            <div class="panel-body">
+                <h5 class="fw-bold mb-3"><i class="bi bi-upload me-2 text-primary"></i>Subir nuevo documento</h5>
 
                 <form method="post" enctype="multipart/form-data" id="uploadForm">
                     <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars($_SESSION['_csrf_token'] ?? '') ?>">
 
                     <div class="mb-3">
                         <label for="titulo" class="form-label">T&iacute;tulo del documento <span class="text-danger">*</span></label>
-                        <input type="text" name="titulo" id="titulo" class="form-control" required minlength="3" maxlength="200" placeholder="Ej: Indicaciones pre-operatorias" value="<?= htmlspecialchars($_POST['titulo'] ?? '') ?>">
+                        <input type="text" name="titulo" id="titulo" class="form-input" required minlength="3" maxlength="200" placeholder="Ej: Indicaciones pre-operatorias" value="<?= htmlspecialchars($_POST['titulo'] ?? '') ?>">
                     </div>
 
                     <div class="row mb-3">
@@ -92,7 +92,7 @@
                                 <i class="bi bi-filetype-pdf display-6 text-primary"></i>
                                 <p class="mb-0 fw-semibold" id="fileName"></p>
                                 <p class="text-muted small mb-0" id="fileSize"></p>
-                                <button type="button" class="btn btn-sm btn-outline-danger mt-2" id="removeFile">
+                                <button type="button" class="btn btn-sm btn-danger mt-2" id="removeFile">
                                     <i class="bi bi-x"></i> Quitar archivo
                                 </button>
                             </div>
@@ -103,8 +103,8 @@
 
                     <div class="mb-4">
                         <label for="descripcion" class="form-label">Descripci&oacute;n (opcional)</label>
-                        <textarea name="descripcion" id="descripcion" class="form-control" rows="3" maxlength="500" placeholder="Breve descripci&oacute;n del documento..."><?= htmlspecialchars($_POST['descripcion'] ?? '') ?></textarea>
-                        <div class="form-text text-muted small">M&aacute;ximo 500 caracteres.</div>
+                        <textarea name="descripcion" id="descripcion" class="form-textarea" rows="3" maxlength="500" placeholder="Breve descripci&oacute;n del documento..."><?= htmlspecialchars($_POST['descripcion'] ?? '') ?></textarea>
+                        <div class="form-hint">M&aacute;ximo 500 caracteres.</div>
                     </div>
 
                     <div class="progress mb-3 d-none" id="progressContainer">
@@ -115,7 +115,7 @@
                         <button type="submit" class="btn btn-primary" id="submitBtn">
                             <i class="bi bi-cloud-upload me-1"></i> Subir documento
                         </button>
-                        <a href="/documentos" class="btn btn-outline-secondary">Cancelar</a>
+                        <a href="/documentos" class="btn">Cancelar</a>
                     </div>
                 </form>
             </div>

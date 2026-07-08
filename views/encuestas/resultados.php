@@ -2,11 +2,11 @@
 <?php ob_start(); ?>
 
 <div class="resultados-header">
-    <a href="/encuestas" class="btn btn-outline-secondary btn-sm mb-2"><i class="bi bi-arrow-left me-1"></i> Volver a encuestas</a>
+    <a href="/encuestas" class="btn btn-sm mb-2"><i class="bi bi-arrow-left me-1"></i> Volver a encuestas</a>
     <h4 class="fw-semibold"><?= htmlspecialchars($encuesta['titulo']) ?></h4>
     <p class="text-muted small mb-0">
-        <span class="badge bg-secondary bg-opacity-10 text-secondary me-2"><?= count($encuesta['preguntas']) ?> preguntas</span>
-        <span class="badge bg-info bg-opacity-10 text-info"><?= $totalRespuestas ?> respuestas</span>
+        <span class="badge badge-secondary text-secondary me-2"><?= count($encuesta['preguntas']) ?> preguntas</span>
+        <span class="badge badge-info text-info"><?= $totalRespuestas ?> respuestas</span>
     </p>
 </div>
 
@@ -19,9 +19,9 @@
 <?php else: ?>
     <div class="resultados-charts">
         <?php foreach ($stats as $i => $s): ?>
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-body">
-                    <h6 class="card-title fw-semibold mb-3"><?= ($i + 1) ?>. <?= htmlspecialchars($s['texto']) ?></h6>
+            <div class="panel mb-4">
+                <div class="panel-body">
+                    <h6 class="fw-semibold mb-3"><?= ($i + 1) ?>. <?= htmlspecialchars($s['texto']) ?></h6>
 
                     <?php if ($s['tipo'] === 'multiple_choice'): ?>
                         <div class="chart-container" style="position:relative; height:<?= max(200, count($s['datos']) * 50) ?>px;">

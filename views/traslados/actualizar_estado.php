@@ -7,10 +7,10 @@ $eActual = $estados[$t['estado']];
 <div class="row justify-content-center">
     <div class="col-lg-8">
 
-        <a href="/traslados/ver?id=<?= $t['id'] ?>" class="btn btn-outline-secondary btn-sm mb-3"><i class="bi bi-arrow-left me-1"></i> Volver al detalle</a>
+        <a href="/traslados/ver?id=<?= $t['id'] ?>" class="btn btn-sm mb-3"><i class="bi bi-arrow-left me-1"></i> Volver al detalle</a>
 
-        <div class="card border-0 shadow-sm">
-            <div class="card-body p-4">
+        <div class="panel">
+            <div class="panel-body">
                 <h4 class="fw-semibold mb-3">Actualizar estado</h4>
 
                 <div class="mb-4">
@@ -19,7 +19,7 @@ $eActual = $estados[$t['estado']];
                     &middot;
                     <?= htmlspecialchars($t['paciente'] ?? $t['elemento'] ?? '-') ?>
                     &middot;
-                    <span class="badge bg-<?= $eActual['class'] ?> bg-opacity-10 text-<?= $eActual['class'] ?>"><?= $eActual['label'] ?></span>
+                    <span class="badge badge-<?= htmlspecialchars($t['estado']) ?>"><?= $eActual['label'] ?></span>
                 </div>
 
                 <?php if (empty($allowed)): ?>
@@ -33,7 +33,7 @@ $eActual = $estados[$t['estado']];
                             <div class="d-flex flex-wrap gap-2">
                                 <?php foreach ($allowed as $est): ?>
                                     <?php $info = $estados[$est]; ?>
-                                    <button type="submit" name="estado" value="<?= $est ?>" class="btn btn-outline-<?= $info['class'] ?> px-4 py-2" onclick="return confirm('¿Estás seguro de cambiar a «<?= $info['label'] ?>»?')">
+                                    <button type="submit" name="estado" value="<?= $est ?>" class="btn px-4 py-2" onclick="return confirm('¿Estás seguro de cambiar a «<?= $info['label'] ?>»?')">
                                         <i class="bi bi-arrow-right-circle me-1"></i> <?= $info['label'] ?>
                                     </button>
                                 <?php endforeach; ?>

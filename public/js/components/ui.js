@@ -8,8 +8,7 @@
         var container = document.querySelector('.toast-container');
         if (!container) {
             container = document.createElement('div');
-            container.className = 'toast-container position-fixed top-0 end-0 p-3';
-            container.style.zIndex = '1060';
+            container.className = 'toast-container';
             document.body.appendChild(container);
         }
         var icons = {
@@ -18,14 +17,36 @@
             warning: 'bi-exclamation-circle-fill',
             info: 'bi-info-circle-fill'
         };
-        var html = '<div class="toast align-items-center text-bg-' + type + ' border-0" role="alert" aria-live="assertive" aria-atomic="true">';
-        html += '<div class="d-flex"><div class="toast-body"><i class="bi ' + (icons[type] || icons.info) + ' me-2"></i>' + message + '</div>';
-        html += '<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button></div></div>';
-        container.insertAdjacentHTML('beforeend', html);
-        var el = container.lastElementChild;
-        var toast = new bootstrap.Toast(el, { delay: 4000 });
-        toast.show();
-        el.addEventListener('hidden.bs.toast', function () { el.remove(); });
+        var colors = {
+            success: '#DFF0D8',
+            danger: '#F2DEDE',
+            warning: '#FCF8E3',
+            info: '#D9EDF7'
+        };
+        var borderColors = {
+            success: '#C1E2B3',
+            danger: '#EED3D7',
+            warning: '#FBEED4',
+            info: '#BCE8F1'
+        };
+        var textColors = {
+            success: '#3C763D',
+            danger: '#A94442',
+            warning: '#8A6D3B',
+            info: '#31708F'
+        };
+        var el = document.createElement('div');
+        el.className = 'toast';
+        el.style.background = colors[type] || colors.info;
+        el.style.borderColor = borderColors[type] || borderColors.info;
+        el.style.color = textColors[type] || textColors.info;
+        el.innerHTML = '<i class="bi ' + (icons[type] || icons.info) + ' me-2"></i>' + message;
+        container.appendChild(el);
+        setTimeout(function () {
+            el.style.opacity = '0';
+            el.style.transition = 'opacity 0.3s';
+            setTimeout(function () { el.remove(); }, 300);
+        }, 4000);
     };
 
     window.Elyra.confirm = function (id, titulo) {
@@ -33,17 +54,33 @@
         if (!modal) return;
         document.getElementById('eliminarMensaje').textContent = 'Eliminar "' + titulo + '"?';
         document.getElementById('eliminarConfirmar').href = '/documentos/eliminar?id=' + id;
-        new bootstrap.Modal(modal).show();
+        modal.classList.add('open');
     };
+
+    function closeModal(id) {
+        var modal = document.getElementById(id);
+        if (modal) modal.classList.remove('open');
+    }
+
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('modal-close') || e.target.closest('.modal-close')) {
+            var modal = e.target.closest('.modal-overlay');
+            if (modal) modal.classList.remove('open');
+        }
+        if (e.target.classList.contains('modal-overlay')) {
+            e.target.classList.remove('open');
+            var embed = e.target.querySelector('iframe');
+            if (embed) embed.src = '';
+        }
+    });
 
     window.Elyra.verQR = function (id) {
         var modal = document.getElementById('qrModal');
         if (!modal) return;
         var body = document.getElementById('qrModalBody');
         var url = window.location.origin + '/publico/doc?id=' + id;
-        body.innerHTML = '<div class="mb-3"><div id="qrcode"></div></div><p class="small text-muted mb-2">Escanear para ver el documento</p><button class="btn btn-sm btn-outline-primary me-1" onclick="Elyra.copiarEnlace(' + id + ', this)"><i class="bi bi-clipboard me-1"></i>Copiar enlace</button><button class="btn btn-sm btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer me-1"></i>Imprimir</button>';
-        var bsModal = new bootstrap.Modal(modal);
-        bsModal.show();
+        body.innerHTML = '<div class="mb-3"><div id="qrcode"></div></div><p class="small text-muted mb-2">Escanear para ver el documento</p><button class="btn btn-sm btn-primary me-1" onclick="Elyra.copiarEnlace(' + id + ', this)"><i class="bi bi-clipboard me-1"></i>Copiar enlace</button><button class="btn btn-sm" onclick="window.print()"><i class="bi bi-printer me-1"></i>Imprimir</button>';
+        modal.classList.add('open');
         if (typeof window.QRCode !== 'undefined') {
             document.getElementById('qrcode').innerHTML = '';
             new window.QRCode(document.getElementById('qrcode'), { text: url, width: 180, height: 180 });
@@ -80,7 +117,7 @@
         }
 
         function validate(file) {
-            if (!file) return 'Seleccion&aacute; un archivo PDF.';
+            if (!file) return 'Seleccioná un archivo PDF.';
             if (file.type !== 'application/pdf') return 'Solo se permiten archivos PDF.';
             if (file.size > 10 * 1024 * 1024) return 'El archivo supera los 10 MB.';
             return '';
@@ -174,7 +211,7 @@
 
             xhr.addEventListener('error', function () {
                 progressContainer.classList.add('d-none');
-                errorEl.textContent = 'Error de conexi&oacute;n al subir el archivo.';
+                errorEl.textContent = 'Error de conexión al subir el archivo.';
                 errorEl.style.display = 'block';
                 submitBtn.disabled = false;
             });
@@ -212,12 +249,12 @@
             navigator.clipboard.writeText(url).then(function () {
                 var original = btn.innerHTML;
                 btn.innerHTML = '<i class="bi bi-check me-1"></i>Copiado';
-                btn.classList.remove('btn-outline-secondary');
-                btn.classList.add('btn-outline-success');
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-success');
                 setTimeout(function () {
                     btn.innerHTML = original;
-                    btn.classList.remove('btn-outline-success');
-                    btn.classList.add('btn-outline-secondary');
+                    btn.classList.remove('btn-success');
+                    btn.classList.add('btn-primary');
                 }, 2000);
             });
         } else {
@@ -241,12 +278,12 @@
             navigator.clipboard.writeText(url).then(function () {
                 var original = btn.innerHTML;
                 btn.innerHTML = '<i class="bi bi-check me-1"></i>Copiado';
-                btn.classList.remove('btn-outline-secondary');
-                btn.classList.add('btn-outline-success');
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-success');
                 setTimeout(function () {
                     btn.innerHTML = original;
-                    btn.classList.remove('btn-outline-success');
-                    btn.classList.add('btn-outline-secondary');
+                    btn.classList.remove('btn-success');
+                    btn.classList.add('btn-primary');
                 }, 2000);
             });
         } else {
@@ -267,19 +304,9 @@
         if (!modalEl || !embedEl || !titleEl) return;
         titleEl.textContent = titulo;
         embedEl.src = '';
-        var modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-        modal.show();
-        modalEl.addEventListener('shown.bs.modal', function () {
-            embedEl.src = '/publico/archivo?id=' + id;
-        }, { once: true });
+        modalEl.classList.add('open');
+        embedEl.src = '/publico/archivo?id=' + id;
     };
-
-    document.addEventListener('hidden.bs.modal', function (e) {
-        if (e.target.id === 'docPublicoModal') {
-            var embed = document.getElementById('publicoPreviewEmbed');
-            if (embed) embed.src = '';
-        }
-    });
 
     window.Elyra.verDocumento = function (id, titulo, categoria, especialidad, subido) {
         var titleEl = document.getElementById('previewTitle');
@@ -293,25 +320,18 @@
 
         var badges = '';
         if (especialidad) {
-            badges += '<span class="badge bg-info bg-opacity-10 text-info me-1">' + escapeHtml(especialidad) + '</span>';
+            badges += '<span class="badge" style="background:#E8EDF5;color:#3B5998;border:1px solid #CCD9F0;">' + escapeHtml(especialidad) + '</span> ';
         }
-        badges += '<span class="badge bg-primary bg-opacity-10 text-primary me-1">' + escapeHtml(categoria) + '</span>';
+        badges += '<span class="badge" style="background:#D9EDF7;color:#31708F;border:1px solid #BCE8F1;">' + escapeHtml(categoria) + '</span> ';
         badges += '<small class="text-muted">Subido el ' + escapeHtml(subido) + '</small>';
         metaEl.innerHTML = badges;
 
         embedEl.src = '/documentos/archivo?id=' + id;
         downloadEl.href = '/documentos/archivo?id=' + id + '&descargar=1';
 
-        var modal = new bootstrap.Modal(document.getElementById('docPreviewModal'));
-        modal.show();
+        var modal = document.getElementById('docPreviewModal');
+        if (modal) modal.classList.add('open');
     };
-
-    document.addEventListener('hidden.bs.modal', function (e) {
-        if (e.target.id === 'docPreviewModal') {
-            var embed = document.getElementById('previewEmbed');
-            if (embed) embed.src = '';
-        }
-    });
 
     function escapeHtml(str) {
         var div = document.createElement('div');
@@ -324,94 +344,8 @@
         toggles.forEach(function (t) {
             t.addEventListener('change', function () {
                 var label = this.nextElementSibling;
-                if (this.checked) {
-                    label.textContent = 'Activa';
-                    this.closest('tr').querySelector('.bg-success') || this.closest('.card-item').querySelector('.bg-success');
-                } else {
-                    label.textContent = 'Inactiva';
-                }
+                label.textContent = this.checked ? 'Activa' : 'Inactiva';
             });
         });
     }
-
-    var theme = (function () {
-        var stored = localStorage.getItem('elyra-theme');
-        if (stored) return stored;
-        return 'light';
-    })();
-
-    function applyTheme(t) {
-        document.documentElement.setAttribute('data-theme', t);
-        localStorage.setItem('elyra-theme', t);
-        var btn = document.getElementById('darkModeToggle');
-        if (btn) {
-            btn.innerHTML = t === 'dark'
-                ? '<i class="bi bi-sun-fill"></i>'
-                : '<i class="bi bi-moon-stars-fill"></i>';
-        }
-    }
-
-    applyTheme(theme);
-
-    document.addEventListener('DOMContentLoaded', function () {
-        var btn = document.getElementById('darkModeToggle');
-        if (btn) {
-            btn.addEventListener('click', function () {
-                var current = document.documentElement.getAttribute('data-theme') || 'light';
-                applyTheme(current === 'dark' ? 'light' : 'dark');
-            });
-        }
-
-        var statCards = document.querySelectorAll('.stat-card[data-filtro]');
-        var filterRow = document.querySelector('.filter-active-bar');
-
-        function applyFilter(filtro) {
-            statCards.forEach(function (card) {
-                card.classList.toggle('stat-card-active', card.getAttribute('data-filtro') === filtro);
-            });
-            document.querySelectorAll('[data-estado]').forEach(function (el) {
-                var show = filtro === 'total' || el.getAttribute('data-estado') === filtro;
-                el.style.display = show ? '' : 'none';
-            });
-            if (filterRow) {
-                filterRow.style.display = filtro === 'total' ? 'none' : '';
-                var label = filterRow.querySelector('.filter-label');
-                if (label) {
-                    var activeCard = document.querySelector('.stat-card[data-filtro="' + filtro + '"]');
-                    label.textContent = activeCard ? activeCard.querySelector('.text-muted').textContent : 'Filtrando';
-                }
-            }
-        }
-
-        function clearFilter() {
-            statCards.forEach(function (card) {
-                card.classList.remove('stat-card-active');
-            });
-            document.querySelectorAll('[data-estado]').forEach(function (el) {
-                el.style.display = '';
-            });
-            if (filterRow) {
-                filterRow.style.display = 'none';
-            }
-        }
-
-        statCards.forEach(function (card) {
-            card.addEventListener('click', function () {
-                var filtro = this.getAttribute('data-filtro');
-                var isActive = this.classList.contains('stat-card-active');
-                if (isActive) {
-                    clearFilter();
-                } else {
-                    applyFilter(filtro);
-                }
-            });
-        });
-
-        if (filterRow) {
-            var clearBtn = filterRow.querySelector('.btn-clear-filter');
-            if (clearBtn) {
-                clearBtn.addEventListener('click', clearFilter);
-            }
-        }
-    });
 })();
