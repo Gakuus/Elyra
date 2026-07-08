@@ -5,7 +5,6 @@
     "devDependencies": {
         "eslint": "^10.6.0",
         "globals": "^16.0.0",
-        "@eslint/js": "^10.6.0",
         "stylelint": "^17.14.0",
         "stylelint-config-standard": "^40.0.0"
     },
