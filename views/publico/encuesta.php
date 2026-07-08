@@ -3,8 +3,8 @@
 
 <?php if (isset($_GET['ok'])): ?>
 <div class="public-encuesta-wrapper">
-    <div class="card border-0 shadow-sm text-center py-5 px-4">
-        <div class="display-4 text-success mb-3"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="panel text-center py-5 px-4">
+        <div style="font-size:36px;color:var(--success);margin-bottom:10px;"><i class="bi bi-check-circle-fill"></i></div>
         <h4 class="fw-semibold">Gracias por tu opinión</h4>
         <p class="text-muted mb-0">Tu respuesta ha sido registrada correctamente.</p>
     </div>
@@ -14,16 +14,16 @@
 <div class="public-encuesta-wrapper">
 
     <?php if (isset($error)): ?>
-        <div class="alert alert-danger d-flex align-items-center gap-2">
+        <div class="msg msg-error d-flex align-items-center gap-2">
             <i class="bi bi-exclamation-triangle-fill"></i>
             <span><?= $error ?></span>
         </div>
     <?php endif; ?>
 
-    <div class="card border-0 shadow-sm">
-        <div class="card-body p-4">
+    <div class="panel">
+        <div class="panel-body p-4">
             <div class="text-center mb-4">
-                <i class="bi bi-bar-chart display-6 text-primary"></i>
+                <i class="bi bi-bar-chart" style="font-size:32px;color:var(--blue);"></i>
                 <h4 class="fw-semibold mt-2"><?= htmlspecialchars($encuesta['titulo']) ?></h4>
                 <?php if (!empty($encuesta['descripcion'])): ?>
                     <p class="text-muted mb-0"><?= htmlspecialchars($encuesta['descripcion']) ?></p>
@@ -60,12 +60,12 @@
                             </div>
 
                         <?php elseif ($p['tipo'] === 'texto'): ?>
-                            <textarea name="respuestas[<?= $i ?>]" class="form-control" rows="3" maxlength="500" placeholder="Escrib&iacute; tu respuesta..." required></textarea>
+                            <textarea name="respuestas[<?= $i ?>]" class="form-textarea" rows="3" maxlength="500" placeholder="Escrib&iacute; tu respuesta..." required style="width:100%;"></textarea>
                         <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
 
-                <button type="submit" class="btn btn-primary w-100 btn-lg mt-3">
+                <button type="submit" class="btn btn-primary btn-lg w-100 mt-3">
                     <i class="bi bi-send me-1"></i> Enviar respuestas
                 </button>
             </form>
@@ -94,7 +94,7 @@
             var firstInvalid = form.querySelector('input[name="' + invalid[0] + '"]');
             if (firstInvalid) {
                 firstInvalid.closest('.public-pregunta').scrollIntoView({ behavior: 'smooth', block: 'center' });
-                firstInvalid.closest('.public-pregunta').style.borderLeft = '3px solid var(--bs-danger)';
+                firstInvalid.closest('.public-pregunta').style.borderLeft = '3px solid var(--danger)';
             }
         }
     });

@@ -4,96 +4,111 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Elyra — Hospital de Clínicas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="/css/elyra.css" rel="stylesheet">
-    <link href="/css/components/homepage.css" rel="stylesheet">
+    <link href="/css/web20.css" rel="stylesheet">
     <meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['_csrf_token'] ?? '') ?>">
+    <style>
+        body { background: #fff; }
+        .public-nav { background:#3B5998; border-bottom:2px solid #2A4780; }
+        .public-nav-inner { display:flex; align-items:center; justify-content:space-between; padding:6px 0; }
+        .public-nav-brand { display:flex; align-items:center; gap:8px; font-weight:bold; color:#fff; text-decoration:none; font-size:14px; }
+        .public-nav-brand:hover { text-decoration:none; }
+        .public-nav-links { display:flex; align-items:center; gap:14px; list-style:none; margin:0; padding:0; }
+        .public-nav-links a { color:#CCD9F0; text-decoration:none; font-size:12px; }
+        .public-nav-links a:hover { color:#fff; text-decoration:underline; }
+        .hero-section { background:linear-gradient(135deg,#1A3560 0%,#3B5998 100%); padding:60px 0; text-align:center; color:#fff; border-bottom:2px solid #2A4780; }
+        .hero-section h1 { font-size:38px; font-weight:bold; margin:14px 0; }
+        .hero-section .lead { font-size:17px; margin-bottom:20px; color:#CCD9F0; }
+        .section-title { font-size:18px; font-weight:bold; color:#3B5998; margin-bottom:4px; }
+        .section-subtitle { font-size:11px; color:#777; margin-bottom:16px; }
+        .news-card { border:1px solid #ddd; background:#fff; }
+        .news-card .card-footer { background:#f6f6f6; border-top:1px solid #ddd; padding:6px 10px; }
+        .service-card { border:1px solid #ddd; background:#fff; text-align:center; padding:20px 10px; }
+        .service-card:hover { border-color:#3B5998; }
+        .service-icon { font-size:32px; color:#3B5998; margin-bottom:8px; }
+        .public-footer { background:#2A4780; color:#CCD9F0; padding:20px 0; font-size:11px; text-align:center; border-top:2px solid #1A3560; }
+        .public-footer .text-muted { color:#99AACC; }
+        .contact-section { background:#f6f6f6; border-top:1px solid #ddd; }
+        .quick-link { display:block; padding:4px 8px; border:1px solid #ddd; background:#fff; font-size:11px; color:#3B5998; text-decoration:none; }
+        .quick-link:hover { border-color:#3B5998; background:#E8EDF5; text-decoration:none; }
+    </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg bg-white shadow-sm border-bottom">
-    <div class="container">
-        <a class="navbar-brand fw-bold text-primary" href="/">
-            <img src="/img/elyralogo.png" alt="Elyra" height="32" class="me-2">
+<div class="public-nav">
+    <div class="container public-nav-inner">
+        <a class="public-nav-brand" href="/">
+            <img src="/img/elyralogo.png" alt="Elyra" height="28">
             Elyra
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#publicNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="publicNav">
-            <ul class="navbar-nav ms-auto align-items-lg-center">
-                <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
-                <li class="nav-item"><a class="nav-link" href="#noticias">Noticias</a></li>
-                <li class="nav-item"><a class="nav-link" href="#servicios">Servicios</a></li>
-                <li class="nav-item"><a class="nav-link" href="#contacto">Contacto</a></li>
-                <li class="nav-item ms-lg-3">
-                    <a class="btn btn-outline-primary btn-sm" href="/login">
-                        <i class="bi bi-person"></i> Acceso interno
-                    </a>
-                </li>
-            </ul>
-        </div>
+        <ul class="public-nav-links">
+            <li><a href="/">Inicio</a></li>
+            <li><a href="#noticias">Noticias</a></li>
+            <li><a href="#servicios">Servicios</a></li>
+            <li><a href="#contacto">Contacto</a></li>
+            <li>
+                <a class="btn btn-primary btn-sm" href="/login">
+                    <i class="bi bi-person"></i> Acceso interno
+                </a>
+            </li>
+        </ul>
     </div>
-</nav>
+</div>
 
-<main>
-
-<section class="hero-section d-flex align-items-center">
-    <div class="hero-overlay"></div>
-    <div class="container position-relative text-center text-white">
-        <img src="/img/elyralogo.png" alt="Elyra" height="80" class="mb-4">
-        <h1 class="display-4 fw-bold mb-3">Hospital de Clínicas</h1>
-        <p class="lead mb-4 fs-5">Sistema de gesti&oacute;n hospitalaria &mdash; Elyra</p>
-        <div class="d-flex justify-content-center gap-3 flex-wrap">
-            <a href="/login" class="btn btn-light btn-lg px-4">
+<div class="hero-section">
+    <div class="container">
+        <img src="/img/elyralogo.png" alt="Elyra" height="90">
+        <h1>Hospital de Clínicas</h1>
+        <p class="lead">Sistema de gestión hospitalaria — Elyra</p>
+        <div class="d-flex justify-content-center gap-3" style="margin-top:16px;">
+            <a href="/login" class="btn btn-primary btn-lg" style="font-size:14px;padding:8px 24px;">
                 <i class="bi bi-person-badge"></i> Acceso al sistema
             </a>
-            <a href="#noticias" class="btn btn-outline-light btn-lg px-4">
-                <i class="bi bi-newspaper"></i> &Uacute;ltimas noticias
+            <a href="#noticias" class="btn btn-lg" style="font-size:14px;padding:8px 24px;background:rgba(255,255,255,0.12);color:#fff;border-color:rgba(255,255,255,0.3);">
+                <i class="bi bi-newspaper"></i> Últimas noticias
             </a>
         </div>
     </div>
-</section>
+</div>
 
 <section id="noticias" class="py-5">
     <div class="container">
-        <h2 class="fw-bold mb-2">&Uacute;ltimas noticias</h2>
-        <p class="text-muted mb-4">Novedades del Hospital de Cl&iacute;nicas</p>
+        <div class="section-title">Últimas noticias</div>
+        <div class="section-subtitle">Novedades del Hospital de Clínicas</div>
         <div class="row g-4">
             <div class="col-md-4">
-                <div class="card h-100 news-card">
-                    <div class="card-body">
-                        <p class="text-muted small mb-1"><i class="bi bi-calendar3"></i> 26 de junio de 2026</p>
-                        <h5 class="card-title">Cirug&iacute;a de t&oacute;rax recibe premio internacional</h5>
-                        <p class="card-text text-muted">La Dra. Macarena Muto fue galardonada por su contribuci&oacute;n a la cirug&iacute;a tor&aacute;cica a nivel internacional.</p>
+                <div class="news-card">
+                    <div class="p-3">
+                        <p class="small text-muted mb-1"><i class="bi bi-calendar3"></i> 26 de junio de 2026</p>
+                        <h5 class="fw-semibold" style="font-size:13px;margin:0 0 6px 0;">Cirugía de tórax recibe premio internacional</h5>
+                        <p class="small text-muted mb-0">La Dra. Macarena Muto fue galardonada por su contribución a la cirugía torácica a nivel internacional.</p>
                     </div>
-                    <div class="card-footer bg-transparent border-top-0">
-                        <a href="#" class="btn btn-sm btn-outline-primary">Leer m&aacute;s</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 news-card">
-                    <div class="card-body">
-                        <p class="text-muted small mb-1"><i class="bi bi-calendar3"></i> 25 de junio de 2026</p>
-                        <h5 class="card-title">Nuevo motor para cirug&iacute;a de pie</h5>
-                        <p class="card-text text-muted">El Hospital incorpor&oacute; un moderno motor quir&uacute;rgico para cirug&iacute;as de pie y tobillo.</p>
-                    </div>
-                    <div class="card-footer bg-transparent border-top-0">
-                        <a href="#" class="btn btn-sm btn-outline-primary">Leer m&aacute;s</a>
+                    <div class="card-footer">
+                        <a href="#" class="btn btn-sm btn-primary">Leer más</a>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card h-100 news-card">
-                    <div class="card-body">
-                        <p class="text-muted small mb-1"><i class="bi bi-calendar3"></i> 25 de junio de 2026</p>
-                        <h5 class="card-title">Las paredes del piso 10 tienen nuevas historias</h5>
-                        <p class="card-text text-muted">Nueva exposici&oacute;n art&iacute;stica en el Hospital de Cl&iacute;nicas que transforma los espacios.</p>
+                <div class="news-card">
+                    <div class="p-3">
+                        <p class="small text-muted mb-1"><i class="bi bi-calendar3"></i> 25 de junio de 2026</p>
+                        <h5 class="fw-semibold" style="font-size:13px;margin:0 0 6px 0;">Nuevo motor para cirugía de pie</h5>
+                        <p class="small text-muted mb-0">El Hospital incorporó un moderno motor quirúrgico para cirugías de pie y tobillo.</p>
                     </div>
-                    <div class="card-footer bg-transparent border-top-0">
-                        <a href="#" class="btn btn-sm btn-outline-primary">Leer m&aacute;s</a>
+                    <div class="card-footer">
+                        <a href="#" class="btn btn-sm btn-primary">Leer más</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="news-card">
+                    <div class="p-3">
+                        <p class="small text-muted mb-1"><i class="bi bi-calendar3"></i> 25 de junio de 2026</p>
+                        <h5 class="fw-semibold" style="font-size:13px;margin:0 0 6px 0;">Las paredes del piso 10 tienen nuevas historias</h5>
+                        <p class="small text-muted mb-0">Nueva exposición artística en el Hospital de Clínicas que transforma los espacios.</p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="#" class="btn btn-sm btn-primary">Leer más</a>
                     </div>
                 </div>
             </div>
@@ -101,90 +116,72 @@
     </div>
 </section>
 
-<section id="servicios" class="py-5 bg-light">
+<section id="servicios" class="py-5" style="background:#f2f2f2;border-top:1px solid #ddd;">
     <div class="container">
-        <h2 class="fw-bold mb-2">Servicios del sistema</h2>
-        <p class="text-muted mb-4">M&oacute;dulos disponibles en Elyra</p>
+        <div class="section-title">Servicios del sistema</div>
+        <div class="section-subtitle">Módulos disponibles en Elyra</div>
         <div class="row g-4">
             <div class="col-md-3 col-6">
-                <div class="card text-center h-100 border-0 shadow-sm service-card">
-                    <div class="card-body py-4">
-                        <div class="display-6 text-primary mb-3"><i class="bi bi-file-text"></i></div>
-                        <h6 class="fw-semibold">Documentos</h6>
-                        <p class="small text-muted mb-0">Gesti&oacute;n y archivo de documentaci&oacute;n cl&iacute;nica</p>
-                    </div>
+                <div class="service-card">
+                    <div class="service-icon"><i class="bi bi-file-text"></i></div>
+                    <h6 class="fw-semibold" style="font-size:12px;margin:0 0 4px 0;">Documentos</h6>
+                    <p class="small text-muted mb-0">Gestión y archivo de documentación clínica</p>
                 </div>
             </div>
             <div class="col-md-3 col-6">
-                <div class="card text-center h-100 border-0 shadow-sm service-card">
-                    <div class="card-body py-4">
-                        <div class="display-6 text-primary mb-3"><i class="bi bi-bar-chart"></i></div>
-                        <h6 class="fw-semibold">Encuestas</h6>
-                        <p class="small text-muted mb-0">Creaci&oacute;n y an&aacute;lisis de encuestas</p>
-                    </div>
+                <div class="service-card">
+                    <div class="service-icon"><i class="bi bi-bar-chart"></i></div>
+                    <h6 class="fw-semibold" style="font-size:12px;margin:0 0 4px 0;">Encuestas</h6>
+                    <p class="small text-muted mb-0">Creación y análisis de encuestas</p>
                 </div>
             </div>
             <div class="col-md-3 col-6">
-                <div class="card text-center h-100 border-0 shadow-sm service-card">
-                    <div class="card-body py-4">
-                        <div class="display-6 text-primary mb-3"><i class="bi bi-truck"></i></div>
-                        <h6 class="fw-semibold">Traslados</h6>
-                        <p class="small text-muted mb-0">Gesti&oacute;n de ambulancias y traslados</p>
-                    </div>
+                <div class="service-card">
+                    <div class="service-icon"><i class="bi bi-truck"></i></div>
+                    <h6 class="fw-semibold" style="font-size:12px;margin:0 0 4px 0;">Traslados</h6>
+                    <p class="small text-muted mb-0">Gestión de ambulancias y traslados</p>
                 </div>
             </div>
             <div class="col-md-3 col-6">
-                <div class="card text-center h-100 border-0 shadow-sm service-card">
-                    <div class="card-body py-4">
-                        <div class="display-6 text-primary mb-3"><i class="bi bi-people"></i></div>
-                        <h6 class="fw-semibold">Conductores</h6>
-                        <p class="small text-muted mb-0">Registro y control de conductores</p>
-                    </div>
+                <div class="service-card">
+                    <div class="service-icon"><i class="bi bi-people"></i></div>
+                    <h6 class="fw-semibold" style="font-size:12px;margin:0 0 4px 0;">Conductores</h6>
+                    <p class="small text-muted mb-0">Registro y control de conductores</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<section id="contacto" class="py-5">
+<section id="contacto" class="py-5 contact-section">
     <div class="container">
         <div class="row g-4">
             <div class="col-md-6">
-                <h4 class="fw-bold mb-3">Contacto</h4>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><i class="bi bi-geo-alt text-primary me-2"></i> Av. Italia s/n - Montevideo, Uruguay</li>
-                    <li class="mb-2"><i class="bi bi-telephone text-primary me-2"></i> 1953 / 0800 1953</li>
-                    <li class="mb-2"><i class="bi bi-envelope text-primary me-2"></i> atencionalusuario@hc.edu.uy</li>
+                <div class="section-title" style="margin-bottom:12px;">Contacto</div>
+                <ul class="list-unstyled" style="font-size:12px;">
+                    <li class="mb-2"><i class="bi bi-geo-alt" style="color:#3B5998;margin-right:6px;"></i> Av. Italia s/n - Montevideo, Uruguay</li>
+                    <li class="mb-2"><i class="bi bi-telephone" style="color:#3B5998;margin-right:6px;"></i> 1953 / 0800 1953</li>
+                    <li class="mb-2"><i class="bi bi-envelope" style="color:#3B5998;margin-right:6px;"></i> atencionalusuario@hc.edu.uy</li>
                 </ul>
             </div>
             <div class="col-md-6">
-                <h4 class="fw-bold mb-3">Accesos directos</h4>
+                <div class="section-title" style="margin-bottom:12px;">Accesos directos</div>
                 <div class="row g-2">
-                    <div class="col-6"><a href="/login" class="btn btn-outline-primary w-100 btn-sm"><i class="bi bi-box-arrow-in-right"></i> Acceso interno</a></div>
-                    <div class="col-6"><a href="/publico/doc" class="btn btn-outline-primary w-100 btn-sm"><i class="bi bi-file-earmark"></i> Documento por QR</a></div>
-                    <div class="col-6"><a href="/publico/encuesta" class="btn btn-outline-primary w-100 btn-sm"><i class="bi bi-chat-square-text"></i> Encuesta p&uacute;blica</a></div>
+                    <div class="col-6"><a href="/login" class="quick-link"><i class="bi bi-box-arrow-in-right"></i> Acceso interno</a></div>
+                    <div class="col-6"><a href="/publico/doc" class="quick-link"><i class="bi bi-file-earmark"></i> Documento por QR</a></div>
+                    <div class="col-6"><a href="/publico/encuesta" class="quick-link"><i class="bi bi-chat-square-text"></i> Encuesta pública</a></div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-</main>
-
-<footer class="bg-dark text-white py-4">
+<div class="public-footer">
     <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-6 text-center text-md-start">
-                <p class="mb-0 small">&copy; 2026 Hospital de Cl&iacute;nicas &mdash; Elyra v1.0</p>
-            </div>
-            <div class="col-md-6 text-center text-md-end">
-                <p class="mb-0 small text-muted">Universidad de la Rep&uacute;blica &mdash; Facultad de Medicina</p>
-            </div>
-        </div>
+        &copy; 2026 Hospital de Cl&iacute;nicas &mdash; Elyra v1.0
     </div>
-</footer>
+</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/js/elyra.js" defer></script>
 <script src="/js/components/ui.js" defer></script>
 </body>

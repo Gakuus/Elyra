@@ -17,7 +17,7 @@ $titulo = 'Mis Documentos';
         <?php endforeach; ?>
     </select>
     <div class="position-relative flex-grow-1">
-        <input type="text" name="q" class="form-control ps-4" placeholder="Buscar por t&iacute;tulo..." value="<?= htmlspecialchars($search) ?>" aria-label="Buscar documento">
+        <input type="text" name="q" class="form-input ps-4" placeholder="Buscar por t&iacute;tulo..." value="<?= htmlspecialchars($search) ?>" aria-label="Buscar documento">
         <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-2 text-muted small"></i>
     </div>
 </form>
@@ -33,7 +33,7 @@ $titulo = 'Mis Documentos';
     <?php if ($totalPaginas > 1): ?>
     <nav class="d-flex justify-content-between align-items-center border-top pt-3" aria-label="Paginaci&oacute;n">
         <p class="text-muted small mb-0">P&aacute;gina <?= $pagina ?> de <?= $totalPaginas ?> (<?= $total ?> documentos)</p>
-        <ul class="pagination pagination-sm mb-0">
+        <ul class="pagination mb-0">
             <li class="page-item<?= $pagina <= 1 ? ' disabled' : '' ?>">
                 <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['pagina' => $pagina - 1])) ?>" aria-label="Anterior">&laquo;</a>
             </li>

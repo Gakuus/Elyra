@@ -4,28 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= $titulo ?? 'Elyra' ?> — Hospital de Clínicas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="/css/elyra.css" rel="stylesheet">
-    <link href="/css/components/login.css" rel="stylesheet">
-    <link href="/css/components/admin.css" rel="stylesheet">
-    <link href="/css/components/tables.css" rel="stylesheet">
-    <link href="/css/components/stats.css" rel="stylesheet">
-    <link href="/css/classic.css" rel="stylesheet">
+    <link href="/css/web20.css" rel="stylesheet">
     <meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['_csrf_token'] ?? '') ?>">
 </head>
 <?php
 $currentSess = \Elyra\Infrastructure\Service\SessionManager::class;
 $isPaciente = $currentSess::isPaciente();
+$currentUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 ?>
-<body<?= $currentSess::isAuthenticated() ? ' class="win-body"' : '' ?>>
+<body>
 
 <?php if ($currentSess::isAuthenticated()): ?>
 
 <?php
-$currentUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-
-$breadcrumbs = [
+$breadcrumbMap = [
     '/dashboard' => ['Inicio', null],
     '/documentos' => ['Documentación', '/dashboard'],
     '/documentos/generales' => ['Documentos generales', '/dashboard'],
@@ -37,7 +30,6 @@ $breadcrumbs = [
     '/encuestas' => ['Encuestas', '/dashboard'],
     '/encuestas/crear' => ['Crear encuesta', '/encuestas'],
     '/encuestas/resultados' => ['Resultados', '/encuestas'],
-    '/encuestas/editar' => ['Editar encuesta', '/encuestas'],
     '/traslados' => ['Traslados', '/dashboard'],
     '/traslados/nuevo' => ['Nuevo traslado', '/traslados'],
     '/traslados/ver' => ['Detalle traslado', '/traslados'],
@@ -46,113 +38,85 @@ $breadcrumbs = [
     '/conductores/crear' => ['Crear conductor', '/conductores'],
     '/rutas' => ['Rutas', '/dashboard'],
     '/rutas/crear' => ['Crear ruta', '/rutas'],
+    '/perfil' => ['Mi Perfil', '/dashboard'],
 ];
 
 function renderBreadcrumbs(string $uri, array $map): void {
     if (!isset($map[$uri])) return;
     [$label, $parent] = $map[$uri];
-    echo '<nav aria-label="breadcrumb" class="breadcrumb-custom">';
-    echo '<ol class="breadcrumb mb-0">';
+    echo '<div class="breadcrumb">';
     if ($parent) {
-        echo '<li class="breadcrumb-item"><a href="' . $parent . '">' . $map[$parent][0] . '</a></li>';
+        echo '<a href="' . $parent . '">' . $map[$parent][0] . '</a><span class="separator"> &rsaquo; </span>';
     }
-    echo '<li class="breadcrumb-item active" aria-current="page">' . $label . '</li>';
-    echo '</ol></nav>';
+    echo $label;
+    echo '</div>';
 }
 ?>
 
-<nav class="win-navbar navbar navbar-expand-lg">
-    <div class="container-fluid px-4">
-        <span class="navbar-brand px-2">Elyra</span>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Abrir men\u00fa">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="mainNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link<?= $currentUri === '/dashboard' ? ' active' : '' ?>" href="/dashboard">
-                        <i class="bi bi-house-door me-1"></i> Inicio
-                    </a>
-                </li>
-
-                <?php if ($isPaciente): ?>
-                <li class="nav-item">
-                    <a class="nav-link<?= str_starts_with($currentUri, '/documentos') ? ' active' : '' ?>" href="/documentos">
-                        <i class="bi bi-file-text me-1"></i> Documentos
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link<?= str_starts_with($currentUri, '/encuestas') ? ' active' : '' ?>" href="/encuestas">
-                        <i class="bi bi-bar-chart me-1"></i> Encuestas
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link<?= str_starts_with($currentUri, '/traslados') ? ' active' : '' ?>" href="/traslados">
-                        <i class="bi bi-truck me-1"></i> Traslados
-                    </a>
-                </li>
-                <?php endif; ?>
-
-                <?php if (!$isPaciente): ?>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle<?= str_starts_with($currentUri, '/documentos') || str_starts_with($currentUri, '/encuestas') ? ' active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-file-text me-1"></i> Documentaci&oacute;n
-                    </a>
-                    <ul class="dropdown-menu win-dropdown-menu">
-                        <li><a class="win-dropdown-item" href="/documentos/generales"><i class="bi bi-globe me-2"></i>Documentos generales</a></li>
-                        <li><a class="win-dropdown-item" href="/documentos/paciente"><i class="bi bi-person-search me-2"></i>Documentos por CI</a></li>
-                        <li><a class="win-dropdown-item" href="/documentos/subir"><i class="bi bi-upload me-2"></i>Subir documento</a></li>
-                        <li><div class="win-separator"></div></li>
-                        <li><a class="win-dropdown-item" href="/encuestas"><i class="bi bi-bar-chart me-2"></i>Encuestas</a></li>
-                        <li><a class="win-dropdown-item" href="/encuestas/crear"><i class="bi bi-plus-square me-2"></i>Crear encuesta</a></li>
-                    </ul>
-                </li>
-
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle<?= str_starts_with($currentUri, '/traslados') || str_starts_with($currentUri, '/conductores') || str_starts_with($currentUri, '/rutas') ? ' active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-truck me-1"></i> Ambulancias
-                    </a>
-                    <ul class="dropdown-menu win-dropdown-menu">
-                        <li><a class="win-dropdown-item" href="/traslados"><i class="bi bi-list-ul me-2"></i>Traslados activos</a></li>
-                        <li><a class="win-dropdown-item" href="/traslados/nuevo"><i class="bi bi-plus-circle me-2"></i>Nuevo traslado</a></li>
-                        <li><a class="win-dropdown-item" href="/traslados/historial"><i class="bi bi-clock-history me-2"></i>Historial</a></li>
-                        <li><div class="win-separator"></div></li>
-                        <li><a class="win-dropdown-item" href="/rutas"><i class="bi bi-map me-2"></i>Rutas</a></li>
-                        <li><a class="win-dropdown-item" href="/conductores"><i class="bi bi-people me-2"></i>Conductores</a></li>
-                    </ul>
-                </li>
-                <?php endif; ?>
-            </ul>
-            <div class="d-flex align-items-center gap-2">
-                <button id="darkModeToggle" class="win-btn win-btn-sm" title="Alternar modo oscuro">
-                    <i class="bi bi-sun-fill"></i>
-                </button>
-                <a href="/perfil" class="win-btn win-btn-sm">
-                    <i class="bi bi-person-circle"></i> <?= htmlspecialchars($_SESSION['user_nombre'] ?? 'Usuario') ?>
-                </a>
-                <a href="/logout" class="win-btn win-btn-sm">
-                    <i class="bi bi-box-arrow-right"></i> Salir
-                </a>
-            </div>
-        </div>
+<div class="web20-header">
+    <div class="web20-header-brand">
+        <a href="/" class="web20-header-logo">
+            <img src="/img/elyralogo.png" alt="Elyra">
+            <span>Elyra</span>
+        </a>
     </div>
-</nav>
+    <div class="web20-header-user">
+        <a href="/perfil"><i class="bi bi-person-circle"></i> <?= htmlspecialchars($_SESSION['user_nombre'] ?? 'Usuario') ?></a>
+        <a href="/logout"><i class="bi bi-box-arrow-right"></i> Salir</a>
+    </div>
+</div>
 
-<main class="main-content">
-    <?php if ($currentUri !== '/dashboard'): ?>
-        <?php renderBreadcrumbs($currentUri, $breadcrumbs); ?>
-    <?php endif; ?>
-    <?= $contenido ?? '' ?>
-</main>
+<div class="web20-wrapper">
+    <div class="web20-sidebar">
+        <?php if (!$isPaciente): ?>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Gestión</div>
+            <a href="/dashboard" class="sidebar-link <?= $currentUri === '/dashboard' ? 'active' : '' ?>"><img src="/img/silk/house.png" width="16" height="16" alt=""> Panel</a>
+            <a href="/perfil" class="sidebar-link <?= $currentUri === '/perfil' ? 'active' : '' ?>"><img src="/img/silk/user.png" width="16" height="16" alt=""> Mi Perfil</a>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Documentación</div>
+            <a href="/documentos/generales" class="sidebar-link <?= $currentUri === '/documentos/generales' ? 'active' : '' ?>"><img src="/img/silk/world.png" width="16" height="16" alt=""> Generales</a>
+            <a href="/documentos/paciente" class="sidebar-link <?= $currentUri === '/documentos/paciente' ? 'active' : '' ?>"><img src="/img/silk/magnifier.png" width="16" height="16" alt=""> Por CI</a>
+            <a href="/documentos/subir" class="sidebar-link <?= $currentUri === '/documentos/subir' ? 'active' : '' ?>"><img src="/img/silk/arrow_up.png" width="16" height="16" alt=""> Subir</a>
+            <a href="/encuestas" class="sidebar-link <?= $currentUri === '/encuestas' ? 'active' : '' ?>"><img src="/img/silk/chart_bar.png" width="16" height="16" alt=""> Encuestas</a>
+            <a href="/encuestas/crear" class="sidebar-link <?= $currentUri === '/encuestas/crear' ? 'active' : '' ?>"><img src="/img/silk/add.png" width="16" height="16" alt=""> Nueva encuesta</a>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Ambulancias</div>
+            <a href="/traslados" class="sidebar-link <?= $currentUri === '/traslados' ? 'active' : '' ?>"><img src="/img/silk/lorry.png" width="16" height="16" alt=""> Traslados</a>
+            <a href="/traslados/nuevo" class="sidebar-link <?= $currentUri === '/traslados/nuevo' ? 'active' : '' ?>"><img src="/img/silk/add.png" width="16" height="16" alt=""> Nuevo</a>
+            <a href="/traslados/historial" class="sidebar-link <?= $currentUri === '/traslados/historial' ? 'active' : '' ?>"><img src="/img/silk/clock.png" width="16" height="16" alt=""> Historial</a>
+            <a href="/rutas" class="sidebar-link <?= $currentUri === '/rutas' ? 'active' : '' ?>"><img src="/img/silk/map.png" width="16" height="16" alt=""> Rutas</a>
+            <a href="/conductores" class="sidebar-link <?= $currentUri === '/conductores' ? 'active' : '' ?>"><img src="/img/silk/group.png" width="16" height="16" alt=""> Conductores</a>
+        </div>
+        <?php else: ?>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Menú</div>
+            <a href="/dashboard" class="sidebar-link <?= $currentUri === '/dashboard' ? 'active' : '' ?>"><img src="/img/silk/house.png" width="16" height="16" alt=""> Panel</a>
+            <a href="/documentos" class="sidebar-link <?= str_starts_with($currentUri, '/documentos') ? 'active' : '' ?>"><img src="/img/silk/page_white_text.png" width="16" height="16" alt=""> Documentos</a>
+            <a href="/encuestas" class="sidebar-link <?= str_starts_with($currentUri, '/encuestas') ? 'active' : '' ?>"><img src="/img/silk/chart_bar.png" width="16" height="16" alt=""> Encuestas</a>
+            <a href="/traslados" class="sidebar-link <?= str_starts_with($currentUri, '/traslados') ? 'active' : '' ?>"><img src="/img/silk/lorry.png" width="16" height="16" alt=""> Traslados</a>
+            <a href="/perfil" class="sidebar-link <?= $currentUri === '/perfil' ? 'active' : '' ?>"><img src="/img/silk/user.png" width="16" height="16" alt=""> Mi Perfil</a>
+        </div>
+        <?php endif; ?>
+    </div>
 
-    <?php require __DIR__ . '/../documentos/_modal_qr.php'; ?>
-    <?php require __DIR__ . '/../documentos/_modal_eliminar.php'; ?>
-    <div class="toast-container"></div>
+    <div class="web20-content">
+        <?php if ($currentUri !== '/dashboard'): ?>
+            <?php renderBreadcrumbs($currentUri, $breadcrumbMap); ?>
+        <?php endif; ?>
+        <?= $contenido ?? '' ?>
+    </div>
+</div>
 
-    <footer class="win-statusbar text-center">
-        &copy; 2026 Hospital de Clínicas &mdash; Elyra v1.0
-    </footer>
+<div class="web20-footer">
+    &copy; 2026 Hospital de Clínicas &mdash; Elyra v1.0
+</div>
+
+<?php require __DIR__ . '/../documentos/_modal_qr.php'; ?>
+<?php require __DIR__ . '/../documentos/_modal_eliminar.php'; ?>
+<div class="toast-container"></div>
 
 <?php else: ?>
 
@@ -162,9 +126,8 @@ function renderBreadcrumbs(string $uri, array $map): void {
 
 <?php endif; ?>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/js/elyra.js?v=4" defer></script>
-<script src="/js/components/ui.js?v=4" defer></script>
+<script src="/js/elyra.js?v=5" defer></script>
+<script src="/js/components/ui.js?v=5" defer></script>
 <?= $scripts ?? '' ?>
 </body>
 </html>

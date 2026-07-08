@@ -5,27 +5,27 @@
     <div class="col-lg-10">
 
         <?php if (isset($error)): ?>
-            <div class="alert alert-danger d-flex align-items-center gap-2">
+            <div class="msg msg-error d-flex align-items-center gap-2">
                 <i class="bi bi-exclamation-triangle-fill"></i>
                 <span><?= htmlspecialchars($error) ?></span>
             </div>
         <?php endif; ?>
 
-        <div class="card border-0 shadow-sm">
-            <div class="card-body p-4">
-                <h5 class="card-title mb-3"><i class="bi bi-plus-square me-2 text-primary"></i>Nueva encuesta</h5>
+        <div class="panel">
+            <div class="panel-body">
+                <h5 class="fw-bold mb-3"><i class="bi bi-plus-square me-2 text-primary"></i>Nueva encuesta</h5>
 
                 <form method="post" id="encuestaForm">
                     <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars($_SESSION['_csrf_token'] ?? '') ?>">
 
                     <div class="mb-3">
                         <label for="titulo" class="form-label">T&iacute;tulo de la encuesta <span class="text-danger">*</span></label>
-                        <input type="text" name="titulo" id="titulo" class="form-control" required minlength="3" maxlength="200" placeholder="Ej: Satisfacci&oacute;n general del paciente" value="<?= htmlspecialchars($_POST['titulo'] ?? '') ?>">
+                        <input type="text" name="titulo" id="titulo" class="form-input" required minlength="3" maxlength="200" placeholder="Ej: Satisfacci&oacute;n general del paciente" value="<?= htmlspecialchars($_POST['titulo'] ?? '') ?>">
                     </div>
 
                     <div class="mb-4">
                         <label for="descripcion" class="form-label">Descripci&oacute;n (opcional)</label>
-                        <textarea name="descripcion" id="descripcion" class="form-control" rows="2" maxlength="500" placeholder="Breve descripci&oacute;n de la encuesta..."><?= htmlspecialchars($_POST['descripcion'] ?? '') ?></textarea>
+                        <textarea name="descripcion" id="descripcion" class="form-input" rows="2" maxlength="500" placeholder="Breve descripci&oacute;n de la encuesta..."><?= htmlspecialchars($_POST['descripcion'] ?? '') ?></textarea>
                     </div>
 
                     <hr class="my-4">
@@ -43,7 +43,7 @@
 
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary" id="submitBtn"><i class="bi bi-check-lg me-1"></i> Guardar encuesta</button>
-                        <a href="/encuestas" class="btn btn-outline-secondary">Cancelar</a>
+                        <a href="/encuestas" class="btn">Cancelar</a>
                     </div>
                 </form>
             </div>
@@ -81,9 +81,9 @@
         var html = '<div class="card-body">';
         html += '<div class="d-flex align-items-start gap-2">';
         html += '<div class="flex-grow-1">';
-        html += '<input type="text" name="preguntas[' + idx + '][texto]" class="form-control form-control-sm mb-2" placeholder="Escrib&iacute; la pregunta..." required value="' + (data.texto || '') + '">';
+        html += '<input type="text" name="preguntas[' + idx + '][texto]" class="form-input mb-2" placeholder="Escrib&iacute; la pregunta..." required value="' + (data.texto || '') + '">';
         html += '<div class="row g-2 align-items-center">';
-        html += '<div class="col-auto"><select name="preguntas[' + idx + '][tipo]" class="form-select form-select-sm tipo-select" data-idx="' + idx + '">' + tipoOptions + '</select></div>';
+        html += '<div class="col-auto"><select name="preguntas[' + idx + '][tipo]" class="form-select tipo-select" data-idx="' + idx + '">' + tipoOptions + '</select></div>';
         html += '<div class="col"><div class="opciones-container" id="opciones-' + idx + '"></div></div>';
         html += '<div class="col-auto"><button type="button" class="btn btn-sm btn-outline-danger remove-question" title="Quitar pregunta"><i class="bi bi-trash"></i></button></div>';
         html += '</div></div></div></div>';
@@ -108,7 +108,7 @@
             var item = document.createElement('span');
             item.className = 'opcion-item input-group input-group-sm';
             item.style.width = 'auto';
-            item.innerHTML = '<input type="text" name="preguntas[' + idx + '][opciones][]" class="form-control form-control-sm" placeholder="Opci&oacute;n" value="' + (val || '') + '" style="width:130px" required> <button type="button" class="btn btn-outline-secondary btn-sm opcion-remove"><i class="bi bi-x"></i></button>';
+            item.innerHTML = '<input type="text" name="preguntas[' + idx + '][opciones][]" class="form-input" placeholder="Opci&oacute;n" value="' + (val || '') + '" style="width:130px" required> <button type="button" class="btn btn-sm opcion-remove"><i class="bi bi-x"></i></button>';
             item.querySelector('.opcion-remove').addEventListener('click', function () {
                 item.remove();
             });

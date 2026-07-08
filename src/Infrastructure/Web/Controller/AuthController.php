@@ -146,6 +146,6 @@ class AuthController extends BaseController
     public function logout(): void
     {
         $this->authService->logout();
-        $this->redirect('/login');
+        $this->redirect('/');
     }
 }

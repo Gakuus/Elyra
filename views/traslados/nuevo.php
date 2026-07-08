@@ -11,8 +11,8 @@
             </div>
         <?php endif; ?>
 
-        <div class="card border-0 shadow-sm">
-            <div class="card-body p-4">
+        <div class="panel">
+            <div class="panel-body">
                 <h5 class="card-title mb-3"><i class="bi bi-plus-circle me-2 text-primary"></i>Registrar nuevo traslado</h5>
 
                 <form method="post">
@@ -101,7 +101,7 @@
 
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i> Registrar traslado</button>
-                        <a href="/traslados" class="btn btn-outline-secondary">Cancelar</a>
+                        <a href="/traslados" class="btn">Cancelar</a>
                     </div>
                 </form>
             </div>
