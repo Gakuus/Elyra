@@ -6,6 +6,9 @@
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC_BY--NC_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![CI](https://github.com/Gakuus/Elyra/actions/workflows/ci.yml/badge.svg)](https://github.com/Gakuus/Elyra/actions/workflows/ci.yml)
 [![PHP](https://img.shields.io/badge/PHP-%3E=8.1-777BB4?logo=php&logoColor=white)](https://php.net)
+[![GitHub last commit](https://img.shields.io/github/last-commit/Gakuus/Elyra)](https://github.com/Gakuus/Elyra/commits)
+[![Repo size](https://img.shields.io/github/repo-size/Gakuus/Elyra)](https://github.com/Gakuus/Elyra)
+[![GitHub contributors](https://img.shields.io/github/contributors/Gakuus/Elyra)](https://github.com/Gakuus/Elyra/graphs/contributors)
 
 ## Tabla de contenidos
 
