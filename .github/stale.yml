@@ -1,0 +1,21 @@
+# https://probot.github.io/apps/stale/
+
+daysUntilStale: 60
+daysUntilClose: 14
+
+staleLabel: "stale"
+
+exemptLabels:
+  - "bug"
+  - "security"
+  - "enhancement"
+  - "ci-failure"
+
+markComment: >
+  Este issue/PR ha estado inactivo por 60 días. Será cerrado en 14 días
+  a menos que haya actividad. Si sigue siendo relevante, actualizalo o
+  comentá para mantenerlo abierto.
+
+closeComment: >
+  Cerrado por inactividad. Si el tema sigue siendo relevante, abrí un
+  nuevo issue referenciando este.

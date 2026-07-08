@@ -5,7 +5,7 @@ Gracias por tu interés en contribuir. Estas son las pautas básicas.
 ## Pull Requests
 
 1. Creá un fork y una rama con nombre descriptivo (`feature/...`, `fix/...`).
-2. Seguí el estilo de código existente (PHP PSR-4, sin tabs, sin comentarios superfluos).
+2. Seguí el estilo de código existente (PHP PSR-4, sin tabs, sin comentarios superfluos). El `.editorconfig` mantiene consistencia básica.
 3. Asegurate de que pase los checks de CI: `npm run lint` y `php -l`.
 4. Actualizá la documentación si corresponde.
 5. Incluí tests cuando sea posible.
