@@ -30,6 +30,7 @@ return [
     ['method' => 'GET',  'pattern' => '/publico/encuesta', 'controller' => 'PublicController', 'action' => 'mostrarEncuesta'],
     ['method' => 'POST', 'pattern' => '/publico/encuesta',   'controller' => 'PublicController', 'action' => 'mostrarEncuesta'],
 
+
     ['method' => 'GET',  'pattern' => '/encuestas',              'controller' => 'EncuestaController',  'action' => 'index'],
     ['method' => 'GET',  'pattern' => '/encuestas/crear',        'controller' => 'EncuestaController',  'action' => 'crear'],
     ['method' => 'POST', 'pattern' => '/encuestas/crear',        'controller' => 'EncuestaController',  'action' => 'crear'],

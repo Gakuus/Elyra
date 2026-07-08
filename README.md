@@ -292,13 +292,17 @@ Los errores se registran en `storage/logs/YYYY-MM-DD.log`. El nivel de detalle s
 
 ## Tema visual
 
-La interfaz emula el estilo de Windows clásico (Windows 9x/2000):
+La interfaz usa un estilo **Web 2.0 retro** mezcla de **Old Facebook** + **Windows Classic**. CSS unificado en `public/css/web20.css`:
 
-- **Paneles**: `.win-panel` con borde gris oscuro y `.win-titlebar` azul degradado.
-- **Campos de texto**: `.win-field` con bordes biselados (inset/outset).
-- **Botones**: `.win-btn` con relieve 3D y variantes `.win-btn-primary` (azul).
-- **Separadores**: `.win-separator` estilo línea grabada.
-- **Modo oscuro**: Toggle en la barra de navegación que alterna la clase `dark-mode` en `<body>`. Estilos definidos en `public/css/classic.css`.
+- **Paleta**: Azul Facebook `#3B5998`, fondos gris claro `#E9EAED`, tipografía Tahoma/Verdana.
+- **Header**: `.web20-header` — barra azul oscuro estilo Windows titlebar + logo.
+- **Sidebar**: `.web20-sidebar` — 200px, azul con links blancos, estilo portal 2000s.
+- **Paneles**: `.panel` con cabezal azul degradado (`.panel-heading`), similar a Facebook wall boxes.
+- **Botones**: `.btn` con gradiente 3D, `.btn-primary` azul Facebook.
+- **Tablas**: `.table thead th` fondo azul, texto blanco — estilo Windows ListView.
+- **Modales**: `.modal-box` con borde azul oscuro, como ventanas de diálogo clásicas.
+- **Iconos**: FamFamFam Silk icons (16×16) para acciones.
+- **Modo oscuro**: Toggle en navbar con clase `dark-mode` en `<body>`.
 
 ---
 
@@ -306,14 +310,16 @@ La interfaz emula el estilo de Windows clásico (Windows 9x/2000):
 
 | Sprint | Estado     | Descripción                                              |
 |--------|-----------|----------------------------------------------------------|
-| S0     | ✔ Completado | Setup inicial, schema, seed, autenticación básica        |
-| S1     | 🔄 En curso | Application Layer: servicios, middlewares, refactors      |
-| S2     | ⬜ Pendiente | Frontend F1: layout general, navbar, sidebar, dashboard  |
-| S3     | ⬜ Pendiente | Frontend F2: gestión de documentos y encuestas           |
-| S4     | ⬜ Pendiente | Frontend F3: módulo de traslados, conductores y rutas    |
-| S5     | ⬜ Pendiente | Frontend F4: perfiles, foto, vistas públicas QR          |
-| S6     | ⬜ Pendiente | Frontend F5: reportes, gráficos avanzados, exportación   |
-| S7     | ⬜ Pendiente | Testing, despliegue, documentación final                 |
+| S0     | ✅ Completo | Fundación & Seguridad: entities, VOs, auth, CSRF, rate limit, session |
+| S1     | 🔄 En curso | Capa Aplicación, Repos y Servicios faltantes. App Layer vacía, faltan TrasladoRepo, ConductorRepo, QRService, FileService. Stubs: Conductor y Ruta controllers. |
+| S2     | ⬜ Pendiente | Gestión de Usuarios: CRUD funcionarios, baja lógica. Refinar dashboard paciente y perfil. |
+| S3     | ⬜ Pendiente | Reportes & Gráficos: Chart.js, export CSV/PDF, filtros fecha. |
+| S4     | ⬜ Pendiente | UX Avanzado: calendario traslados, mapa rutas, búsqueda global, drag & drop. |
+| S5     | ⬜ Pendiente | PWA & Mobile: manifest, service worker, responsive final. |
+| S6     | ⬜ Pendiente | Polish & Accesibilidad: animaciones, WCAG AA, lazy loading. |
+| S7     | ⬜ Pendiente | Testing, Seguridad Producción & Despliegue: HTTPS, bloqueo cuentas, auditoría, fail2ban, Docker. |
+
+**Nota:** Sprint 2–5 del plan original (frontend) están mayormente implementados (layout, docs, encuestas, traslados, perfiles, QR). El plan actual refleja el estado real del código. Ver `docs/planificacion-sprints.md` para detalle.
 
 ---
 
