@@ -19,6 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: github/codeql-action/init@v4
+>>>>>>> origin/main
         with:
           languages: javascript-typescript
       - uses: github/codeql-action/analyze@v4
