@@ -9,6 +9,7 @@
 [![GitHub last commit](https://img.shields.io/github/last-commit/Gakuus/Elyra)](https://github.com/Gakuus/Elyra/commits)
 [![Repo size](https://img.shields.io/github/repo-size/Gakuus/Elyra)](https://github.com/Gakuus/Elyra)
 [![GitHub contributors](https://img.shields.io/github/contributors/Gakuus/Elyra)](https://github.com/Gakuus/Elyra/graphs/contributors)
+[![Project Board](https://img.shields.io/badge/Project-Board-2A4780)](https://github.com/users/Gakuus/projects/1)
 
 ## Tabla de contenidos
 
