@@ -345,7 +345,7 @@ Ver `docs/planificacion-sprints.md` para detalle completo.
 
 ## Acerca de
 
-Elyra es desarrollado por **Lain**, colectivo de estudiantes de la Facultad de Ingeniería.
+Elyra es desarrollado por **Lain**, colectivo de estudiantes del Instituto Tecnologico De Paysandu..
 
 **Equipo:** Alan, Kevin, Tom.
 
