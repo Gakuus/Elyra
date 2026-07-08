@@ -3,6 +3,10 @@
 > Sistema de gestión hospitalaria para el **Hospital de Clínicas**.
 > Interfaz de escritorio con temática **Windows clásica**.
 
+[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC_BY--NC_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
+[![CI](https://github.com/Gakuus/Elyra/actions/workflows/ci.yml/badge.svg)](https://github.com/Gakuus/Elyra/actions/workflows/ci.yml)
+[![PHP](https://img.shields.io/badge/PHP-%3E=8.1-777BB4?logo=php&logoColor=white)](https://php.net)
+
 ## Tabla de contenidos
 
 - [Funcionalidades](#funcionalidades)
