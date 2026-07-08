@@ -57,11 +57,6 @@
         modal.classList.add('open');
     };
 
-    function closeModal(id) {
-        var modal = document.getElementById(id);
-        if (modal) modal.classList.remove('open');
-    }
-
     document.addEventListener('click', function (e) {
         if (e.target.classList.contains('modal-close') || e.target.closest('.modal-close')) {
             var modal = e.target.closest('.modal-overlay');
