@@ -4,7 +4,7 @@
     "devDependencies": {
         "eslint": "^8.56.0",
         "stylelint": "^16.2.0",
-        "stylelint-config-standard": "^36.0.0"
+        "stylelint-config-standard": "^40.0.0"
     },
     "scripts": {
         "lint:js": "eslint public/js/ src/Infrastructure/Web/",
