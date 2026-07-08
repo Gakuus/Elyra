@@ -1,1 +1,7 @@
 *.php linguist-language=PHP
+*.md linguist-language=Markdown
+*.yml linguist-language=YAML
+*.json linguist-language=JSON
+
+# Normalize line endings
+* text=auto eol=lf

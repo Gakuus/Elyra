@@ -1,7 +1,15 @@
 # Elyra
 
 > Sistema de gestión hospitalaria para el **Hospital de Clínicas**.
-> Interfaz de escritorio con temática **Windows clásica**.
+> Interfaz Web 2.0 retro estilo **Old Facebook + Windows Classic**.
+
+[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC_BY--NC_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
+[![CI](https://github.com/Gakuus/Elyra/actions/workflows/ci.yml/badge.svg)](https://github.com/Gakuus/Elyra/actions/workflows/ci.yml)
+[![PHP](https://img.shields.io/badge/PHP-%3E=8.1-777BB4?logo=php&logoColor=white)](https://php.net)
+[![GitHub last commit](https://img.shields.io/github/last-commit/Gakuus/Elyra)](https://github.com/Gakuus/Elyra/commits)
+[![Repo size](https://img.shields.io/github/repo-size/Gakuus/Elyra)](https://github.com/Gakuus/Elyra)
+[![GitHub contributors](https://img.shields.io/github/contributors/Gakuus/Elyra)](https://github.com/Gakuus/Elyra/graphs/contributors)
+[![Project Board](https://img.shields.io/badge/Project-Board-2A4780)](https://github.com/users/Gakuus/projects/1)
 
 ## Tabla de contenidos
 
@@ -15,11 +23,17 @@
 - [Desarrollo](#desarrollo)
 - [API de rutas](#api-de-rutas)
 - [Tema visual](#tema-visual)
+- [Acerca de](#acerca-de)
 - [Roadmap](#roadmap)
 
 ---
 
 ## Funcionalidades
+
+### Página de inicio pública
+- Hero con imagen del hospital y overlay oscuro.
+- Secciones: Noticias, Servicios del sistema, Acerca de (Elyra, Lain, equipo, herramientas), Contacto.
+- Navbar con enlaces de navegación interna y acceso al login.
 
 ### Gestión de documentación para pacientes
 - Carga y clasificación de documentos informativos por categorías.
@@ -56,7 +70,7 @@
 
 | Capa        | Tecnología                          |
 |-------------|-------------------------------------|
-| Lenguaje    | PHP 8.5                             |
+| Lenguaje    | PHP 8.1+                            |
 | Base de datos | MySQL / MariaDB                   |
 | Frontend    | HTML5, CSS3, JavaScript (ES6+)      |
 | CSS framework | Bootstrap 5                       |
@@ -101,8 +115,10 @@ Las vistas se renderizan con PHP plano (sin motor de templates) y están separad
 ├── public/
 │   ├── index.php           → Punto de entrada (front controller)
 │   ├── router.php          → Router para el servidor embebido
-│   ├── css/classic.css     → Tema Windows clásico
-│   └── js/ui.js            → UI (modo oscuro, toggles)
+│   ├── css/web20.css       → Tema Web 2.0 retro (Old Facebook + Windows Classic)
+│   └── js/
+│       ├── elyra.js         → Funciones generales
+│       └── components/ui.js → Componentes reutilizables
 ├── src/
 │   ├── Domain/
 │   │   ├── Entity/         → Usuario, Paciente, Funcionario, Documento,
@@ -204,10 +220,10 @@ mysql -u elyra -p elyra < database/schema.sql
 php database/seeds/seed.php
 
 # 6. Iniciar servidor de desarrollo
-php8.5 -S 127.0.0.1:8084 -t public
+php -S 127.0.0.1:8084 -t public
 ```
 
-> **Importante**: Usar `php8.5` (tiene `pdo_mysql`). `php` por defecto (8.4) no incluye el driver.
+> **Nota**: usá `php8.5` si tu sistema tiene múltiples versiones y la default no incluye `pdo_mysql`.
 
 ---
 
@@ -295,13 +311,17 @@ Los errores se registran en `storage/logs/YYYY-MM-DD.log`. El nivel de detalle s
 La interfaz usa un estilo **Web 2.0 retro** mezcla de **Old Facebook** + **Windows Classic**. CSS unificado en `public/css/web20.css`:
 
 - **Paleta**: Azul Facebook `#3B5998`, fondos gris claro `#E9EAED`, tipografía Tahoma/Verdana.
-- **Header**: `.web20-header` — barra azul oscuro estilo Windows titlebar + logo.
-- **Sidebar**: `.web20-sidebar` — 200px, azul con links blancos, estilo portal 2000s.
+- **Navbar público**: barra azul (`#3B5998`) con logo y navegación, padding 20px vertical.
+- **Header interno**: `.web20-header` — barra azul oscuro estilo Windows titlebar, 20px padding.
+- **Hero**: Imagen de fondo del Hospital de Clínicas con overlay oscuro y título grande.
+- **Sidebar**: `.web20-sidebar` — 240px, azul con links blancos, estilo portal 2000s.
+- **Secciones**: `.section` con padding 70px vertical para espaciado generoso.
 - **Paneles**: `.panel` con cabezal azul degradado (`.panel-heading`), similar a Facebook wall boxes.
 - **Botones**: `.btn` con gradiente 3D, `.btn-primary` azul Facebook.
 - **Tablas**: `.table thead th` fondo azul, texto blanco — estilo Windows ListView.
 - **Modales**: `.modal-box` con borde azul oscuro, como ventanas de diálogo clásicas.
-- **Iconos**: FamFamFam Silk icons (16×16) para acciones.
+- **Iconos**: Bootstrap Icons y FamFamFam Silk icons (16×16) para acciones.
+- **Login**: Card centrada sobre fondo del hospital, 480px de ancho.
 - **Modo oscuro**: Toggle en navbar con clase `dark-mode` en `<body>`.
 
 ---
@@ -310,19 +330,33 @@ La interfaz usa un estilo **Web 2.0 retro** mezcla de **Old Facebook** + **Windo
 
 | Sprint | Estado     | Descripción                                              |
 |--------|-----------|----------------------------------------------------------|
-| S0     | ✅ Completo | Fundación & Seguridad: entities, VOs, auth, CSRF, rate limit, session |
-| S1     | 🔄 En curso | Capa Aplicación, Repos y Servicios faltantes. App Layer vacía, faltan TrasladoRepo, ConductorRepo, QRService, FileService. Stubs: Conductor y Ruta controllers. |
+| S0     | ✅ Completo | Fundación & Seguridad: entities, VOs, auth, CSRF, rate limit, session, CSP, protocolos |
+| S1     | 🔄 En curso | Capa Aplicación, Repos y Servicios faltantes. Application Layer vacía, faltan TrasladoRepo, ConductorRepo, QRGeneratorService, FileStorageService. Stubs: ConductorController y RutaController. |
 | S2     | ⬜ Pendiente | Gestión de Usuarios: CRUD funcionarios, baja lógica. Refinar dashboard paciente y perfil. |
-| S3     | ⬜ Pendiente | Reportes & Gráficos: Chart.js, export CSV/PDF, filtros fecha. |
-| S4     | ⬜ Pendiente | UX Avanzado: calendario traslados, mapa rutas, búsqueda global, drag & drop. |
+| S3     | ⬜ Pendiente | Reportes & Gráficos: Chart.js avanzado, export CSV/PDF, filtros fecha. |
+| S4     | ⬜ Pendiente | UX Avanzado: calendario traslados, mapa Leaflet, búsqueda global, drag & drop. |
 | S5     | ⬜ Pendiente | PWA & Mobile: manifest, service worker, responsive final. |
 | S6     | ⬜ Pendiente | Polish & Accesibilidad: animaciones, WCAG AA, lazy loading. |
 | S7     | ⬜ Pendiente | Testing, Seguridad Producción & Despliegue: HTTPS, bloqueo cuentas, auditoría, fail2ban, Docker. |
 
-**Nota:** Sprint 2–5 del plan original (frontend) están mayormente implementados (layout, docs, encuestas, traslados, perfiles, QR). El plan actual refleja el estado real del código. Ver `docs/planificacion-sprints.md` para detalle.
+Ver `docs/planificacion-sprints.md` para detalle completo.
+
+---
+
+## Acerca de
+
+Elyra es desarrollado por **Lain**, colectivo de estudiantes del Instituto Tecnologico De Paysandu..
+
+**Equipo:** Alan, Kevin, Tom.
+
+### Herramientas
+PHP 8.1+, MySQL, JavaScript (ES6+), Bootstrap 5, HTML5/CSS3, Apache/Nginx, Git/GitHub, Chart.js, Leaflet.
 
 ---
 
 ## Licencia
 
-Proyecto interno del Hospital de Clínicas.
+**CC BY-NC 4.0** — Creative Commons Atribución-NoComercial 4.0 Internacional.
+Podés usar, modificar y compartir el código siempre que no sea con fines comerciales y se dé crédito al equipo original.
+
+Ver [LICENSE](LICENSE) para el texto completo.
