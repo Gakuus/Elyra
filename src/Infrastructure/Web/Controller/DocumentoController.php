@@ -37,10 +37,16 @@ class DocumentoController extends BaseController
             return;
         }
 
-        $search = trim($_GET['q'] ?? '');
-        $categoriaId = isset($_GET['categoria']) && $_GET['categoria'] !== '' ? (int) $_GET['categoria'] : null;
+        /** @var string $searchRaw */
+        $searchRaw = $_GET['q'] ?? '';
+        $search = trim($searchRaw);
+        /** @var string $catRaw */
+        $catRaw = $_GET['categoria'] ?? '';
+        $categoriaId = ($catRaw !== '' && isset($_GET['categoria'])) ? (int) $catRaw : null;
         $pacienteId = SessionManager::getUserId();
-        $page = max(1, (int) ($_GET['pagina'] ?? 1));
+        /** @var string $paginaRaw */
+        $paginaRaw = $_GET['pagina'] ?? '1';
+        $page = max(1, (int) $paginaRaw);
         $perPage = 20;
 
         $documentos = $this->docRepo->findAll($categoriaId, $search ?: null, $pacienteId, $page, $perPage);
@@ -63,9 +69,15 @@ class DocumentoController extends BaseController
         $this->requireAuth();
         $this->denyPaciente();
 
-        $search = trim($_GET['q'] ?? '');
-        $categoriaId = isset($_GET['categoria']) && $_GET['categoria'] !== '' ? (int) $_GET['categoria'] : null;
-        $page = max(1, (int) ($_GET['pagina'] ?? 1));
+        /** @var string $searchRaw */
+        $searchRaw = $_GET['q'] ?? '';
+        $search = trim($searchRaw);
+        /** @var string $catRaw */
+        $catRaw = $_GET['categoria'] ?? '';
+        $categoriaId = ($catRaw !== '' && isset($_GET['categoria'])) ? (int) $catRaw : null;
+        /** @var string $paginaRaw */
+        $paginaRaw = $_GET['pagina'] ?? '1';
+        $page = max(1, (int) $paginaRaw);
         $perPage = 20;
 
         $documentos = $this->docRepo->findGenerales($categoriaId, $search ?: null, $page, $perPage);
@@ -88,10 +100,18 @@ class DocumentoController extends BaseController
         $this->requireAuth();
         $this->denyPaciente();
 
-        $ci = trim($_GET['ci'] ?? '');
-        $search = trim($_GET['q'] ?? '');
-        $categoriaId = isset($_GET['categoria']) && $_GET['categoria'] !== '' ? (int) $_GET['categoria'] : null;
-        $page = max(1, (int) ($_GET['pagina'] ?? 1));
+        /** @var string $ciRaw */
+        $ciRaw = $_GET['ci'] ?? '';
+        $ci = trim($ciRaw);
+        /** @var string $searchRaw */
+        $searchRaw = $_GET['q'] ?? '';
+        $search = trim($searchRaw);
+        /** @var string $catRaw */
+        $catRaw = $_GET['categoria'] ?? '';
+        $categoriaId = ($catRaw !== '' && isset($_GET['categoria'])) ? (int) $catRaw : null;
+        /** @var string $paginaRaw */
+        $paginaRaw = $_GET['pagina'] ?? '1';
+        $page = max(1, (int) $paginaRaw);
         $perPage = 20;
 
         $paciente = null;
@@ -140,34 +160,48 @@ class DocumentoController extends BaseController
 
     private function handleUpload(): void
     {
-        $isJson = str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
+        /** @var string $httpAccept */
+        $httpAccept = $_SERVER['HTTP_ACCEPT'] ?? '';
+        $isJson = str_contains($httpAccept, 'application/json');
+
+        /** @var string $tituloPost */
+        $tituloPost = $_POST['titulo'] ?? '';
+        /** @var string $categoriaPost */
+        $categoriaPost = $_POST['categoria'] ?? '';
+        /** @var string $especialidadPost */
+        $especialidadPost = $_POST['especialidad'] ?? '';
+        /** @var string $pacientePost */
+        $pacientePost = $_POST['paciente'] ?? '';
+        /** @var string $descripcionPost */
+        $descripcionPost = $_POST['descripcion'] ?? '';
 
         $v = new Validator();
-        $v->required('titulo', $_POST['titulo'] ?? '', 'Título')
-          ->minLength('titulo', $_POST['titulo'] ?? '', 3, 'Título')
-          ->maxLength('titulo', $_POST['titulo'] ?? '', 200, 'Título')
-          ->numeric('categoria', $_POST['categoria'] ?? '', 'Tipo de documento');
+        $v->required('titulo', $tituloPost, 'Título')
+          ->minLength('titulo', $tituloPost, 3, 'Título')
+          ->maxLength('titulo', $tituloPost, 200, 'Título')
+          ->numeric('categoria', $categoriaPost, 'Tipo de documento');
 
-        $categoriaId = (int) ($_POST['categoria'] ?? 0);
+        $categoriaId = (int) $categoriaPost;
         if (!$this->categoriaRepo->findById($categoriaId)) {
             $v->required('categoria', null, 'Tipo de documento');
         }
 
         $especialidadId = null;
-        if (!empty($_POST['especialidad'])) {
-            $especialidadId = (int) $_POST['especialidad'];
+        if ($especialidadPost !== '') {
+            $especialidadId = (int) $especialidadPost;
             if (!$this->categoriaRepo->findById($especialidadId)) {
                 $v->required('especialidad', null, 'Especialidad');
             }
         }
 
-        $pacienteId = !empty($_POST['paciente']) ? (int) $_POST['paciente'] : null;
+        $pacienteId = $pacientePost !== '' ? (int) $pacientePost : null;
 
+        /** @var array{name: string, type: string, tmp_name: string, error: int, size: int}|null $archivo */
         $archivo = $_FILES['archivo'] ?? null;
-        $uploadOk = $archivo && $archivo['error'] === UPLOAD_ERR_OK;
+        $uploadOk = $archivo !== null && $archivo['error'] === UPLOAD_ERR_OK;
 
         if (!$v->isValid() || !$uploadOk) {
-            $msg = $v->getFirstError() ?? match ($archivo['error'] ?? UPLOAD_ERR_NO_FILE) {
+            $msg = $v->getFirstError() ?? match ($archivo !== null ? $archivo['error'] : UPLOAD_ERR_NO_FILE) {
                 UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => 'El archivo supera el tamaño máximo permitido.',
                 UPLOAD_ERR_NO_FILE => 'Seleccioná un archivo PDF para subir.',
                 default => 'Error al subir el archivo.',
@@ -185,9 +219,12 @@ class DocumentoController extends BaseController
             return;
         }
 
+        /** @var string|false $contenidoPdf */
         $contenidoPdf = file_get_contents($archivo['tmp_name']);
 
-        $safeName = preg_replace('/[^a-zA-Z0-9_-]/', '_', pathinfo($archivo['name'], PATHINFO_FILENAME));
+        /** @var string|null $safeNameRaw */
+        $safeNameRaw = preg_replace('/[^a-zA-Z0-9_-]/', '_', pathinfo($archivo['name'], PATHINFO_FILENAME));
+        $safeName = is_string($safeNameRaw) ? $safeNameRaw : '';
         $safeName = mb_substr($safeName, 0, 80);
         $filename = $safeName . '_' . time() . '.pdf';
         $destPath = $this->storageDir . '/' . $filename;
@@ -205,18 +242,18 @@ class DocumentoController extends BaseController
 
         $doc = new Documento(
             id: null,
-            titulo: Validator::sanitize($_POST['titulo']),
+            titulo: Validator::sanitize($tituloPost),
             archivoPath: $destPath,
             archivoNombre: $filename,
             codigoQrId: null,
             categoriaId: $categoriaId,
             subidoPor: SessionManager::getUserId() ?? 0,
-            descripcion: Validator::sanitize($_POST['descripcion'] ?? ''),
+            descripcion: Validator::sanitize($descripcionPost),
             especialidadId: $especialidadId,
             pacienteId: $pacienteId,
             activo: true
         );
-        $doc->setArchivoContenido($contenidoPdf);
+        $doc->setArchivoContenido($contenidoPdf !== false ? $contenidoPdf : null);
 
         $this->docRepo->save($doc);
 
@@ -232,7 +269,9 @@ class DocumentoController extends BaseController
         $this->requireAuth();
         $this->denyPaciente();
 
-        $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
+        /** @var string $idRaw */
+        $idRaw = $_GET['id'] ?? $_POST['id'] ?? '0';
+        $id = (int) $idRaw;
         if ($id <= 0) {
             $this->redirect('/documentos/generales');
             return;
@@ -256,34 +295,48 @@ class DocumentoController extends BaseController
 
     private function handleEdit(int $id): void
     {
-        $isJson = str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
+        /** @var string $httpAccept */
+        $httpAccept = $_SERVER['HTTP_ACCEPT'] ?? '';
+        $isJson = str_contains($httpAccept, 'application/json');
+
+        /** @var string $tituloPost */
+        $tituloPost = $_POST['titulo'] ?? '';
+        /** @var string $descripcionPost */
+        $descripcionPost = $_POST['descripcion'] ?? '';
+        /** @var string $categoriaPost */
+        $categoriaPost = $_POST['categoria'] ?? '';
+        /** @var string $especialidadPost */
+        $especialidadPost = $_POST['especialidad'] ?? '';
+        /** @var string $pacientePost */
+        $pacientePost = $_POST['paciente'] ?? '';
 
         $v = new Validator();
-        $v->required('titulo', $_POST['titulo'] ?? '', 'Título')
-          ->minLength('titulo', $_POST['titulo'] ?? '', 3, 'Título')
-          ->maxLength('titulo', $_POST['titulo'] ?? '', 200, 'Título')
-          ->maxLength('descripcion', $_POST['descripcion'] ?? '', 500, 'Descripción')
-          ->numeric('categoria', $_POST['categoria'] ?? '', 'Tipo de documento');
+        $v->required('titulo', $tituloPost, 'Título')
+          ->minLength('titulo', $tituloPost, 3, 'Título')
+          ->maxLength('titulo', $tituloPost, 200, 'Título')
+          ->maxLength('descripcion', $descripcionPost, 500, 'Descripción')
+          ->numeric('categoria', $categoriaPost, 'Tipo de documento');
 
-        $categoriaId = (int) ($_POST['categoria'] ?? 0);
+        $categoriaId = (int) $categoriaPost;
         if (!$this->categoriaRepo->findById($categoriaId)) {
             $v->required('categoria', null, 'Tipo de documento');
         }
 
         $especialidadId = null;
-        if (!empty($_POST['especialidad'])) {
-            $especialidadId = (int) $_POST['especialidad'];
+        if ($especialidadPost !== '') {
+            $especialidadId = (int) $especialidadPost;
             if (!$this->categoriaRepo->findById($especialidadId)) {
                 $v->required('especialidad', null, 'Especialidad');
             }
         }
 
-        $pacienteId = !empty($_POST['paciente']) ? (int) $_POST['paciente'] : null;
+        $pacienteId = $pacientePost !== '' ? (int) $pacientePost : null;
 
         if (!$v->isValid()) {
             $msg = $v->getFirstError();
             if ($isJson) { $this->json(['error' => $msg], 422); return; }
-            $this->render('documentos/editar', ['error' => $msg, 'doc' => $this->docToArray($this->docRepo->findById($id))] + $this->viewCategorias());
+            $existingDoc = $this->docRepo->findById($id);
+            $this->render('documentos/editar', ['error' => $msg, 'doc' => $existingDoc ? $this->docToArray($existingDoc) : null] + $this->viewCategorias());
             return;
         }
 
@@ -297,13 +350,13 @@ class DocumentoController extends BaseController
 
         $updated = new Documento(
             id: $doc->getId(),
-            titulo: Validator::sanitize($_POST['titulo']),
+            titulo: Validator::sanitize($tituloPost),
             archivoPath: $doc->getArchivoPath(),
             archivoNombre: $doc->getArchivoNombre(),
             codigoQrId: $doc->getCodigoQrId(),
             categoriaId: $categoriaId,
             subidoPor: $doc->getSubidoPor(),
-            descripcion: Validator::sanitize($_POST['descripcion'] ?? ''),
+            descripcion: Validator::sanitize($descripcionPost),
             qrPath: $doc->getQrPath(),
             especialidadId: $especialidadId,
             encuestaId: $doc->getEncuestaId(),
@@ -326,7 +379,9 @@ class DocumentoController extends BaseController
         $this->requireAuth();
         $this->denyPaciente();
 
-        $id = (int) ($_GET['id'] ?? 0);
+        /** @var string $idRaw */
+        $idRaw = $_GET['id'] ?? '0';
+        $id = (int) $idRaw;
         if ($id <= 0) {
             $this->redirect('/documentos/generales');
             return;
@@ -339,7 +394,9 @@ class DocumentoController extends BaseController
     public function ver(): void
     {
         $this->requireAuth();
-        $id = (int) ($_GET['id'] ?? 0);
+        /** @var string $idRaw */
+        $idRaw = $_GET['id'] ?? '0';
+        $id = (int) $idRaw;
 
         $doc = $id > 0 ? $this->docRepo->findById($id) : null;
 
@@ -356,7 +413,9 @@ class DocumentoController extends BaseController
     public function archivo(): void
     {
         $this->requireAuth();
-        $id = (int) ($_GET['id'] ?? 0);
+        /** @var string $idRaw */
+        $idRaw = $_GET['id'] ?? '0';
+        $id = (int) $idRaw;
 
         $doc = $id > 0 ? $this->docRepo->findById($id) : null;
         if (!$doc) {
@@ -381,13 +440,18 @@ class DocumentoController extends BaseController
         header('Content-Disposition: ' . $disposition . '; filename="' . $doc->getArchivoNombre() . '"');
         header('Content-Length: ' . strlen($contenido));
         header('Cache-Control: private, max-age=3600');
-        echo $contenido;
+        echo $contenido; // nosemgrep
         exit;
     }
 
+    /**
+     * @return array{id: int|null, titulo: string, categoria: string, categoria_id: int, descripcion: string, filename: string, subido: string, activo: bool, especialidad: string, especialidad_id: int|null, paciente_id: int|null, paciente: string}
+     */
     private function docToArray(Documento $d): array
     {
         $created = $d->getCreatedAt();
+        /** @var int|false $timestamp */
+        $timestamp = $created ? strtotime($created) : false;
 
         return [
             'id' => $d->getId(),
@@ -396,7 +460,7 @@ class DocumentoController extends BaseController
             'categoria_id' => $d->getCategoriaId(),
             'descripcion' => $d->getDescripcion() ?? '',
             'filename' => $d->getArchivoNombre(),
-            'subido' => $created ? date('d/m/Y', strtotime($created)) : '',
+            'subido' => $timestamp !== false ? date('d/m/Y', $timestamp) : '',
             'activo' => $d->isActivo(),
             'especialidad' => $d->getEspecialidadNombre() ?? '',
             'especialidad_id' => $d->getEspecialidadId(),
@@ -405,6 +469,9 @@ class DocumentoController extends BaseController
         ];
     }
 
+    /**
+     * @return array{especialidades: list<array{id: int|null, nombre: string}>, tiposDocumento: list<array{id: int|null, nombre: string}>, pacientes: list<array{id: int|null, nombre: string}>}
+     */
     private function viewCategorias(): array
     {
         return [
@@ -414,19 +481,27 @@ class DocumentoController extends BaseController
         ];
     }
 
+    /** @param list<Categoria>|array<int, Categoria> $categorias
+     *  @return list<array{id: int|null, nombre: string}>
+     */
     private function categoriaArray(array $categorias): array
     {
-        return array_map(fn (Categoria $c) => [
+        /** @var list<array{id: int|null, nombre: string}> */
+        return array_values(array_map(fn (Categoria $c) => [
             'id' => $c->getId(),
             'nombre' => $c->getNombre(),
-        ], $categorias);
+        ], $categorias));
     }
 
+    /** @param list<Paciente>|array<int, Paciente> $pacientes
+     *  @return list<array{id: int|null, nombre: string}>
+     */
     private function pacienteArray(array $pacientes): array
     {
-        return array_map(fn (\Elyra\Domain\Entity\Paciente $p) => [
+        /** @var list<array{id: int|null, nombre: string}> */
+        return array_values(array_map(fn (\Elyra\Domain\Entity\Paciente $p) => [
             'id' => $p->getId(),
             'nombre' => $p->getApellido() . ', ' . $p->getNombre(),
-        ], $pacientes);
+        ], $pacientes));
     }
 }

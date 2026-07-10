@@ -49,6 +49,7 @@ final class QRGeneratorServiceTest extends TestCase
     public function testGenerateBase64ReturnsString(): void
     {
         $result = $this->service->generateBase64('test-data');
+        // @phpstan-ignore-next-line staticMethod.alreadyNarrowedType
         $this->assertIsString($result);
         $this->assertStringStartsWith('data:image/png;base64,', $result);
     }
@@ -56,6 +57,7 @@ final class QRGeneratorServiceTest extends TestCase
     public function testGenerateBase64WithEmptyData(): void
     {
         $result = $this->service->generateBase64('');
+        // @phpstan-ignore-next-line staticMethod.alreadyNarrowedType
         $this->assertIsString($result);
     }
 

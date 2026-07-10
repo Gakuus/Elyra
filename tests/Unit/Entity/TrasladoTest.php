@@ -130,6 +130,7 @@ final class TrasladoTest extends TestCase
         $this->assertSame('Falta de conductor', $traslado->getMotivoCancelacion());
     }
 
+    /** @param list<string> $estados */
     #[DataProvider('fullCycleProvider')]
     public function testFullCycleSinCancelar(array $estados): void
     {
@@ -144,6 +145,7 @@ final class TrasladoTest extends TestCase
         }
     }
 
+    /** @return array<string, array{list<string>}> */
     public static function fullCycleProvider(): array
     {
         return [

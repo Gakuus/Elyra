@@ -15,6 +15,9 @@ class FileStorageService
         $this->maxFileSize = $maxFileSize;
     }
 
+    /**
+     * @param array{tmp_name: string, name: string, size: int, error: int} $file
+     */
     public function store(array $file, ?string $subdir = null): string
     {
         if ($file['error'] !== UPLOAD_ERR_OK) {
@@ -82,7 +85,8 @@ class FileStorageService
     public function read(string $path): ?string
     {
         if (is_file($path)) {
-            return file_get_contents($path);
+            $content = file_get_contents($path);
+            return $content === false ? null : $content;
         }
         return null;
     }

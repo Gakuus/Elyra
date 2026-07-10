@@ -38,6 +38,7 @@ class TipoElemento
         return $this->value === $other->value;
     }
 
+    /** @return list<string> */
     public static function valores(): array
     {
         return self::VALIDOS;

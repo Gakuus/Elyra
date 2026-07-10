@@ -26,8 +26,13 @@
         "test:bdd": "php vendor/bin/behat",
         "test:all": [
             "@test",
-            "@test:bdd"
-        ]
+            "@test:bdd",
+            "@phpstan"
+        ],
+        "phpstan": "php vendor/bin/phpstan analyse --memory-limit=2G",
+        "phpstan:baseline": "php vendor/bin/phpstan analyse --memory-limit=2G --generate-baseline",
+        "semgrep": "PATH=\"$HOME/.local/bin:$PATH\" semgrep scan --config=auto src/",
+        "semgrep:php": "PATH=\"$HOME/.local/bin:$PATH\" semgrep scan --config='p/php' src/"
     },
     "require-dev": {
         "phpunit/phpunit": "^13.2",
@@ -36,6 +41,14 @@
         "friends-of-behat/mink-extension": "^2.7",
         "behat/mink-browserkit-driver": "^2.3",
         "symfony/http-client": "^8.1",
-        "symfony/mime": "^8.1"
+        "symfony/mime": "^8.1",
+        "phpstan/phpstan": "^2.2",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan-phpunit": "^2.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
     }
 }

@@ -19,6 +19,7 @@ final class EstadoTrasladoTest extends TestCase
         $this->assertSame($value, $estado->value());
     }
 
+    /** @return array<string, array{string}> */
     public static function validEstadoProvider(): array
     {
         return [
@@ -38,6 +39,7 @@ final class EstadoTrasladoTest extends TestCase
         new EstadoTraslado($invalidValue);
     }
 
+    /** @return array<string, array{string}> */
     public static function invalidEstadoProvider(): array
     {
         return [
@@ -63,6 +65,7 @@ final class EstadoTrasladoTest extends TestCase
         $this->assertSame($deberiaPoder, $desde->puedeTransicionarA($hasta));
     }
 
+    /** @return array<string, array{string, string, bool}> */
     public static function transicionProvider(): array
     {
         return [
@@ -97,6 +100,7 @@ final class EstadoTrasladoTest extends TestCase
         $this->assertSame($esTerminal, $e->esTerminal());
     }
 
+    /** @return array<string, array{string, bool}> */
     public static function terminalProvider(): array
     {
         return [

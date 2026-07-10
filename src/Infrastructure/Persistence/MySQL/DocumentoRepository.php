@@ -24,7 +24,9 @@ class DocumentoRepository implements DocumentoRepositoryInterface
     public function findById(int $id): ?Documento
     {
         $stmt = $this->pdo->prepare("SELECT " . self::SELECT_COLS . " FROM documento d" . self::JOIN_CATEGORIA . self::JOIN_ESPECIALIDAD . self::JOIN_PACIENTE . " WHERE d.id = ?");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$id]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
 
         if (!$row) return null;
@@ -35,7 +37,9 @@ class DocumentoRepository implements DocumentoRepositoryInterface
     public function findByCodigoQr(int $codigoQrId): ?Documento
     {
         $stmt = $this->pdo->prepare("SELECT " . self::SELECT_COLS . " FROM documento d" . self::JOIN_CATEGORIA . self::JOIN_ESPECIALIDAD . self::JOIN_PACIENTE . " WHERE d.codigo_qr_id = ?");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$codigoQrId]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
 
         if (!$row) return null;
@@ -46,7 +50,9 @@ class DocumentoRepository implements DocumentoRepositoryInterface
     public function findByEncuesta(int $encuestaId): ?Documento
     {
         $stmt = $this->pdo->prepare("SELECT " . self::SELECT_COLS . " FROM documento d" . self::JOIN_CATEGORIA . self::JOIN_ESPECIALIDAD . self::JOIN_PACIENTE . " WHERE d.encuesta_id = ?");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$encuestaId]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
 
         if (!$row) return null;
@@ -91,7 +97,9 @@ class DocumentoRepository implements DocumentoRepositoryInterface
         $params[] = ($page - 1) * $perPage;
 
         $stmt = $this->pdo->prepare($sql);
+        /** @var \PDOStatement $stmt */
         $stmt->execute($params);
+        /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll();
 
         return array_map(fn (array $row) => $this->hydrate($row), $rows);
@@ -120,18 +128,21 @@ class DocumentoRepository implements DocumentoRepositoryInterface
         }
 
         $stmt = $this->pdo->prepare($sql);
+        /** @var \PDOStatement $stmt */
         $stmt->execute($params);
         return (int) $stmt->fetchColumn();
     }
 
     public function countTotal(): int
     {
+        /** @var \PDOStatement $stmt */
         $stmt = $this->pdo->query("SELECT COUNT(*) FROM documento");
         return (int) $stmt->fetchColumn();
     }
 
     public function countActivos(): int
     {
+        /** @var \PDOStatement $stmt */
         $stmt = $this->pdo->query("SELECT COUNT(*) FROM documento WHERE activo = TRUE");
         return (int) $stmt->fetchColumn();
     }
@@ -157,7 +168,9 @@ class DocumentoRepository implements DocumentoRepositoryInterface
         $params[] = ($page - 1) * $perPage;
 
         $stmt = $this->pdo->prepare($sql);
+        /** @var \PDOStatement $stmt */
         $stmt->execute($params);
+        /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll();
 
         return array_map(fn (array $row) => $this->hydrate($row), $rows);
@@ -180,6 +193,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
         }
 
         $stmt = $this->pdo->prepare($sql);
+        /** @var \PDOStatement $stmt */
         $stmt->execute($params);
         return (int) $stmt->fetchColumn();
     }
@@ -211,7 +225,9 @@ class DocumentoRepository implements DocumentoRepositoryInterface
         $params[] = ($page - 1) * $perPage;
 
         $stmt = $this->pdo->prepare($sql);
+        /** @var \PDOStatement $stmt */
         $stmt->execute($params);
+        /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll();
 
         return array_map(fn (array $row) => $this->hydrate($row), $rows);
@@ -240,6 +256,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
         }
 
         $stmt = $this->pdo->prepare($sql);
+        /** @var \PDOStatement $stmt */
         $stmt->execute($params);
         return (int) $stmt->fetchColumn();
     }
@@ -247,9 +264,13 @@ class DocumentoRepository implements DocumentoRepositoryInterface
     public function getArchivoContent(int $id): ?string
     {
         $stmt = $this->pdo->prepare("SELECT archivo_contenido FROM documento WHERE id = ?");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$id]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-        return $row ? $row['archivo_contenido'] : null;
+        /** @var string|null $content */
+        $content = $row ? $row['archivo_contenido'] : null;
+        return $content;
     }
 
     public function save(Documento $documento): Documento
@@ -261,6 +282,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
             INSERT INTO documento (titulo, descripcion, archivo_path, archivo_nombre, archivo_contenido, codigo_qr_id, qr_path, categoria_id, especialidad_id, encuesta_id, paciente_id, subido_por, activo)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([
             $documento->getTitulo(),
             $documento->getDescripcion(),
@@ -286,6 +308,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
             UPDATE documento SET titulo = ?, descripcion = ?, categoria_id = ?, especialidad_id = ?, paciente_id = ?, activo = ?
             WHERE id = ?
         ");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([
             $documento->getTitulo(),
             $documento->getDescripcion(),
@@ -300,30 +323,76 @@ class DocumentoRepository implements DocumentoRepositoryInterface
     public function delete(int $id): void
     {
         $stmt = $this->pdo->prepare("UPDATE documento SET activo = FALSE WHERE id = ?");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$id]);
     }
 
+    /** @param array<string, mixed> $row */
     private function hydrate(array $row): Documento
     {
+        /** @var int $id */
+        $id = $row['id'];
+        /** @var string $titulo */
+        $titulo = $row['titulo'];
+        /** @var string $archivoPath */
+        $archivoPath = $row['archivo_path'];
+        /** @var string $archivoNombre */
+        $archivoNombre = $row['archivo_nombre'];
+        /** @var string|null $codigoQrIdRaw */
+        $codigoQrIdRaw = $row['codigo_qr_id'];
+        /** @var int|null $codigoQrId */
+        $codigoQrId = $codigoQrIdRaw !== null ? (int) $codigoQrIdRaw : null;
+        /** @var int $categoriaId */
+        $categoriaId = $row['categoria_id'];
+        /** @var int $subidoPor */
+        $subidoPor = $row['subido_por'];
+        /** @var string|null $descripcion */
+        $descripcion = $row['descripcion'];
+        /** @var string|null $qrPath */
+        $qrPath = $row['qr_path'];
+        /** @var string|null $especialidadIdRaw */
+        $especialidadIdRaw = $row['especialidad_id'];
+        /** @var int|null $especialidadId */
+        $especialidadId = $especialidadIdRaw !== null ? (int) $especialidadIdRaw : null;
+        /** @var string|null $encuestaIdRaw */
+        $encuestaIdRaw = $row['encuesta_id'];
+        /** @var int|null $encuestaId */
+        $encuestaId = $encuestaIdRaw !== null ? (int) $encuestaIdRaw : null;
+        /** @var string|null $pacienteIdRaw */
+        $pacienteIdRaw = $row['paciente_id'];
+        /** @var int|null $pacienteId */
+        $pacienteId = $pacienteIdRaw !== null ? (int) $pacienteIdRaw : null;
+        $activo = (bool) $row['activo'];
+        /** @var string|null $createdAt */
+        $createdAt = $row['created_at'];
+        /** @var string|null $updatedAt */
+        $updatedAt = $row['updated_at'];
+        /** @var string|null $categoriaNombre */
+        $categoriaNombre = $row['categoria_nombre'] ?? null;
+        /** @var string|null $especialidadNombre */
+        $especialidadNombre = $row['especialidad_nombre'] ?? null;
+        /** @var string|null $pacienteNombre */
+        $pacienteNombre = $row['paciente_nombre'] ?? null;
+
         return new Documento(
-            id: (int) $row['id'],
-            titulo: $row['titulo'],
-            archivoPath: $row['archivo_path'],
-            archivoNombre: $row['archivo_nombre'],
-            codigoQrId: $row['codigo_qr_id'] !== null ? (int) $row['codigo_qr_id'] : null,
-            categoriaId: (int) $row['categoria_id'],
-            subidoPor: (int) $row['subido_por'],
-            descripcion: $row['descripcion'],
-            qrPath: $row['qr_path'],
-            especialidadId: $row['especialidad_id'] !== null ? (int) $row['especialidad_id'] : null,
-            encuestaId: $row['encuesta_id'] !== null ? (int) $row['encuesta_id'] : null,
-            pacienteId: $row['paciente_id'] !== null ? (int) $row['paciente_id'] : null,
-            activo: (bool) $row['activo'],
-            createdAt: $row['created_at'],
-            updatedAt: $row['updated_at'],
-            categoriaNombre: $row['categoria_nombre'] ?? null,
-            especialidadNombre: $row['especialidad_nombre'] ?? null,
-            pacienteNombre: $row['paciente_nombre'] ?? null
+            id: $id,
+            titulo: $titulo,
+            archivoPath: $archivoPath,
+            archivoNombre: $archivoNombre,
+            codigoQrId: $codigoQrId,
+            categoriaId: $categoriaId,
+            subidoPor: $subidoPor,
+            descripcion: $descripcion,
+            qrPath: $qrPath,
+            especialidadId: $especialidadId,
+            encuestaId: $encuestaId,
+            pacienteId: $pacienteId,
+            activo: $activo,
+            createdAt: $createdAt,
+            updatedAt: $updatedAt,
+            categoriaNombre: $categoriaNombre,
+            especialidadNombre: $especialidadNombre,
+            pacienteNombre: $pacienteNombre
         );
     }
 }

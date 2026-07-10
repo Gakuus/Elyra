@@ -19,8 +19,10 @@ interface UsuarioRepositoryInterface
     public function savePaciente(Paciente $paciente): Paciente;
     public function updateFuncionario(Funcionario $funcionario): void;
     public function updatePaciente(Paciente $paciente): void;
+    /** @return Funcionario[] */
     public function findAllFuncionarios(?bool $activo = null): array;
     public function findByDocumentoIdentidad(string $documento): ?Paciente;
+    /** @return Paciente[] */
     public function findAllPacientes(): array;
     public function delete(int $id): void;
 }

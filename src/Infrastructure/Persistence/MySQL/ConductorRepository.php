@@ -25,7 +25,9 @@ class ConductorRepository implements ConductorRepositoryInterface
             JOIN funcionario f ON f.id = u.id
             WHERE u.id = ? AND f.rol = 'conductor'
         ");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$id]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
 
         if (!$row) return null;
@@ -46,7 +48,9 @@ class ConductorRepository implements ConductorRepositoryInterface
         $sql .= " ORDER BY u.apellido, u.nombre";
 
         $stmt = $this->pdo->prepare($sql);
+        /** @var \PDOStatement $stmt */
         $stmt->execute($params);
+        /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll();
 
         return array_map(fn (array $row) => $this->hydrate($row), $rows);
@@ -54,18 +58,21 @@ class ConductorRepository implements ConductorRepositoryInterface
 
     public function countTotal(): int
     {
+        /** @var \PDOStatement $stmt */
         $stmt = $this->pdo->query("SELECT COUNT(*) FROM funcionario WHERE rol = 'conductor'");
         return (int) $stmt->fetchColumn();
     }
 
     public function countActivos(): int
     {
+        /** @var \PDOStatement $stmt */
         $stmt = $this->pdo->query("SELECT COUNT(*) FROM funcionario WHERE rol = 'conductor' AND activo = 1");
         return (int) $stmt->fetchColumn();
     }
 
     public function findDisponibles(): array
     {
+        /** @var \PDOStatement $stmt */
         $stmt = $this->pdo->query("
             SELECT u.*, f.*
             FROM usuario u
@@ -73,6 +80,7 @@ class ConductorRepository implements ConductorRepositoryInterface
             WHERE f.rol = 'conductor' AND f.activo = 1
             ORDER BY u.apellido, u.nombre
         ");
+        /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll();
 
         return array_map(fn (array $row) => $this->hydrate($row), $rows);
@@ -86,6 +94,7 @@ class ConductorRepository implements ConductorRepositoryInterface
                 INSERT INTO usuario (tipo, nombre, apellido, email, documento_identidad, foto)
                 VALUES ('funcionario', ?, ?, ?, ?, ?)
             ");
+            /** @var \PDOStatement $stmt */
             $stmt->execute([
                 $conductor->getNombre(),
                 $conductor->getApellido(),
@@ -99,6 +108,7 @@ class ConductorRepository implements ConductorRepositoryInterface
                 INSERT INTO funcionario (id, username, password_hash, licencia, telefono, activo, rol)
                 VALUES (?, ?, ?, ?, ?, ?, 'conductor')
             ");
+            /** @var \PDOStatement $stmt */
             $stmt->execute([
                 $id,
                 $conductor->getUsername(),
@@ -123,6 +133,7 @@ class ConductorRepository implements ConductorRepositoryInterface
             UPDATE usuario SET nombre = ?, apellido = ?, email = ?, documento_identidad = ?
             WHERE id = ?
         ");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([
             $conductor->getNombre(),
             $conductor->getApellido(),
@@ -135,6 +146,7 @@ class ConductorRepository implements ConductorRepositoryInterface
             UPDATE funcionario SET username = ?, licencia = ?, telefono = ?, activo = ?
             WHERE id = ? AND rol = 'conductor'
         ");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([
             $conductor->getUsername(),
             $conductor->getLicencia(),
@@ -157,22 +169,49 @@ class ConductorRepository implements ConductorRepositoryInterface
         }
     }
 
+    /** @param array<string, mixed> $row */
     private function hydrate(array $row): Funcionario
     {
+        /** @var int $id */
+        $id = $row['id'];
+        /** @var string $nombre */
+        $nombre = $row['nombre'];
+        /** @var string $apellido */
+        $apellido = $row['apellido'];
+        /** @var string $rol */
+        $rol = $row['rol'];
+        /** @var string|null $username */
+        $username = $row['username'];
+        /** @var string|null $passwordHash */
+        $passwordHash = $row['password_hash'];
+        /** @var string|null $email */
+        $email = $row['email'];
+        /** @var string|null $documentoIdentidad */
+        $documentoIdentidad = $row['documento_identidad'];
+        /** @var string|null $licencia */
+        $licencia = $row['licencia'];
+        /** @var string|null $telefono */
+        $telefono = $row['telefono'];
+        $activo = (bool) $row['activo'];
+        /** @var string|null $foto */
+        $foto = $row['foto'] ?? null;
+        /** @var string|null $createdAt */
+        $createdAt = $row['created_at'];
+
         return new Funcionario(
-            id: (int) $row['id'],
-            nombre: $row['nombre'],
-            apellido: $row['apellido'],
-            rol: new RolUsuario($row['rol']),
-            username: $row['username'],
-            passwordHash: $row['password_hash'],
-            email: $row['email'],
-            documentoIdentidad: $row['documento_identidad'],
-            licencia: $row['licencia'],
-            telefono: $row['telefono'],
-            activo: (bool) $row['activo'],
-            foto: $row['foto'] ?? null,
-            createdAt: $row['created_at'],
+            id: $id,
+            nombre: $nombre,
+            apellido: $apellido,
+            rol: new RolUsuario($rol),
+            username: $username,
+            passwordHash: $passwordHash,
+            email: $email,
+            documentoIdentidad: $documentoIdentidad,
+            licencia: $licencia,
+            telefono: $telefono,
+            activo: $activo,
+            foto: $foto,
+            createdAt: $createdAt,
         );
     }
 }

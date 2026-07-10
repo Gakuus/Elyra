@@ -50,6 +50,9 @@ class ErrorHandler
         throw new \ErrorException($message, 0, $severity, $file, $line);
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     public static function log(string $level, string $message, array $context = []): void
     {
         if (self::$logDir === null) {

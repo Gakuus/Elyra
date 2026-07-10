@@ -149,6 +149,7 @@ final class TrasladoStateMachineTest extends TestCase
             $estadosRecorridos[] = $estado;
         }
 
+        // @phpstan-ignore-next-line staticMethod.alreadyNarrowedType
         $this->assertCount(5, $estadosRecorridos);
         $this->assertSame('completado', $traslado->getEstado()->value());
     }

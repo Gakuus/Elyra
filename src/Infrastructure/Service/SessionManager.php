@@ -42,9 +42,13 @@ class SessionManager
         $_SESSION = [];
 
         if (ini_get('session.use_cookies')) {
+            $sessionName = session_name();
+            if ($sessionName === false) {
+                return;
+            }
             $params = session_get_cookie_params();
             setcookie(
-                session_name(),
+                $sessionName,
                 '',
                 time() - 42000,
                 $params['path'],
@@ -84,12 +88,14 @@ class SessionManager
 
     public static function getUserId(): ?int
     {
-        return $_SESSION['user_id'] ?? null;
+        $userId = $_SESSION['user_id'] ?? null;
+        return is_numeric($userId) ? (int) $userId : null;
     }
 
     public static function getUserRole(): ?string
     {
-        return $_SESSION['user_role'] ?? null;
+        $role = $_SESSION['user_role'] ?? null;
+        return is_string($role) ? $role : null;
     }
 
     public static function isPaciente(): bool
@@ -108,13 +114,16 @@ class SessionManager
         if (empty($_SESSION['_csrf_token'])) {
             $_SESSION['_csrf_token'] = bin2hex(random_bytes(32));
         }
-        return $_SESSION['_csrf_token'];
+        $token = $_SESSION['_csrf_token'];
+        return is_string($token) ? $token : '';
     }
 
     private static function checkTimeout(): void
     {
         if (isset($_SESSION['_created_at'])) {
-            if (time() - $_SESSION['_created_at'] > self::TIMEOUT) {
+            /** @var int $createdAt */
+            $createdAt = $_SESSION['_created_at'];
+            if (time() - $createdAt > self::TIMEOUT) {
                 self::destroy();
                 self::start();
             }

@@ -25,7 +25,9 @@ class FeatureContext extends RawMinkContext implements Context
     {
         $dir = __DIR__ . '/../../storage/rate-limit';
         if (is_dir($dir)) {
-            array_map('unlink', glob($dir . '/*'));
+            /** @var list<string> $files */
+            $files = glob($dir . '/*');
+            array_map('unlink', $files);
         }
     }
 
@@ -34,6 +36,7 @@ class FeatureContext extends RawMinkContext implements Context
         // Cargar .env
         $envFile = __DIR__ . '/../../.env';
         if (file_exists($envFile)) {
+            /** @var list<string> $lines */
             $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
             foreach ($lines as $line) {
                 if (str_starts_with(trim($line), '#')) continue;
@@ -52,7 +55,7 @@ class FeatureContext extends RawMinkContext implements Context
             usleep(300000);
         }
 
-        $docRoot = realpath(__DIR__ . '/../../public');
+        $docRoot = (string) realpath(__DIR__ . '/../../public');
         $routerScript = $docRoot . '/router.php';
 
         $cmd = sprintf(

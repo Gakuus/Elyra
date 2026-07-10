@@ -8,6 +8,7 @@ use Elyra\Infrastructure\Service\SessionManager;
 
 abstract class BaseController
 {
+    /** @param array<string, mixed> $data */
     protected function render(string $view, array $data = []): void
     {
         extract($data);

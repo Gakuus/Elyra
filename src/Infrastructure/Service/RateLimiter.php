@@ -74,7 +74,7 @@ class RateLimiter
         }
 
         $parsed = explode(':', $data);
-        $count = (int) ($parsed[0] ?? 0);
+        $count = (int) $parsed[0];
         $windowStart = (int) ($parsed[1] ?? 0);
 
         if (time() - $windowStart > $windowSeconds) {
@@ -95,7 +95,7 @@ class RateLimiter
             $data = @file_get_contents($file);
             if ($data !== false) {
                 $parsed = explode(':', $data);
-                $existingCount = (int) ($parsed[0] ?? 0);
+                $existingCount = (int) $parsed[0];
                 $existingStart = (int) ($parsed[1] ?? 0);
 
                 if (time() - $existingStart <= $windowSeconds) {

@@ -53,6 +53,7 @@ class RolUsuario
         return $this->value === 'conductor';
     }
 
+    /** @return list<string> */
     public static function valores(): array
     {
         return self::VALIDOS;

@@ -35,10 +35,13 @@ class AuthController extends BaseController
 
     public function doLogin(): void
     {
-        $username = trim($_POST['username'] ?? '');
+        /** @var string $usernameInput */
+        $usernameInput = $_POST['username'] ?? '';
+        $username = trim($usernameInput);
+        /** @var string $password */
         $password = $_POST['password'] ?? '';
 
-        if (empty($username) || empty($password)) {
+        if ($username === '' || $password === '') {
             $this->render('auth/login', ['error' => 'Ingrese usuario y contraseña']);
             return;
         }
@@ -49,7 +52,7 @@ class AuthController extends BaseController
             $this->redirect('/dashboard');
         }
 
-        $this->render('auth/login', ['error' => $result['error']]);
+        $this->render('auth/login', ['error' => $result['error'] ?? '']);
     }
 
     public function registro(): void
@@ -67,13 +70,27 @@ class AuthController extends BaseController
             $this->redirect('/dashboard');
         }
 
-        $nombre = trim($_POST['nombre'] ?? '');
-        $apellido = trim($_POST['apellido'] ?? '');
-        $email = trim($_POST['email'] ?? '');
-        $documento = trim($_POST['documento'] ?? '');
-        $username = trim($_POST['username'] ?? '');
-        $telefono = trim($_POST['telefono'] ?? '');
+        /** @var string $nombreInput */
+        $nombreInput = $_POST['nombre'] ?? '';
+        $nombre = trim($nombreInput);
+        /** @var string $apellidoInput */
+        $apellidoInput = $_POST['apellido'] ?? '';
+        $apellido = trim($apellidoInput);
+        /** @var string $emailInput */
+        $emailInput = $_POST['email'] ?? '';
+        $email = trim($emailInput);
+        /** @var string $documentoInput */
+        $documentoInput = $_POST['documento'] ?? '';
+        $documento = trim($documentoInput);
+        /** @var string $usernameInput */
+        $usernameInput = $_POST['username'] ?? '';
+        $username = trim($usernameInput);
+        /** @var string $telefonoInput */
+        $telefonoInput = $_POST['telefono'] ?? '';
+        $telefono = trim($telefonoInput);
+        /** @var string $password */
         $password = $_POST['password'] ?? '';
+        /** @var string $password2 */
         $password2 = $_POST['password2'] ?? '';
 
         $v = new Validator();
@@ -136,7 +153,8 @@ class AuthController extends BaseController
 
         try {
             $this->usuarioRepo->savePaciente($paciente);
-            SessionManager::login($paciente->getId(), 'paciente', $paciente->getNombreCompleto());
+            $userId = $paciente->getId();
+            SessionManager::login($userId !== null ? $userId : 0, 'paciente', $paciente->getNombreCompleto());
             $this->redirect('/dashboard');
         } catch (\Exception $e) {
             $this->render('auth/registro', ['error' => 'Error al registrar. Verificá que los datos no estén duplicados.']);

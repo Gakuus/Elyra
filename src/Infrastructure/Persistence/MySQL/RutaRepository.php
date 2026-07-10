@@ -19,7 +19,9 @@ class RutaRepository implements RutaRepositoryInterface
     public function findById(int $id): ?Ruta
     {
         $stmt = $this->pdo->prepare("SELECT * FROM ruta WHERE id = ?");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$id]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
 
         if (!$row) return null;
@@ -29,7 +31,9 @@ class RutaRepository implements RutaRepositoryInterface
 
     public function findAll(): array
     {
+        /** @var \PDOStatement $stmt */
         $stmt = $this->pdo->query("SELECT * FROM ruta ORDER BY nombre");
+        /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll();
 
         return array_map(fn (array $row) => $this->hydrate($row), $rows);
@@ -37,6 +41,7 @@ class RutaRepository implements RutaRepositoryInterface
 
     public function countTotal(): int
     {
+        /** @var \PDOStatement $stmt */
         $stmt = $this->pdo->query("SELECT COUNT(*) FROM ruta");
         return (int) $stmt->fetchColumn();
     }
@@ -44,6 +49,7 @@ class RutaRepository implements RutaRepositoryInterface
     public function save(Ruta $ruta): Ruta
     {
         $stmt = $this->pdo->prepare("INSERT INTO ruta (nombre, origen, destino, distancia_km, descripcion) VALUES (?, ?, ?, ?, ?)");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([
             $ruta->getNombre(),
             $ruta->getOrigen(),
@@ -58,6 +64,7 @@ class RutaRepository implements RutaRepositoryInterface
     public function update(Ruta $ruta): void
     {
         $stmt = $this->pdo->prepare("UPDATE ruta SET nombre = ?, origen = ?, destino = ?, distancia_km = ?, descripcion = ? WHERE id = ?");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([
             $ruta->getNombre(),
             $ruta->getOrigen(),
@@ -71,19 +78,38 @@ class RutaRepository implements RutaRepositoryInterface
     public function delete(int $id): void
     {
         $stmt = $this->pdo->prepare("DELETE FROM ruta WHERE id = ?");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$id]);
     }
 
+    /** @param array<string, mixed> $row */
     private function hydrate(array $row): Ruta
     {
+        /** @var int $id */
+        $id = $row['id'];
+        /** @var string $nombre */
+        $nombre = $row['nombre'];
+        /** @var string $origen */
+        $origen = $row['origen'];
+        /** @var string $destino */
+        $destino = $row['destino'];
+        /** @var string|null $distanciaKmRaw */
+        $distanciaKmRaw = $row['distancia_km'];
+        /** @var float|null $distanciaKm */
+        $distanciaKm = $distanciaKmRaw !== null ? (float) $distanciaKmRaw : null;
+        /** @var string|null $descripcion */
+        $descripcion = $row['descripcion'];
+        /** @var string|null $createdAt */
+        $createdAt = $row['created_at'];
+
         return new Ruta(
-            id: (int) $row['id'],
-            nombre: $row['nombre'],
-            origen: $row['origen'],
-            destino: $row['destino'],
-            distanciaKm: $row['distancia_km'] !== null ? (float) $row['distancia_km'] : null,
-            descripcion: $row['descripcion'],
-            createdAt: $row['created_at'],
+            id: $id,
+            nombre: $nombre,
+            origen: $origen,
+            destino: $destino,
+            distanciaKm: $distanciaKm,
+            descripcion: $descripcion,
+            createdAt: $createdAt,
         );
     }
 }

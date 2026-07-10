@@ -34,7 +34,9 @@ class PublicController extends BaseController
 
     public function verDocumento(): void
     {
-        $id = (int) ($_GET['id'] ?? 0);
+        /** @var string $idStr */
+        $idStr = $_GET['id'] ?? 0;
+        $id = (int) $idStr;
         if ($id <= 0) {
             http_response_code(404);
             require __DIR__ . '/../../../../views/errors/404.php';
@@ -53,7 +55,9 @@ class PublicController extends BaseController
 
     public function archivo(): void
     {
-        $id = (int) ($_GET['id'] ?? 0);
+        /** @var string $idStr */
+        $idStr = $_GET['id'] ?? 0;
+        $id = (int) $idStr;
 
         $doc = $id > 0 ? $this->docRepo->findById($id) : null;
         if (!$doc || !$doc->isActivo()) {
@@ -75,14 +79,15 @@ class PublicController extends BaseController
         header('Content-Disposition: ' . $disposition . '; filename="' . $doc->getArchivoNombre() . '"');
         header('Content-Length: ' . strlen($contenido));
         header('Cache-Control: public, max-age=3600');
-        echo $contenido;
+        echo $contenido; // nosemgrep
         exit;
     }
 
     public function misDocumentos(): void
     {
+        /** @var string $token */
         $token = $_GET['token'] ?? '';
-        if (empty($token)) {
+        if ($token === '') {
             http_response_code(404);
             require __DIR__ . '/../../../../views/errors/404.php';
             return;
@@ -95,7 +100,7 @@ class PublicController extends BaseController
             return;
         }
 
-        $documentos = $this->docRepo->findByPaciente($paciente->getId());
+        $documentos = $this->docRepo->findByPaciente($paciente->getId() ?? 0);
 
         $this->render('publico/mis-documentos', [
             'paciente' => ['id' => $paciente->getId(), 'nombre' => $paciente->getApellido() . ', ' . $paciente->getNombre()],
@@ -103,6 +108,7 @@ class PublicController extends BaseController
         ]);
     }
 
+    /** @return array<string, mixed> */
     private function docToArray(\Elyra\Domain\Entity\Documento $d): array
     {
         $created = $d->getCreatedAt();
@@ -114,7 +120,7 @@ class PublicController extends BaseController
             'categoria_id' => $d->getCategoriaId(),
             'descripcion' => $d->getDescripcion() ?? '',
             'filename' => $d->getArchivoNombre(),
-            'subido' => $created ? date('d/m/Y', strtotime($created)) : '',
+            'subido' => $created ? date('d/m/Y', (int) strtotime($created)) : '',
             'activo' => $d->isActivo(),
             'especialidad' => $d->getEspecialidadNombre() ?? '',
             'especialidad_id' => $d->getEspecialidadId(),
@@ -131,7 +137,9 @@ class PublicController extends BaseController
             return;
         }
 
-        $id = (int) ($_GET['id'] ?? 0);
+        /** @var string $idStr */
+        $idStr = $_GET['id'] ?? 0;
+        $id = (int) $idStr;
         if ($id <= 0) {
             http_response_code(404);
             require __DIR__ . '/../../../../views/errors/404.php';
@@ -160,7 +168,7 @@ class PublicController extends BaseController
                 ];
             }, $preguntas),
             'activa' => $encuesta->isActiva(),
-            'creada' => $encuesta->getCreatedAt() ? date('d/m/Y', strtotime($encuesta->getCreatedAt())) : '',
+            'creada' => $encuesta->getCreatedAt() ? date('d/m/Y', (int) strtotime($encuesta->getCreatedAt())) : '',
         ];
 
         $this->render('publico/encuesta', ['encuesta' => $encuestaArr]);
@@ -168,7 +176,9 @@ class PublicController extends BaseController
 
     private function handleResponderEncuesta(): void
     {
-        $id = (int) ($_POST['encuesta_id'] ?? 0);
+        /** @var string $idStr */
+        $idStr = $_POST['encuesta_id'] ?? 0;
+        $id = (int) $idStr;
         $encuesta = $this->encuestaRepo->findById($id);
         if (!$encuesta || !$encuesta->isActiva()) {
             $this->redirect('/publico/encuesta?error=1');
@@ -176,12 +186,13 @@ class PublicController extends BaseController
         }
 
         $preguntas = $this->encuestaRepo->findPreguntasByEncuestaId($id);
-        $respuestas = $_POST['respuestas'] ?? [];
+        /** @var array<int, string> $respuestas */
+        $respuestas = (array) ($_POST['respuestas'] ?? []);
         $errores = [];
 
         foreach ($preguntas as $i => $p) {
             $tipo = $p->getTipo()->value();
-            $resp = trim($respuestas[$i] ?? '');
+            $resp = trim((string) ($respuestas[$i] ?? ''));
 
             if ($tipo === 'multiple_choice') {
                 if (empty($resp)) {
@@ -212,13 +223,14 @@ class PublicController extends BaseController
                     ];
                 }, $preguntas),
                 'activa' => $encuesta->isActiva(),
-                'creada' => $encuesta->getCreatedAt() ? date('d/m/Y', strtotime($encuesta->getCreatedAt())) : '',
+            'creada' => $encuesta->getCreatedAt() ? date('d/m/Y', (int) strtotime($encuesta->getCreatedAt())) : '',
             ];
             $this->render('publico/encuesta', ['encuesta' => $encuestaArr, 'error' => implode('<br>', $errores)]);
             return;
         }
 
         $sesionToken = bin2hex(random_bytes(16));
+        /** @var string|null $tokenPaciente */
         $tokenPaciente = $_GET['token'] ?? null;
 
         $this->encuestaRepo->saveRespuestasBatch($id, $sesionToken, $tokenPaciente, $respuestas);

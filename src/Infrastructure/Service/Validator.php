@@ -6,6 +6,7 @@ namespace Elyra\Infrastructure\Service;
 
 class Validator
 {
+    /** @var array<string, list<string>> */
     private array $errors = [];
 
     public function required(string $field, mixed $value, string $label = ''): self
@@ -65,6 +66,9 @@ class Validator
         return $this;
     }
 
+    /**
+     * @param list<mixed> $allowed
+     */
     public function inArray(string $field, mixed $value, array $allowed, string $label = ''): self
     {
         if ($value === null || $value === '') {
@@ -90,6 +94,9 @@ class Validator
         return $this;
     }
 
+    /**
+     * @param array{size?: int, tmp_name?: string, error?: int, name?: string} $file
+     */
     public function fileSize(string $field, ?array $file, int $maxBytes, string $label = ''): self
     {
         if ($file === null || !isset($file['size'])) {
@@ -103,6 +110,10 @@ class Validator
         return $this;
     }
 
+    /**
+     * @param array{size?: int, tmp_name?: string, error?: int, name?: string} $file
+     * @param list<string> $allowedMimes
+     */
     public function fileMime(string $field, ?array $file, array $allowedMimes, string $label = ''): self
     {
         if ($file === null || !isset($file['tmp_name']) || empty($file['tmp_name'])) {
@@ -110,6 +121,9 @@ class Validator
         }
         $label = $label ?: $field;
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        if ($finfo === false) {
+            return $this;
+        }
         $mime = finfo_file($finfo, $file['tmp_name']);
         finfo_close($finfo);
         if (!in_array($mime, $allowedMimes, true)) {
@@ -123,6 +137,7 @@ class Validator
         return empty($this->errors);
     }
 
+    /** @return array<string, list<string>> */
     public function getErrors(): array
     {
         return $this->errors;
@@ -148,6 +163,11 @@ class Validator
         return htmlspecialchars(trim($value), ENT_QUOTES, 'UTF-8');
     }
 
+    /**
+     * @param array<string, mixed> $data
+     * @param list<string> $allowedKeys
+     * @return array<string, mixed>
+     */
     public static function sanitizeArray(array $data, array $allowedKeys): array
     {
         $result = [];

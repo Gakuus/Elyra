@@ -35,7 +35,9 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             LEFT JOIN paciente p ON p.id = u.id
             WHERE u.id = ?
         ");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$id]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
 
         if (!$row) return null;
@@ -51,25 +53,53 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             JOIN funcionario f ON f.id = u.id
             WHERE f.username = ?
         ");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$username]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
 
         if (!$row) return null;
 
+        /** @var int $id */
+        $id = $row['id'];
+        /** @var string $nombre */
+        $nombre = $row['nombre'];
+        /** @var string $apellido */
+        $apellido = $row['apellido'];
+        /** @var string $rol */
+        $rol = $row['rol'];
+        /** @var string|null $username */
+        $username = $row['username'];
+        /** @var string|null $passwordHash */
+        $passwordHash = $row['password_hash'];
+        /** @var string|null $email */
+        $email = $row['email'];
+        /** @var string|null $documentoIdentidad */
+        $documentoIdentidad = $row['documento_identidad'];
+        /** @var string|null $licencia */
+        $licencia = $row['licencia'];
+        /** @var string|null $telefono */
+        $telefono = $row['telefono'];
+        $activo = (bool) $row['activo'];
+        $fotoRaw = $row['foto'] ?? null;
+        $foto = is_string($fotoRaw) ? $fotoRaw : null;
+        /** @var string|null $createdAt */
+        $createdAt = $row['created_at'];
+
         return new Funcionario(
-            id: (int) $row['id'],
-            nombre: $row['nombre'],
-            apellido: $row['apellido'],
-            rol: new RolUsuario($row['rol']),
-            username: $row['username'],
-            passwordHash: $row['password_hash'],
-            email: $row['email'],
-            documentoIdentidad: $row['documento_identidad'],
-            licencia: $row['licencia'],
-            telefono: $row['telefono'],
-            activo: (bool) $row['activo'],
-            foto: $row['foto'] ?? null,
-            createdAt: $row['created_at']
+            id: $id,
+            nombre: $nombre,
+            apellido: $apellido,
+            rol: new RolUsuario($rol),
+            username: $username,
+            passwordHash: $passwordHash,
+            email: $email,
+            documentoIdentidad: $documentoIdentidad,
+            licencia: $licencia,
+            telefono: $telefono,
+            activo: $activo,
+            foto: $foto,
+            createdAt: $createdAt
         );
     }
 
@@ -81,25 +111,53 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             JOIN funcionario f ON f.id = u.id
             WHERE u.email = ?
         ");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$email]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
 
         if (!$row) return null;
 
+        /** @var int $id */
+        $id = $row['id'];
+        /** @var string $nombre */
+        $nombre = $row['nombre'];
+        /** @var string $apellido */
+        $apellido = $row['apellido'];
+        /** @var string $rol */
+        $rol = $row['rol'];
+        /** @var string|null $username */
+        $username = $row['username'];
+        /** @var string|null $passwordHash */
+        $passwordHash = $row['password_hash'];
+        /** @var string|null $emailVal */
+        $emailVal = $row['email'];
+        /** @var string|null $documentoIdentidad */
+        $documentoIdentidad = $row['documento_identidad'];
+        /** @var string|null $licencia */
+        $licencia = $row['licencia'];
+        /** @var string|null $telefono */
+        $telefono = $row['telefono'];
+        $activo = (bool) $row['activo'];
+        $fotoRaw = $row['foto'] ?? null;
+        $foto = is_string($fotoRaw) ? $fotoRaw : null;
+        /** @var string|null $createdAt */
+        $createdAt = $row['created_at'];
+
         return new Funcionario(
-            id: (int) $row['id'],
-            nombre: $row['nombre'],
-            apellido: $row['apellido'],
-            rol: new RolUsuario($row['rol']),
-            username: $row['username'],
-            passwordHash: $row['password_hash'],
-            email: $row['email'],
-            documentoIdentidad: $row['documento_identidad'],
-            licencia: $row['licencia'],
-            telefono: $row['telefono'],
-            activo: (bool) $row['activo'],
-            foto: $row['foto'] ?? null,
-            createdAt: $row['created_at']
+            id: $id,
+            nombre: $nombre,
+            apellido: $apellido,
+            rol: new RolUsuario($rol),
+            username: $username,
+            passwordHash: $passwordHash,
+            email: $emailVal,
+            documentoIdentidad: $documentoIdentidad,
+            licencia: $licencia,
+            telefono: $telefono,
+            activo: $activo,
+            foto: $foto,
+            createdAt: $createdAt
         );
     }
 
@@ -111,7 +169,9 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             JOIN paciente p ON p.id = u.id
             WHERE p.token_acceso = ?
         ");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$token]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
 
         if (!$row) return null;
@@ -127,7 +187,9 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             JOIN paciente p ON p.id = u.id
             WHERE p.username = ?
         ");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$username]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
 
         if (!$row) return null;
@@ -290,26 +352,54 @@ class UsuarioRepository implements UsuarioRepositoryInterface
         }
         $sql .= " ORDER BY u.apellido, u.nombre";
 
+        /** @var \PDOStatement $stmt */
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
+        /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll();
 
         $result = [];
         foreach ($rows as $row) {
+            /** @var int $id */
+            $id = $row['id'];
+            /** @var string $nombre */
+            $nombre = $row['nombre'];
+            /** @var string $apellido */
+            $apellido = $row['apellido'];
+            /** @var string $rol */
+            $rol = $row['rol'];
+            /** @var string|null $username */
+            $username = $row['username'];
+            /** @var string|null $passwordHash */
+            $passwordHash = $row['password_hash'];
+            /** @var string|null $email */
+            $email = $row['email'];
+            /** @var string|null $documentoIdentidad */
+            $documentoIdentidad = $row['documento_identidad'];
+            /** @var string|null $licencia */
+            $licencia = $row['licencia'];
+            /** @var string|null $telefono */
+            $telefono = $row['telefono'];
+            $activo = (bool) $row['activo'];
+            $fotoRaw = $row['foto'] ?? null;
+            $foto = is_string($fotoRaw) ? $fotoRaw : null;
+            /** @var string|null $createdAt */
+            $createdAt = $row['created_at'];
+
             $result[] = new Funcionario(
-                id: (int) $row['id'],
-                nombre: $row['nombre'],
-                apellido: $row['apellido'],
-                rol: new RolUsuario($row['rol']),
-                username: $row['username'],
-                passwordHash: $row['password_hash'],
-                email: $row['email'],
-                documentoIdentidad: $row['documento_identidad'],
-                licencia: $row['licencia'],
-                telefono: $row['telefono'],
-                activo: (bool) $row['activo'],
-                foto: $row['foto'] ?? null,
-                createdAt: $row['created_at']
+                id: $id,
+                nombre: $nombre,
+                apellido: $apellido,
+                rol: new RolUsuario($rol),
+                username: $username,
+                passwordHash: $passwordHash,
+                email: $email,
+                documentoIdentidad: $documentoIdentidad,
+                licencia: $licencia,
+                telefono: $telefono,
+                activo: $activo,
+                foto: $foto,
+                createdAt: $createdAt
             );
         }
         return $result;
@@ -323,19 +413,23 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             JOIN paciente p ON p.id = u.id
             WHERE u.documento_identidad = ?
         ");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$documento]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
         return $row ? $this->hydratePaciente($row) : null;
     }
 
     public function findAllPacientes(): array
     {
+        /** @var \PDOStatement $stmt */
         $stmt = $this->pdo->query("
             SELECT u.*, p.*
             FROM usuario u
             JOIN paciente p ON p.id = u.id
             ORDER BY u.apellido, u.nombre
         ");
+        /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll();
 
         $result = [];
@@ -351,42 +445,99 @@ class UsuarioRepository implements UsuarioRepositoryInterface
         $stmt->execute([$id]);
     }
 
+    /** @param array<string, mixed> $row */
     private function hydratePaciente(array $row): Paciente
     {
+        /** @var int $id */
+        $id = $row['id'];
+        /** @var string $nombre */
+        $nombre = $row['nombre'];
+        /** @var string $apellido */
+        $apellido = $row['apellido'];
+        /** @var string|null $email */
+        $email = $row['email'];
+        /** @var string|null $documentoIdentidad */
+        $documentoIdentidad = $row['documento_identidad'];
+        /** @var string|null $tokenAcceso */
+        $tokenAcceso = $row['token_acceso'] ?? null;
+        /** @var string|null $codigoQrIdRaw */
+        $codigoQrIdRaw = $row['codigo_qr_id'] ?? null;
+        /** @var int|null $codigoQrId */
+        $codigoQrId = $codigoQrIdRaw !== null ? (int) $codigoQrIdRaw : null;
+        /** @var string|null $username */
+        $username = $row['username'] ?? null;
+        /** @var string|null $passwordHash */
+        $passwordHash = $row['password_hash'] ?? null;
+        /** @var string|null $telefono */
+        $telefono = $row['telefono'] ?? null;
+        /** @var bool $activo */
+        $activo = isset($row['activo']) ? (bool) $row['activo'] : true;
+        $fotoRaw = $row['foto'] ?? null;
+        $foto = is_string($fotoRaw) ? $fotoRaw : null;
+        /** @var string|null $createdAt */
+        $createdAt = $row['created_at'];
+
         return new Paciente(
-            id: (int) $row['id'],
-            nombre: $row['nombre'],
-            apellido: $row['apellido'],
-            email: $row['email'],
-            documentoIdentidad: $row['documento_identidad'],
-            tokenAcceso: $row['token_acceso'] ?? null,
-            codigoQrId: isset($row['codigo_qr_id']) ? (int) $row['codigo_qr_id'] : null,
-            username: $row['username'] ?? null,
-            passwordHash: $row['password_hash'] ?? null,
-            telefono: $row['telefono'] ?? null,
-            activo: isset($row['activo']) ? (bool) $row['activo'] : true,
-            foto: $row['foto'] ?? null,
-            createdAt: $row['created_at']
+            id: $id,
+            nombre: $nombre,
+            apellido: $apellido,
+            email: $email,
+            documentoIdentidad: $documentoIdentidad,
+            tokenAcceso: $tokenAcceso,
+            codigoQrId: $codigoQrId,
+            username: $username,
+            passwordHash: $passwordHash,
+            telefono: $telefono,
+            activo: $activo,
+            foto: $foto,
+            createdAt: $createdAt
         );
     }
 
+    /** @param array<string, mixed> $row */
     private function hydrate(array $row): Usuario
     {
         if (!empty($row['rol'])) {
+            /** @var int $id */
+            $id = $row['id'];
+            /** @var string $nombre */
+            $nombre = $row['nombre'];
+            /** @var string $apellido */
+            $apellido = $row['apellido'];
+            /** @var string $rol */
+            $rol = $row['rol'];
+            /** @var string|null $username */
+            $username = $row['username'];
+            /** @var string|null $passwordHash */
+            $passwordHash = $row['password_hash'];
+            /** @var string|null $email */
+            $email = $row['email'];
+            /** @var string|null $documentoIdentidad */
+            $documentoIdentidad = $row['documento_identidad'];
+            /** @var string|null $licencia */
+            $licencia = $row['licencia'];
+            /** @var string|null $telefono */
+            $telefono = $row['telefono'];
+            $activo = (bool) $row['activo'];
+            /** @var string|null $foto */
+            $foto = $row['foto'] ?? null;
+            /** @var string|null $createdAt */
+            $createdAt = $row['created_at'];
+
             return new Funcionario(
-                id: (int) $row['id'],
-                nombre: $row['nombre'],
-                apellido: $row['apellido'],
-                rol: new RolUsuario($row['rol']),
-                username: $row['username'],
-                passwordHash: $row['password_hash'],
-                email: $row['email'],
-                documentoIdentidad: $row['documento_identidad'],
-                licencia: $row['licencia'],
-                telefono: $row['telefono'],
-                activo: (bool) $row['activo'],
-                foto: $row['foto'] ?? null,
-                createdAt: $row['created_at']
+                id: $id,
+                nombre: $nombre,
+                apellido: $apellido,
+                rol: new RolUsuario($rol),
+                username: $username,
+                passwordHash: $passwordHash,
+                email: $email,
+                documentoIdentidad: $documentoIdentidad,
+                licencia: $licencia,
+                telefono: $telefono,
+                activo: $activo,
+                foto: $foto,
+                createdAt: $createdAt
             );
         }
 

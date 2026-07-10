@@ -51,6 +51,7 @@ final class RutaRepositoryTest extends TestCase
         $this->pdo->method('query')->willReturn($this->stmt);
         $this->stmt->method('fetchAll')->willReturn([]);
 
+        // @phpstan-ignore-next-line staticMethod.alreadyNarrowedType
         $this->assertIsArray($this->repository->findAll());
     }
 }

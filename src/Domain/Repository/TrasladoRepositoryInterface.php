@@ -12,8 +12,11 @@ interface TrasladoRepositoryInterface
 {
     public function findById(int $id): ?Traslado;
     public function findByCodigo(string $codigo): ?Traslado;
+    /** @return ElementoTraslado[] */
     public function findElementosByTrasladoId(int $trasladoId): array;
+    /** @return HistorialEstado[] */
     public function findHistorialByTrasladoId(int $trasladoId): array;
+    /** @return Traslado[] */
     public function findAll(?string $estado = null, ?int $conductorId = null, ?string $fechaDesde = null, ?string $fechaHasta = null, int $page = 1, int $perPage = 20): array;
     public function count(?string $estado = null, ?int $conductorId = null): int;
     public function countTotal(): int;
