@@ -118,6 +118,16 @@ class SessionManager
         return is_string($token) ? $token : '';
     }
 
+    private static ?string $nonce = null;
+
+    public static function getNonce(): string
+    {
+        if (self::$nonce === null) {
+            self::$nonce = bin2hex(random_bytes(16));
+        }
+        return self::$nonce;
+    }
+
     private static function checkTimeout(): void
     {
         if (isset($_SESSION['_created_at'])) {
@@ -126,22 +136,120 @@ class SessionManager
             if (time() - $createdAt > self::TIMEOUT) {
                 self::destroy();
                 self::start();
+                return;
             }
         }
 
         $_SESSION['_created_at'] = time();
+
+        if (isset($_SESSION['_session_id'])) {
+            $sid = $_SESSION['_session_id'];
+            if (!is_string($sid)) {
+                return;
+            }
+            $userId = self::getUserId();
+            if ($userId === null) {
+                return;
+            }
+            $file = self::sessionFilePath($userId);
+            if (!file_exists($file)) {
+                return;
+            }
+            $data = @file_get_contents($file);
+            if ($data === false) {
+                return;
+            }
+            $sessions = json_decode($data, true);
+            if (!is_array($sessions) || !in_array($sid, $sessions, true)) {
+                self::destroy();
+                self::start();
+            }
+        }
     }
 
     public static function login(int $userId, string $role, string $nombre = ''): void
     {
         self::regenerate();
+
         $_SESSION['user_id'] = $userId;
         $_SESSION['user_role'] = $role;
         $_SESSION['user_nombre'] = $nombre;
+        $_SESSION['_session_id'] = session_id();
+
+        self::saveActiveSession($userId);
     }
 
     public static function logout(): void
     {
+        $userId = self::getUserId();
+        if ($userId !== null) {
+            self::removeActiveSession($userId);
+        }
         self::destroy();
+    }
+
+    private static function sessionsDir(): string
+    {
+        $dir = dirname(__DIR__, 3) . '/storage/sessions';
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0775, true);
+        }
+        return $dir;
+    }
+
+    private static function sessionFilePath(int $userId): string
+    {
+        return self::sessionsDir() . "/user_{$userId}.json";
+    }
+
+    private static function saveActiveSession(int $userId): void
+    {
+        $file = self::sessionFilePath($userId);
+        $currentSessionId = session_id();
+
+        $sessions = [];
+        if (file_exists($file)) {
+            $data = @file_get_contents($file);
+            if ($data !== false) {
+                $sessions = json_decode($data, true);
+            }
+        }
+
+        if (!is_array($sessions)) {
+            $sessions = [];
+        }
+
+        $sessions[] = $currentSessionId;
+
+        @file_put_contents($file, json_encode($sessions), LOCK_EX);
+    }
+
+    private static function removeActiveSession(int $userId): void
+    {
+        $file = self::sessionFilePath($userId);
+        if (!file_exists($file)) {
+            return;
+        }
+
+        $data = @file_get_contents($file);
+        if ($data === false) {
+            return;
+        }
+
+        $sessions = json_decode($data, true);
+        if (!is_array($sessions)) {
+            return;
+        }
+
+        $currentSessionId = session_id();
+        $sessions = array_values(
+            array_filter($sessions, fn ($sid) => $sid !== $currentSessionId)
+        );
+
+        if (empty($sessions)) {
+            @unlink($file);
+        } else {
+            @file_put_contents($file, json_encode($sessions), LOCK_EX);
+        }
     }
 }

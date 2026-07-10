@@ -55,6 +55,9 @@ class Router
         $method = strtoupper($method);
         $parsedUri = parse_url($uri, PHP_URL_PATH);
         $uri = is_string($parsedUri) ? rtrim($parsedUri, '/') : '/';
+        if ($uri === '') {
+            $uri = '/';
+        }
 
         foreach ($this->routes as $route) {
             if ($route['method'] !== $method) {

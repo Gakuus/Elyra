@@ -50,4 +50,12 @@ return [
     ['method' => 'GET',  'pattern' => '/rutas',                'controller' => 'RutaController', 'action' => 'index'],
     ['method' => 'GET',  'pattern' => '/rutas/crear',          'controller' => 'RutaController', 'action' => 'crear'],
     ['method' => 'POST', 'pattern' => '/rutas/crear',          'controller' => 'RutaController', 'action' => 'guardar'],
+
+    ['method' => 'GET',  'pattern' => '/noticias',             'controller' => 'NoticiaController', 'action' => 'index'],
+    ['method' => 'GET',  'pattern' => '/noticias/crear',       'controller' => 'NoticiaController', 'action' => 'crear'],
+    ['method' => 'POST', 'pattern' => '/noticias/crear',       'controller' => 'NoticiaController', 'action' => 'crear'],
+    ['method' => 'GET',  'pattern' => '/noticias/editar',      'controller' => 'NoticiaController', 'action' => 'editar'],
+    ['method' => 'POST', 'pattern' => '/noticias/editar',      'controller' => 'NoticiaController', 'action' => 'editar'],
+    ['method' => 'GET',  'pattern' => '/noticias/eliminar',    'controller' => 'NoticiaController', 'action' => 'eliminar'],
+    ['method' => 'GET',  'pattern' => '/noticias/toggle',      'controller' => 'NoticiaController', 'action' => 'toggle'],
 ];

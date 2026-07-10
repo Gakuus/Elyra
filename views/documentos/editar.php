@@ -23,6 +23,9 @@
                 <h5 class="fw-bold mb-3"><i class="bi bi-pencil me-2 text-primary"></i>Editar documento</h5>
 
                 <form method="post" id="editForm">
+                    <div style="position:absolute;left:-9999px" aria-hidden="true">
+                        <input type="text" name="website" tabindex="-1" autocomplete="off" value="">
+                    </div>
                     <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars($_SESSION['_csrf_token'] ?? '') ?>">
                     <input type="hidden" name="id" value="<?= $doc['id'] ?>">
 
@@ -123,7 +126,7 @@
 </div>
 
 <?php $scripts = <<<HTML
-<script>
+<script nonce="{$nonce}">
 document.querySelectorAll('input[name="tipo_doc"]').forEach(radio => {
     radio.addEventListener('change', () => {
         const field = document.getElementById('pacienteField');

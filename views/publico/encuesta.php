@@ -31,6 +31,9 @@
             </div>
 
             <form method="post" id="encuestaRespForm" novalidate>
+                <div style="position:absolute;left:-9999px" aria-hidden="true">
+                    <input type="text" name="website" tabindex="-1" autocomplete="off" value="">
+                </div>
                 <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars(\Elyra\Infrastructure\Service\SessionManager::getCsrfToken()) ?>">
                 <input type="hidden" name="encuesta_id" value="<?= $encuesta['id'] ?>">
 
@@ -73,7 +76,7 @@
     </div>
 </div>
 
-<script>
+<script nonce="<?= $nonce ?>">
 (function () {
     var form = document.getElementById('encuestaRespForm');
     if (!form) return;

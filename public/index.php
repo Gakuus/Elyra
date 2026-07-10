@@ -58,15 +58,26 @@ $router->addMiddleware(function () {
     \Elyra\Infrastructure\Web\Middleware\CsrfMiddleware::handle();
 });
 
+// Middleware: Honeypot
+$router->addMiddleware(function () {
+    $redirect = \Elyra\Infrastructure\Web\Middleware\HoneypotMiddleware::handle();
+    if ($redirect !== null) {
+        header("Location: {$redirect}");
+        exit;
+    }
+});
+
 // CSP Headers
 $router->addMiddleware(function () {
-    $csp = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; img-src 'self' data:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; frame-src 'self'; object-src 'self'; base-uri 'self'; form-action 'self'";
+    $nonce = \Elyra\Infrastructure\Service\SessionManager::getNonce();
+    $csp = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'nonce-{$nonce}' 'strict-dynamic'; script-src-attr 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; img-src 'self' data:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'";
     header("Content-Security-Policy: {$csp}");
     header('X-Content-Type-Options: nosniff');
     header('X-Frame-Options: SAMEORIGIN');
     header('X-XSS-Protection: 0');
     header('Referrer-Policy: strict-origin-when-cross-origin');
     header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+    header('Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()');
 });
 
 // Run middleware

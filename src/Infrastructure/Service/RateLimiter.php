@@ -61,6 +61,21 @@ class RateLimiter
         return self::increment("survey:{$ip}", 300);
     }
 
+    public static function checkAccountLockout(string $username): bool
+    {
+        return self::check("account:{$username}", 5, 900);
+    }
+
+    public static function incrementAccountAttempts(string $username): int
+    {
+        return self::increment("account:{$username}", 900);
+    }
+
+    public static function resetAccountAttempts(string $username): void
+    {
+        self::reset("account:{$username}");
+    }
+
     private static function storagePath(string $key): string
     {
         $dir = self::$storageDir ?: sys_get_temp_dir() . '/elyra_rate_limit';

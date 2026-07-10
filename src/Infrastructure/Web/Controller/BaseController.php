@@ -11,7 +11,9 @@ abstract class BaseController
     /** @param array<string, mixed> $data */
     protected function render(string $view, array $data = []): void
     {
-        extract($data);
+        header('Content-Type: text/html; charset=UTF-8');
+        $nonce = \Elyra\Infrastructure\Service\SessionManager::getNonce();
+        extract($data, EXTR_SKIP);
         require __DIR__ . "/../../../../views/{$view}.php";
     }
 

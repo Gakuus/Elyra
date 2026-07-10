@@ -67,6 +67,10 @@
             var embed = e.target.querySelector('iframe');
             if (embed) embed.src = '';
         }
+        var qrBtn = e.target.closest('[data-qr-copy]');
+        if (qrBtn) {
+            window.Elyra.copiarEnlace(parseInt(qrBtn.getAttribute('data-qr-copy')), qrBtn);
+        }
     });
 
     window.Elyra.verQR = function (id) {
@@ -74,7 +78,7 @@
         if (!modal) return;
         var body = document.getElementById('qrModalBody');
         var url = window.location.origin + '/publico/doc?id=' + id;
-        body.innerHTML = '<div class="mb-3"><div id="qrcode"></div></div><p class="small text-muted mb-2">Escanear para ver el documento</p><button class="btn btn-sm btn-primary me-1" onclick="Elyra.copiarEnlace(' + id + ', this)"><i class="bi bi-clipboard me-1"></i>Copiar enlace</button><button class="btn btn-sm" onclick="window.print()"><i class="bi bi-printer me-1"></i>Imprimir</button>';
+        body.innerHTML = '<div class="mb-3"><div id="qrcode"></div></div><p class="small text-muted mb-2">Escanear para ver el documento</p><button class="btn btn-sm btn-primary me-1" data-qr-copy="' + id + '"><i class="bi bi-clipboard me-1"></i>Copiar enlace</button><button class="btn btn-sm" onclick="window.print()"><i class="bi bi-printer me-1"></i>Imprimir</button>';
         modal.classList.add('open');
         if (typeof window.QRCode !== 'undefined') {
             document.getElementById('qrcode').innerHTML = '';

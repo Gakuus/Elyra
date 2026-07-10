@@ -72,8 +72,8 @@
         <?php endforeach; ?>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    <script>
+    <script nonce="<?= $nonce ?>" src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script nonce="<?= $nonce ?>">
     document.addEventListener('DOMContentLoaded', function () {
         var colors = ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#6f42c1', '#20c997', '#fd7e14', '#0dcaf0', '#6610f2', '#d63384'];
         var stats = <?= json_encode($stats, JSON_UNESCAPED_UNICODE) ?>;

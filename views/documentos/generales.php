@@ -66,7 +66,7 @@ $frontendLimit = 8;
 </div>
 
 <?php $scripts = <<<HTML
-<script>
+<script nonce="{$nonce}">
 document.addEventListener('DOMContentLoaded', function() {
     var wrapper = document.getElementById('docs-table-wrapper');
     if (!wrapper) return;

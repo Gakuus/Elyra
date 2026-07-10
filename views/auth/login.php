@@ -20,6 +20,9 @@
             <?php endif; ?>
 
             <form method="post">
+                <div style="position:absolute;left:-9999px" aria-hidden="true">
+                    <input type="text" name="website" tabindex="-1" autocomplete="off" value="">
+                </div>
                 <input type="hidden" name="_csrf_token" value="<?= \Elyra\Infrastructure\Service\SessionManager::getCsrfToken() ?>">
 
                 <div class="form-group">
@@ -48,7 +51,7 @@
 </div>
 <?php $contenido = ob_get_clean(); ?>
 <?php $scripts = <<<HTML
-<script>
+<script nonce="{$nonce}">
 function togglePassword() {
     var pw = document.getElementById('password');
     var icon = document.getElementById('pwIcon');

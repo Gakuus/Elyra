@@ -106,7 +106,7 @@
 </div>
 
 <?php $scripts = <<<HTML
-<script>
+<script nonce="{$nonce}">
 function filtrarTraslados() {
     var estado = document.getElementById('filtroEstado').value;
     var busqueda = document.getElementById('busquedaTraslado').value.toLowerCase();
