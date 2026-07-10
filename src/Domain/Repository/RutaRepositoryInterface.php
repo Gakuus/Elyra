@@ -9,6 +9,7 @@ use Elyra\Domain\Entity\Ruta;
 interface RutaRepositoryInterface
 {
     public function findById(int $id): ?Ruta;
+    /** @return Ruta[] */
     public function findAll(): array;
     public function countTotal(): int;
     public function save(Ruta $ruta): Ruta;

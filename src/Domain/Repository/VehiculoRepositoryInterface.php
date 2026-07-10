@@ -9,6 +9,7 @@ use Elyra\Domain\Entity\Vehiculo;
 interface VehiculoRepositoryInterface
 {
     public function findById(int $id): ?Vehiculo;
+    /** @return Vehiculo[] */
     public function findAll(): array;
     public function findByPatente(string $patente): ?Vehiculo;
     public function countTotal(): int;

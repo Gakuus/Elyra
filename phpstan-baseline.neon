@@ -1,134 +1,8 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Method Elyra\\Domain\\Repository\\CategoriaRepositoryInterface\:\:findAll\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Domain/Repository/CategoriaRepositoryInterface.php
-
-		-
-			message: '#^Method Elyra\\Domain\\Repository\\CategoriaRepositoryInterface\:\:findByTipo\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Domain/Repository/CategoriaRepositoryInterface.php
-
-		-
-			message: '#^Method Elyra\\Domain\\Repository\\ConductorRepositoryInterface\:\:findAll\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Domain/Repository/ConductorRepositoryInterface.php
-
-		-
-			message: '#^Method Elyra\\Domain\\Repository\\ConductorRepositoryInterface\:\:findDisponibles\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Domain/Repository/ConductorRepositoryInterface.php
-
-		-
-			message: '#^Method Elyra\\Domain\\Repository\\DocumentoRepositoryInterface\:\:findAll\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Domain/Repository/DocumentoRepositoryInterface.php
-
-		-
-			message: '#^Method Elyra\\Domain\\Repository\\DocumentoRepositoryInterface\:\:findByPaciente\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Domain/Repository/DocumentoRepositoryInterface.php
-
-		-
-			message: '#^Method Elyra\\Domain\\Repository\\DocumentoRepositoryInterface\:\:findDePacientes\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Domain/Repository/DocumentoRepositoryInterface.php
-
-		-
-			message: '#^Method Elyra\\Domain\\Repository\\DocumentoRepositoryInterface\:\:findGenerales\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Domain/Repository/DocumentoRepositoryInterface.php
-
-		-
-			message: '#^Method Elyra\\Domain\\Repository\\EncuestaRepositoryInterface\:\:findAll\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Domain/Repository/EncuestaRepositoryInterface.php
-
-		-
-			message: '#^Method Elyra\\Domain\\Repository\\EncuestaRepositoryInterface\:\:findPreguntasByEncuestaId\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Domain/Repository/EncuestaRepositoryInterface.php
-
-		-
-			message: '#^Method Elyra\\Domain\\Repository\\EncuestaRepositoryInterface\:\:findRespuestasByEncuestaId\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Domain/Repository/EncuestaRepositoryInterface.php
-
-		-
-			message: '#^Method Elyra\\Domain\\Repository\\EncuestaRepositoryInterface\:\:findRespuestasByPreguntaId\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Domain/Repository/EncuestaRepositoryInterface.php
-
-		-
-			message: '#^Method Elyra\\Domain\\Repository\\RutaRepositoryInterface\:\:findAll\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Domain/Repository/RutaRepositoryInterface.php
-
-		-
-			message: '#^Method Elyra\\Domain\\Repository\\TrasladoRepositoryInterface\:\:findAll\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Domain/Repository/TrasladoRepositoryInterface.php
-
-		-
-			message: '#^Method Elyra\\Domain\\Repository\\TrasladoRepositoryInterface\:\:findElementosByTrasladoId\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Domain/Repository/TrasladoRepositoryInterface.php
-
-		-
-			message: '#^Method Elyra\\Domain\\Repository\\TrasladoRepositoryInterface\:\:findHistorialByTrasladoId\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Domain/Repository/TrasladoRepositoryInterface.php
-
-		-
-			message: '#^Method Elyra\\Domain\\Repository\\UsuarioRepositoryInterface\:\:findAllFuncionarios\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Domain/Repository/UsuarioRepositoryInterface.php
-
-		-
-			message: '#^Method Elyra\\Domain\\Repository\\UsuarioRepositoryInterface\:\:findAllPacientes\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Domain/Repository/UsuarioRepositoryInterface.php
-
-		-
-			message: '#^Method Elyra\\Domain\\Repository\\VehiculoRepositoryInterface\:\:findAll\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Domain/Repository/VehiculoRepositoryInterface.php
-
-		-
 			message: '#^Cannot call method fetchAll\(\) on PDOStatement\|false\.$#'
 			identifier: method.nonObject
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/CategoriaRepository.php
-
-		-
-			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\CategoriaRepository\:\:findAll\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/CategoriaRepository.php
-
-		-
-			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\CategoriaRepository\:\:findByTipo\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
 			count: 1
 			path: src/Infrastructure/Persistence/MySQL/CategoriaRepository.php
 
@@ -154,18 +28,6 @@ parameters:
 			message: '#^Cannot call method fetchColumn\(\) on PDOStatement\|false\.$#'
 			identifier: method.nonObject
 			count: 2
-			path: src/Infrastructure/Persistence/MySQL/ConductorRepository.php
-
-		-
-			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\ConductorRepository\:\:findAll\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/ConductorRepository.php
-
-		-
-			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\ConductorRepository\:\:findDisponibles\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
 			path: src/Infrastructure/Persistence/MySQL/ConductorRepository.php
 
 		-
@@ -229,30 +91,6 @@ parameters:
 			path: src/Infrastructure/Persistence/MySQL/DocumentoRepository.php
 
 		-
-			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\DocumentoRepository\:\:findAll\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/DocumentoRepository.php
-
-		-
-			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\DocumentoRepository\:\:findByPaciente\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/DocumentoRepository.php
-
-		-
-			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\DocumentoRepository\:\:findDePacientes\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/DocumentoRepository.php
-
-		-
-			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\DocumentoRepository\:\:findGenerales\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/DocumentoRepository.php
-
-		-
 			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\DocumentoRepository\:\:getArchivoContent\(\) should return string\|null but returns mixed\.$#'
 			identifier: return.type
 			count: 1
@@ -277,37 +115,13 @@ parameters:
 			path: src/Infrastructure/Persistence/MySQL/EncuestaRepository.php
 
 		-
-			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\EncuestaRepository\:\:findAll\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/EncuestaRepository.php
-
-		-
 			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\EncuestaRepository\:\:findEncuestasConPreguntas\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Infrastructure/Persistence/MySQL/EncuestaRepository.php
 
 		-
-			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\EncuestaRepository\:\:findPreguntasByEncuestaId\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/EncuestaRepository.php
-
-		-
 			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\EncuestaRepository\:\:findRespuestasAgrupadas\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/EncuestaRepository.php
-
-		-
-			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\EncuestaRepository\:\:findRespuestasByEncuestaId\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/EncuestaRepository.php
-
-		-
-			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\EncuestaRepository\:\:findRespuestasByPreguntaId\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Infrastructure/Persistence/MySQL/EncuestaRepository.php
@@ -343,12 +157,6 @@ parameters:
 			path: src/Infrastructure/Persistence/MySQL/EncuestaRepository.php
 
 		-
-			message: '#^Parameter \$valorOpcion of class Elyra\\Domain\\Entity\\Respuesta constructor expects int\|null, int\|string\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/EncuestaRepository.php
-
-		-
 			message: '#^Cannot call method fetchAll\(\) on PDOStatement\|false\.$#'
 			identifier: method.nonObject
 			count: 1
@@ -357,12 +165,6 @@ parameters:
 		-
 			message: '#^Cannot call method fetchColumn\(\) on PDOStatement\|false\.$#'
 			identifier: method.nonObject
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/RutaRepository.php
-
-		-
-			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\RutaRepository\:\:findAll\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
 			count: 1
 			path: src/Infrastructure/Persistence/MySQL/RutaRepository.php
 
@@ -382,24 +184,6 @@ parameters:
 			message: '#^Cannot call method fetchColumn\(\) on PDOStatement\|false\.$#'
 			identifier: method.nonObject
 			count: 2
-			path: src/Infrastructure/Persistence/MySQL/TrasladoRepository.php
-
-		-
-			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\TrasladoRepository\:\:findAll\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/TrasladoRepository.php
-
-		-
-			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\TrasladoRepository\:\:findElementosByTrasladoId\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/TrasladoRepository.php
-
-		-
-			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\TrasladoRepository\:\:findHistorialByTrasladoId\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
 			path: src/Infrastructure/Persistence/MySQL/TrasladoRepository.php
 
 		-
@@ -517,18 +301,6 @@ parameters:
 			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
 
 		-
-			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\UsuarioRepository\:\:findAllFuncionarios\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\UsuarioRepository\:\:findAllPacientes\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
 			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\UsuarioRepository\:\:hydrate\(\) has parameter \$row with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -627,12 +399,6 @@ parameters:
 		-
 			message: '#^Cannot call method fetchColumn\(\) on PDOStatement\|false\.$#'
 			identifier: method.nonObject
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/VehiculoRepository.php
-
-		-
-			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\VehiculoRepository\:\:findAll\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
 			count: 1
 			path: src/Infrastructure/Persistence/MySQL/VehiculoRepository.php
 
@@ -1075,12 +841,6 @@ parameters:
 			path: src/Infrastructure/Web/Controller/EncuestaController.php
 
 		-
-			message: '#^Parameter \#2 \$timestamp of function date expects int\|null, int\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Infrastructure/Web/Controller/EncuestaController.php
-
-		-
 			message: '#^Parameter \$encuestaId of class Elyra\\Domain\\Entity\\Pregunta constructor expects int, int\|null given\.$#'
 			identifier: argument.type
 			count: 1
@@ -1477,13 +1237,13 @@ parameters:
 			path: tests/Unit/Entity/TrasladoTest.php
 
 		-
-			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array will always evaluate to true\.$#'
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array\<Elyra\\Domain\\Entity\\Ruta\> will always evaluate to true\.$#'
 			identifier: method.alreadyNarrowedType
 			count: 1
 			path: tests/Unit/Repository/RutaRepositoryTest.php
 
 		-
-			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array will always evaluate to true\.$#'
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array\<Elyra\\Domain\\Entity\\Traslado\> will always evaluate to true\.$#'
 			identifier: method.alreadyNarrowedType
 			count: 1
 			path: tests/Unit/Repository/TrasladoRepositoryTest.php

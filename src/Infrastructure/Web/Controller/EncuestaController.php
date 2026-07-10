@@ -26,15 +26,17 @@ class EncuestaController extends BaseController
         $lista = [];
 
         foreach ($encuestas as $e) {
-            $preguntas = $this->encuestaRepo->findPreguntasByEncuestaId($e->getId());
+            $encuestaId = $e->getId();
+            if ($encuestaId === null) continue;
+            $preguntas = $this->encuestaRepo->findPreguntasByEncuestaId($encuestaId);
             $creada = $e->getCreatedAt();
             $lista[] = [
-                'id' => $e->getId(),
+                'id' => $encuestaId,
                 'titulo' => $e->getTitulo(),
                 'descripcion' => $e->getDescripcion() ?? '',
                 'preguntas' => count($preguntas),
                 'activa' => $e->isActiva(),
-                'creada' => $creada ? date('d/m/Y', strtotime($creada)) : '',
+                'creada' => $creada ? date('d/m/Y', (int) strtotime($creada)) : '',
             ];
         }
 
@@ -169,7 +171,7 @@ class EncuestaController extends BaseController
                 ];
             }, $preguntas),
             'activa' => $encuesta->isActiva(),
-            'creada' => $encuesta->getCreatedAt() ? date('d/m/Y', strtotime($encuesta->getCreatedAt())) : '',
+            'creada' => $encuesta->getCreatedAt() ? date('d/m/Y', (int) strtotime($encuesta->getCreatedAt())) : '',
         ];
 
         $this->render('encuestas/resultados', [

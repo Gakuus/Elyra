@@ -44,7 +44,7 @@ class DashboardController extends BaseController
                 'id' => $d->getId(),
                 'titulo' => $d->getTitulo(),
                 'categoria' => $d->getCategoriaNombre() ?? '',
-                'subido' => $d->getCreatedAt() ? date('d/m/Y', strtotime($d->getCreatedAt())) : '',
+                'subido' => $d->getCreatedAt() ? date('d/m/Y', (int) strtotime($d->getCreatedAt())) : '',
             ], $recientes),
         ]);
     }
@@ -69,7 +69,7 @@ class DashboardController extends BaseController
                 'id' => $d->getId(),
                 'titulo' => $d->getTitulo(),
                 'categoria' => $d->getCategoriaNombre() ?? '',
-                'subido' => $d->getCreatedAt() ? date('d/m/Y', strtotime($d->getCreatedAt())) : '',
+                'subido' => $d->getCreatedAt() ? date('d/m/Y', (int) strtotime($d->getCreatedAt())) : '',
                 'activo' => $d->isActivo(),
             ], $recientes),
         ]);

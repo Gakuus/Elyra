@@ -182,7 +182,7 @@ class EncuestaRepository implements EncuestaRepositoryInterface
                     id: null,
                     sesionToken: $sesionToken,
                     encuestaId: $encuestaId,
-                    preguntaId: $pregunta->getId(),
+                    preguntaId: $pregunta->getId() ?? throw new \RuntimeException('Pregunta sin ID'),
                     tokenPaciente: $tokenPaciente,
                     valorOpcion: $valorOpcion,
                     valorTexto: $valorTexto,
@@ -203,7 +203,7 @@ class EncuestaRepository implements EncuestaRepositoryInterface
         $encuestas = $this->findAll($soloActivas);
         $result = [];
         foreach ($encuestas as $encuesta) {
-            $preguntas = $this->findPreguntasByEncuestaId($encuesta->getId());
+            $preguntas = $this->findPreguntasByEncuestaId($encuesta->getId() ?? throw new \RuntimeException('Encuesta sin ID'));
             $result[] = [
                 'encuesta' => $encuesta,
                 'preguntas' => $preguntas,

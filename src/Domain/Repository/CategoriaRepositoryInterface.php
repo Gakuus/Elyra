@@ -9,7 +9,9 @@ use Elyra\Domain\Entity\Categoria;
 interface CategoriaRepositoryInterface
 {
     public function findById(int $id): ?Categoria;
+    /** @return Categoria[] */
     public function findAll(): array;
+    /** @return Categoria[] */
     public function findByTipo(string $tipo): array;
     public function save(Categoria $categoria): Categoria;
     public function update(Categoria $categoria): void;
