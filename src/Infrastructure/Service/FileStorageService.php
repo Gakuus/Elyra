@@ -44,6 +44,24 @@ class FileStorageService
             throw new \RuntimeException("Extensión no permitida: {$extension}");
         }
 
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime = $finfo !== false ? finfo_file($finfo, $file['tmp_name']) : '';
+        if ($finfo !== false) {
+            finfo_close($finfo);
+        }
+        $allowedMimes = [
+            'application/pdf',
+            'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'text/plain',
+        ];
+        if ($mime !== '' && !in_array($mime, $allowedMimes, true)) {
+            throw new \RuntimeException("Tipo de archivo no permitido: {$mime}");
+        }
+
         $filename = bin2hex(random_bytes(16)) . '.' . $extension;
         $filePath = $targetDir . '/' . $filename;
 

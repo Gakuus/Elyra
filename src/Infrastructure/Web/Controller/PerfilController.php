@@ -99,7 +99,7 @@ class PerfilController extends BaseController
                 return;
             }
             if ($user instanceof Paciente || $user instanceof Funcionario) {
-                $user->setPasswordHash(password_hash($password, PASSWORD_BCRYPT));
+                $user->setPasswordHash(password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]));
             }
         }
 

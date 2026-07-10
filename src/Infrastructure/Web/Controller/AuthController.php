@@ -135,7 +135,7 @@ class AuthController extends BaseController
             return;
         }
 
-        $hash = password_hash($password, PASSWORD_BCRYPT);
+        $hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
         $token = bin2hex(random_bytes(16));
 
         $paciente = new Paciente(

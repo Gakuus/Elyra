@@ -33,7 +33,7 @@ $eActual = $estados[$t['estado']];
                             <div class="d-flex flex-wrap gap-2">
                                 <?php foreach ($allowed as $est): ?>
                                     <?php $info = $estados[$est]; ?>
-                                    <button type="submit" name="estado" value="<?= $est ?>" class="btn px-4 py-2" onclick="return confirm('¿Estás seguro de cambiar a «<?= $info['label'] ?>»?')">
+                                    <button type="submit" name="estado" value="<?= $est ?>" class="btn px-4 py-2" onclick="return confirm('¿Estás seguro de cambiar a «<?= htmlspecialchars($info['label'], ENT_QUOTES) ?>»?')">
                                         <i class="bi bi-arrow-right-circle me-1"></i> <?= $info['label'] ?>
                                     </button>
                                 <?php endforeach; ?>
