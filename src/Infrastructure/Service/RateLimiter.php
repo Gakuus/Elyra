@@ -41,6 +41,16 @@ class RateLimiter
         return self::increment("public:{$ip}", 60);
     }
 
+    public static function checkRegistrationAttempts(string $ip): bool
+    {
+        return self::check("registro:{$ip}", 3, 3600);
+    }
+
+    public static function incrementRegistrationAttempts(string $ip): int
+    {
+        return self::increment("registro:{$ip}", 3600);
+    }
+
     public static function checkSurveySubmission(string $ip): bool
     {
         return self::check("survey:{$ip}", 1, 300);

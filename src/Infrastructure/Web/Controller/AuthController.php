@@ -7,6 +7,7 @@ namespace Elyra\Infrastructure\Web\Controller;
 use Elyra\Domain\Entity\Paciente;
 use Elyra\Infrastructure\Persistence\MySQL\UsuarioRepository;
 use Elyra\Infrastructure\Service\AuthService;
+use Elyra\Infrastructure\Service\RateLimiter;
 use Elyra\Infrastructure\Service\SessionManager;
 use Elyra\Infrastructure\Service\Validator;
 
@@ -69,6 +70,16 @@ class AuthController extends BaseController
         if ($this->authService->isAuthenticated()) {
             $this->redirect('/dashboard');
         }
+
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        if (!is_string($ip)) {
+            $ip = '127.0.0.1';
+        }
+        if (!RateLimiter::checkRegistrationAttempts($ip)) {
+            $this->render('auth/registro', ['error' => 'Demasiados registros desde esta IP. Intente de nuevo más tarde.']);
+            return;
+        }
+        RateLimiter::incrementRegistrationAttempts($ip);
 
         /** @var string $nombreInput */
         $nombreInput = $_POST['nombre'] ?? '';
