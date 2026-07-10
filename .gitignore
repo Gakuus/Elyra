@@ -4,6 +4,7 @@
 .DS_Store
 *.log
 /.phpunit.result.cache
+/.phpunit.cache/
 *.pdf
 /composer.lock
 /storage/uploads/

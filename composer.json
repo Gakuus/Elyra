@@ -14,5 +14,28 @@
         "psr-4": {
             "Elyra\\Tests\\": "tests/"
         }
+    },
+    "scripts": {
+        "behat": "php vendor/bin/behat",
+        "behat:auth": "php vendor/bin/behat features/auth.feature",
+        "behat:docs": "php vendor/bin/behat features/documentos.feature",
+        "behat:encuestas": "php vendor/bin/behat features/encuestas.feature",
+        "behat:traslados": "php vendor/bin/behat features/traslados.feature",
+        "behat:rutas": "php vendor/bin/behat features/rutas.feature",
+        "test": "php vendor/bin/phpunit",
+        "test:bdd": "php vendor/bin/behat",
+        "test:all": [
+            "@test",
+            "@test:bdd"
+        ]
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^13.2",
+        "behat/behat": "^3.15",
+        "behat/mink": "^1.13",
+        "friends-of-behat/mink-extension": "^2.7",
+        "behat/mink-browserkit-driver": "^2.3",
+        "symfony/http-client": "^8.1",
+        "symfony/mime": "^8.1"
     }
 }

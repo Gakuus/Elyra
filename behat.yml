@@ -1,0 +1,30 @@
+default:
+    extensions:
+        Behat\MinkExtension:
+            base_url: 'http://localhost:9876'
+            sessions:
+                default:
+                    browserkit_http: ~
+            files_path: '%paths.base%/tests/Behat/fixtures'
+
+    suites:
+        auth:
+            paths: ['%paths.base%/features/auth.feature']
+            contexts:
+                - Elyra\Tests\Behat\FeatureContext
+        documentos:
+            paths: ['%paths.base%/features/documentos.feature']
+            contexts:
+                - Elyra\Tests\Behat\FeatureContext
+        encuestas:
+            paths: ['%paths.base%/features/encuestas.feature']
+            contexts:
+                - Elyra\Tests\Behat\FeatureContext
+        traslados:
+            paths: ['%paths.base%/features/traslados.feature']
+            contexts:
+                - Elyra\Tests\Behat\FeatureContext
+        rutas:
+            paths: ['%paths.base%/features/rutas.feature']
+            contexts:
+                - Elyra\Tests\Behat\FeatureContext
