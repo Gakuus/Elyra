@@ -54,6 +54,7 @@ class EstadoTraslado
         return in_array($nuevoEstado->value(), self::TRANSICIONES[$this->value] ?? [], true);
     }
 
+    /** @return list<string> */
     public function transicionesPermitidas(): array
     {
         return self::TRANSICIONES[$this->value] ?? [];
@@ -69,6 +70,7 @@ class EstadoTraslado
         return new self('pendiente');
     }
 
+    /** @return list<string> */
     public static function valores(): array
     {
         return self::VALIDOS;

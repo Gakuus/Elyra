@@ -43,6 +43,7 @@ class TipoPregunta
         return $this->value === 'multiple_choice';
     }
 
+    /** @return list<string> */
     public static function valores(): array
     {
         return self::VALIDOS;
