@@ -1,94 +1,16 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Cannot call method fetchAll\(\) on PDOStatement\|false\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/CategoriaRepository.php
-
-		-
 			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\CategoriaRepository\:\:hydrate\(\) has parameter \$row with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Infrastructure/Persistence/MySQL/CategoriaRepository.php
 
 		-
-			message: '#^Parameter \#1 \$row of method Elyra\\Infrastructure\\Persistence\\MySQL\\CategoriaRepository\:\:hydrate\(\) expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/CategoriaRepository.php
-
-		-
-			message: '#^Cannot call method fetchAll\(\) on PDOStatement\|false\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/ConductorRepository.php
-
-		-
-			message: '#^Cannot call method fetchColumn\(\) on PDOStatement\|false\.$#'
-			identifier: method.nonObject
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/ConductorRepository.php
-
-		-
 			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\ConductorRepository\:\:hydrate\(\) has parameter \$row with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Infrastructure/Persistence/MySQL/ConductorRepository.php
-
-		-
-			message: '#^Parameter \#1 \$row of method Elyra\\Infrastructure\\Persistence\\MySQL\\ConductorRepository\:\:hydrate\(\) expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/ConductorRepository.php
-
-		-
-			message: '#^Parameter \#2 \$username of class PDO constructor expects string\|null, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/Connection.php
-
-		-
-			message: '#^Parameter \#3 \$password of class PDO constructor expects string\|null, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/Connection.php
-
-		-
-			message: '#^Part \$database \(mixed\) of encapsed string cannot be cast to string\.$#'
-			identifier: encapsedStringPart.nonString
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/Connection.php
-
-		-
-			message: '#^Part \$host \(mixed\) of encapsed string cannot be cast to string\.$#'
-			identifier: encapsedStringPart.nonString
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/Connection.php
-
-		-
-			message: '#^Part \$port \(mixed\) of encapsed string cannot be cast to string\.$#'
-			identifier: encapsedStringPart.nonString
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/Connection.php
-
-		-
-			message: '#^Part \$unixSocket \(mixed\) of encapsed string cannot be cast to string\.$#'
-			identifier: encapsedStringPart.nonString
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/Connection.php
-
-		-
-			message: '#^Cannot access offset ''archivo_contenido'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/DocumentoRepository.php
-
-		-
-			message: '#^Cannot call method fetchColumn\(\) on PDOStatement\|false\.$#'
-			identifier: method.nonObject
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/DocumentoRepository.php
 
 		-
 			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\DocumentoRepository\:\:getArchivoContent\(\) should return string\|null but returns mixed\.$#'
@@ -101,18 +23,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Infrastructure/Persistence/MySQL/DocumentoRepository.php
-
-		-
-			message: '#^Parameter \#1 \$row of method Elyra\\Infrastructure\\Persistence\\MySQL\\DocumentoRepository\:\:hydrate\(\) expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 3
-			path: src/Infrastructure/Persistence/MySQL/DocumentoRepository.php
-
-		-
-			message: '#^Cannot call method fetchColumn\(\) on PDOStatement\|false\.$#'
-			identifier: method.nonObject
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/EncuestaRepository.php
 
 		-
 			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\EncuestaRepository\:\:findEncuestasConPreguntas\(\) return type has no value type specified in iterable type array\.$#'
@@ -151,40 +61,10 @@ parameters:
 			path: src/Infrastructure/Persistence/MySQL/EncuestaRepository.php
 
 		-
-			message: '#^Parameter \#1 \$row of method Elyra\\Infrastructure\\Persistence\\MySQL\\EncuestaRepository\:\:hydrate\(\) expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/EncuestaRepository.php
-
-		-
-			message: '#^Cannot call method fetchAll\(\) on PDOStatement\|false\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/RutaRepository.php
-
-		-
-			message: '#^Cannot call method fetchColumn\(\) on PDOStatement\|false\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/RutaRepository.php
-
-		-
 			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\RutaRepository\:\:hydrate\(\) has parameter \$row with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Infrastructure/Persistence/MySQL/RutaRepository.php
-
-		-
-			message: '#^Parameter \#1 \$row of method Elyra\\Infrastructure\\Persistence\\MySQL\\RutaRepository\:\:hydrate\(\) expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/RutaRepository.php
-
-		-
-			message: '#^Cannot call method fetchColumn\(\) on PDOStatement\|false\.$#'
-			identifier: method.nonObject
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/TrasladoRepository.php
 
 		-
 			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\TrasladoRepository\:\:hydrate\(\) has parameter \$row with no value type specified in iterable type array\.$#'
@@ -205,99 +85,15 @@ parameters:
 			path: src/Infrastructure/Persistence/MySQL/TrasladoRepository.php
 
 		-
-			message: '#^Parameter \#1 \$row of method Elyra\\Infrastructure\\Persistence\\MySQL\\TrasladoRepository\:\:hydrate\(\) expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/TrasladoRepository.php
-
-		-
-			message: '#^Cannot access offset ''activo'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Cannot access offset ''apellido'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Cannot access offset ''created_at'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Cannot access offset ''documento_identidad'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Cannot access offset ''email'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Cannot access offset ''foto'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Cannot access offset ''id'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Cannot access offset ''licencia'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Cannot access offset ''nombre'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Cannot access offset ''password_hash'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Cannot access offset ''rol'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Cannot access offset ''telefono'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Cannot access offset ''username'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Cannot call method fetchAll\(\) on PDOStatement\|false\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
 			message: '#^Cannot cast mixed to int\.$#'
 			identifier: cast.int
-			count: 2
+			count: 3
+			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 33
 			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
 
 		-
@@ -313,105 +109,9 @@ parameters:
 			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
 
 		-
-			message: '#^Parameter \#1 \$row of method Elyra\\Infrastructure\\Persistence\\MySQL\\UsuarioRepository\:\:hydrate\(\) expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Parameter \#1 \$row of method Elyra\\Infrastructure\\Persistence\\MySQL\\UsuarioRepository\:\:hydratePaciente\(\) expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 3
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Parameter \#1 \$value of class Elyra\\Domain\\ValueObject\\RolUsuario constructor expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Parameter \$apellido of class Elyra\\Domain\\Entity\\Funcionario constructor expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Parameter \$createdAt of class Elyra\\Domain\\Entity\\Funcionario constructor expects string\|null, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Parameter \$documentoIdentidad of class Elyra\\Domain\\Entity\\Funcionario constructor expects string\|null, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Parameter \$email of class Elyra\\Domain\\Entity\\Funcionario constructor expects string\|null, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Parameter \$foto of class Elyra\\Domain\\Entity\\Funcionario constructor expects string\|null, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Parameter \$licencia of class Elyra\\Domain\\Entity\\Funcionario constructor expects string\|null, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Parameter \$nombre of class Elyra\\Domain\\Entity\\Funcionario constructor expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Parameter \$passwordHash of class Elyra\\Domain\\Entity\\Funcionario constructor expects string\|null, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Parameter \$telefono of class Elyra\\Domain\\Entity\\Funcionario constructor expects string\|null, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Parameter \$username of class Elyra\\Domain\\Entity\\Funcionario constructor expects string\|null, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Infrastructure/Persistence/MySQL/UsuarioRepository.php
-
-		-
-			message: '#^Cannot call method fetchAll\(\) on PDOStatement\|false\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/VehiculoRepository.php
-
-		-
-			message: '#^Cannot call method fetchColumn\(\) on PDOStatement\|false\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: src/Infrastructure/Persistence/MySQL/VehiculoRepository.php
-
-		-
 			message: '#^Method Elyra\\Infrastructure\\Persistence\\MySQL\\VehiculoRepository\:\:hydrate\(\) has parameter \$row with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: src/Infrastructure/Persistence/MySQL/VehiculoRepository.php
-
-		-
-			message: '#^Parameter \#1 \$row of method Elyra\\Infrastructure\\Persistence\\MySQL\\VehiculoRepository\:\:hydrate\(\) expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 2
 			path: src/Infrastructure/Persistence/MySQL/VehiculoRepository.php
 
 		-

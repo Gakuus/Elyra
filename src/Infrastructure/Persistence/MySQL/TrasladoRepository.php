@@ -23,7 +23,9 @@ class TrasladoRepository implements TrasladoRepositoryInterface
     public function findById(int $id): ?Traslado
     {
         $stmt = $this->pdo->prepare("SELECT * FROM traslado WHERE id = ?");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$id]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
 
         if (!$row) return null;
@@ -34,7 +36,9 @@ class TrasladoRepository implements TrasladoRepositoryInterface
     public function findByCodigo(string $codigo): ?Traslado
     {
         $stmt = $this->pdo->prepare("SELECT * FROM traslado WHERE codigo = ?");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$codigo]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
 
         if (!$row) return null;
@@ -45,7 +49,9 @@ class TrasladoRepository implements TrasladoRepositoryInterface
     public function findElementosByTrasladoId(int $trasladoId): array
     {
         $stmt = $this->pdo->prepare("SELECT * FROM elemento_traslado WHERE traslado_id = ? ORDER BY id");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$trasladoId]);
+        /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll();
 
         return array_map(fn (array $row) => $this->hydrateElemento($row), $rows);
@@ -54,7 +60,9 @@ class TrasladoRepository implements TrasladoRepositoryInterface
     public function findHistorialByTrasladoId(int $trasladoId): array
     {
         $stmt = $this->pdo->prepare("SELECT * FROM historial_estado WHERE traslado_id = ? ORDER BY created_at ASC");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$trasladoId]);
+        /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll();
 
         return array_map(fn (array $row) => $this->hydrateHistorial($row), $rows);
@@ -87,7 +95,9 @@ class TrasladoRepository implements TrasladoRepositoryInterface
         $params[] = ($page - 1) * $perPage;
 
         $stmt = $this->pdo->prepare($sql);
+        /** @var \PDOStatement $stmt */
         $stmt->execute($params);
+        /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll();
 
         return array_map(fn (array $row) => $this->hydrate($row), $rows);
@@ -108,6 +118,7 @@ class TrasladoRepository implements TrasladoRepositoryInterface
         }
 
         $stmt = $this->pdo->prepare($sql);
+        /** @var \PDOStatement $stmt */
         $stmt->execute($params);
 
         return (int) $stmt->fetchColumn();
@@ -115,6 +126,7 @@ class TrasladoRepository implements TrasladoRepositoryInterface
 
     public function countTotal(): int
     {
+        /** @var \PDOStatement $stmt */
         $stmt = $this->pdo->query("SELECT COUNT(*) FROM traslado");
         return (int) $stmt->fetchColumn();
     }
@@ -122,6 +134,7 @@ class TrasladoRepository implements TrasladoRepositoryInterface
     public function countByEstado(string $estado): int
     {
         $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM traslado WHERE estado = ?");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$estado]);
         return (int) $stmt->fetchColumn();
     }
@@ -134,6 +147,7 @@ class TrasladoRepository implements TrasladoRepositoryInterface
                 hora_llegada_hospital, estado, motivo_cancelacion, registrado_por, observaciones)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([
             $traslado->getCodigo(),
             $traslado->getConductorId(),
@@ -162,6 +176,7 @@ class TrasladoRepository implements TrasladoRepositoryInterface
             INSERT INTO elemento_traslado (traslado_id, tipo, paciente_id, descripcion, cantidad)
             VALUES (?, ?, ?, ?, ?)
         ");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([
             $elemento->getTrasladoId(),
             $elemento->getTipo()->value(),
@@ -179,6 +194,7 @@ class TrasladoRepository implements TrasladoRepositoryInterface
             INSERT INTO historial_estado (traslado_id, estado_anterior, estado_nuevo, observacion, actualizado_por)
             VALUES (?, ?, ?, ?, ?)
         ");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([
             $historial->getTrasladoId(),
             $historial->getEstadoAnterior(),
@@ -199,6 +215,7 @@ class TrasladoRepository implements TrasladoRepositoryInterface
                 estado = ?, motivo_cancelacion = ?, observaciones = ?
             WHERE id = ?
         ");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([
             $traslado->getConductorId(),
             $traslado->getCopilotoId(),
@@ -220,6 +237,7 @@ class TrasladoRepository implements TrasladoRepositoryInterface
 
     public function nextCodigo(): string
     {
+        /** @var \PDOStatement $stmt */
         $stmt = $this->pdo->query("SELECT MAX(id) FROM traslado");
         $maxId = (int) $stmt->fetchColumn();
         $year = date('y');

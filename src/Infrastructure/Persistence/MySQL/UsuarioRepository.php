@@ -35,7 +35,9 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             LEFT JOIN paciente p ON p.id = u.id
             WHERE u.id = ?
         ");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$id]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
 
         if (!$row) return null;
@@ -51,25 +53,27 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             JOIN funcionario f ON f.id = u.id
             WHERE f.username = ?
         ");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$username]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
 
         if (!$row) return null;
 
         return new Funcionario(
             id: (int) $row['id'],
-            nombre: $row['nombre'],
-            apellido: $row['apellido'],
-            rol: new RolUsuario($row['rol']),
-            username: $row['username'],
-            passwordHash: $row['password_hash'],
-            email: $row['email'],
-            documentoIdentidad: $row['documento_identidad'],
-            licencia: $row['licencia'],
-            telefono: $row['telefono'],
+            nombre: (string) $row['nombre'],
+            apellido: (string) $row['apellido'],
+            rol: new RolUsuario((string) $row['rol']),
+            username: (string) $row['username'],
+            passwordHash: (string) $row['password_hash'],
+            email: (string) $row['email'],
+            documentoIdentidad: (string) $row['documento_identidad'],
+            licencia: (string) $row['licencia'],
+            telefono: (string) $row['telefono'],
             activo: (bool) $row['activo'],
-            foto: $row['foto'] ?? null,
-            createdAt: $row['created_at']
+            foto: isset($row['foto']) ? (string) $row['foto'] : null,
+            createdAt: (string) $row['created_at']
         );
     }
 
@@ -81,25 +85,27 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             JOIN funcionario f ON f.id = u.id
             WHERE u.email = ?
         ");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$email]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
 
         if (!$row) return null;
 
         return new Funcionario(
             id: (int) $row['id'],
-            nombre: $row['nombre'],
-            apellido: $row['apellido'],
-            rol: new RolUsuario($row['rol']),
-            username: $row['username'],
-            passwordHash: $row['password_hash'],
-            email: $row['email'],
-            documentoIdentidad: $row['documento_identidad'],
-            licencia: $row['licencia'],
-            telefono: $row['telefono'],
+            nombre: (string) $row['nombre'],
+            apellido: (string) $row['apellido'],
+            rol: new RolUsuario((string) $row['rol']),
+            username: (string) $row['username'],
+            passwordHash: (string) $row['password_hash'],
+            email: (string) $row['email'],
+            documentoIdentidad: (string) $row['documento_identidad'],
+            licencia: (string) $row['licencia'],
+            telefono: (string) $row['telefono'],
             activo: (bool) $row['activo'],
-            foto: $row['foto'] ?? null,
-            createdAt: $row['created_at']
+            foto: isset($row['foto']) ? (string) $row['foto'] : null,
+            createdAt: (string) $row['created_at']
         );
     }
 
@@ -111,7 +117,9 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             JOIN paciente p ON p.id = u.id
             WHERE p.token_acceso = ?
         ");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$token]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
 
         if (!$row) return null;
@@ -127,7 +135,9 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             JOIN paciente p ON p.id = u.id
             WHERE p.username = ?
         ");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$username]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
 
         if (!$row) return null;
@@ -290,26 +300,28 @@ class UsuarioRepository implements UsuarioRepositoryInterface
         }
         $sql .= " ORDER BY u.apellido, u.nombre";
 
+        /** @var \PDOStatement $stmt */
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
+        /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll();
 
         $result = [];
         foreach ($rows as $row) {
             $result[] = new Funcionario(
                 id: (int) $row['id'],
-                nombre: $row['nombre'],
-                apellido: $row['apellido'],
-                rol: new RolUsuario($row['rol']),
-                username: $row['username'],
-                passwordHash: $row['password_hash'],
-                email: $row['email'],
-                documentoIdentidad: $row['documento_identidad'],
-                licencia: $row['licencia'],
-                telefono: $row['telefono'],
+                nombre: (string) $row['nombre'],
+                apellido: (string) $row['apellido'],
+                rol: new RolUsuario((string) $row['rol']),
+                username: (string) $row['username'],
+                passwordHash: (string) $row['password_hash'],
+                email: (string) $row['email'],
+                documentoIdentidad: (string) $row['documento_identidad'],
+                licencia: (string) $row['licencia'],
+                telefono: (string) $row['telefono'],
                 activo: (bool) $row['activo'],
-                foto: $row['foto'] ?? null,
-                createdAt: $row['created_at']
+                foto: isset($row['foto']) ? (string) $row['foto'] : null,
+                createdAt: (string) $row['created_at']
             );
         }
         return $result;
@@ -323,19 +335,23 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             JOIN paciente p ON p.id = u.id
             WHERE u.documento_identidad = ?
         ");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$documento]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
         return $row ? $this->hydratePaciente($row) : null;
     }
 
     public function findAllPacientes(): array
     {
+        /** @var \PDOStatement $stmt */
         $stmt = $this->pdo->query("
             SELECT u.*, p.*
             FROM usuario u
             JOIN paciente p ON p.id = u.id
             ORDER BY u.apellido, u.nombre
         ");
+        /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll();
 
         $result = [];

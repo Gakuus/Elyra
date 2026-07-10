@@ -11,11 +11,17 @@ class Connection
     public static function get(): \PDO
     {
         if (self::$instance === null) {
+            /** @var string $host */
             $host = $_ENV['DB_HOST'] ?? '127.0.0.1';
+            /** @var string $port */
             $port = $_ENV['DB_PORT'] ?? '3306';
+            /** @var string $database */
             $database = $_ENV['DB_DATABASE'] ?? 'elyra';
+            /** @var string $username */
             $username = $_ENV['DB_USERNAME'] ?? 'root';
+            /** @var string $password */
             $password = $_ENV['DB_PASSWORD'] ?? '';
+            /** @var string|null $unixSocket */
             $unixSocket = $_ENV['DB_SOCKET'] ?? null;
 
             if ($unixSocket) {

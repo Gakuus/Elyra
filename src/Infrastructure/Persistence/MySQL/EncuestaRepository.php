@@ -22,7 +22,9 @@ class EncuestaRepository implements EncuestaRepositoryInterface
     public function findById(int $id): ?Encuesta
     {
         $stmt = $this->pdo->prepare("SELECT * FROM encuesta WHERE id = ?");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$id]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
 
         if (!$row) return null;
@@ -33,7 +35,9 @@ class EncuestaRepository implements EncuestaRepositoryInterface
     public function findPreguntasByEncuestaId(int $encuestaId): array
     {
         $stmt = $this->pdo->prepare("SELECT * FROM pregunta WHERE encuesta_id = ? ORDER BY `orden`");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$encuestaId]);
+        /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll();
 
         return array_map(fn (array $row) => $this->hydratePregunta($row), $rows);
@@ -42,7 +46,9 @@ class EncuestaRepository implements EncuestaRepositoryInterface
     public function findRespuestasByEncuestaId(int $encuestaId): array
     {
         $stmt = $this->pdo->prepare("SELECT * FROM respuesta WHERE encuesta_id = ? ORDER BY created_at");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$encuestaId]);
+        /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll();
 
         return array_map(fn (array $row) => $this->hydrateRespuesta($row), $rows);
@@ -51,7 +57,9 @@ class EncuestaRepository implements EncuestaRepositoryInterface
     public function findRespuestasByPreguntaId(int $preguntaId): array
     {
         $stmt = $this->pdo->prepare("SELECT * FROM respuesta WHERE pregunta_id = ?");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$preguntaId]);
+        /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll();
 
         return array_map(fn (array $row) => $this->hydrateRespuesta($row), $rows);
@@ -67,7 +75,9 @@ class EncuestaRepository implements EncuestaRepositoryInterface
         $sql .= " ORDER BY created_at DESC";
 
         $stmt = $this->pdo->prepare($sql);
+        /** @var \PDOStatement $stmt */
         $stmt->execute($params);
+        /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll();
 
         return array_map(fn (array $row) => $this->hydrate($row), $rows);
@@ -75,12 +85,14 @@ class EncuestaRepository implements EncuestaRepositoryInterface
 
     public function countTotal(): int
     {
+        /** @var \PDOStatement $stmt */
         $stmt = $this->pdo->query("SELECT COUNT(*) FROM encuesta");
         return (int) $stmt->fetchColumn();
     }
 
     public function countActivas(): int
     {
+        /** @var \PDOStatement $stmt */
         $stmt = $this->pdo->query("SELECT COUNT(*) FROM encuesta WHERE activa = 1");
         return (int) $stmt->fetchColumn();
     }
@@ -90,6 +102,7 @@ class EncuestaRepository implements EncuestaRepositoryInterface
         $stmt = $this->pdo->prepare(
             "INSERT INTO encuesta (titulo, descripcion, activa, creada_por) VALUES (?, ?, ?, ?)"
         );
+        /** @var \PDOStatement $stmt */
         $stmt->execute([
             $encuesta->getTitulo(),
             $encuesta->getDescripcion(),
@@ -105,6 +118,7 @@ class EncuestaRepository implements EncuestaRepositoryInterface
         $stmt = $this->pdo->prepare(
             "INSERT INTO pregunta (encuesta_id, tipo, texto, opciones, requerida, `orden`) VALUES (?, ?, ?, ?, ?, ?)"
         );
+        /** @var \PDOStatement $stmt */
         $stmt->execute([
             $pregunta->getEncuestaId(),
             $pregunta->getTipo()->value(),
@@ -123,6 +137,7 @@ class EncuestaRepository implements EncuestaRepositoryInterface
             "INSERT INTO respuesta (sesion_token, encuesta_id, pregunta_id, token_paciente, valor_opcion, valor_texto, valor_numerico)
              VALUES (?, ?, ?, ?, ?, ?, ?)"
         );
+        /** @var \PDOStatement $stmt */
         $stmt->execute([
             $respuesta->getSesionToken(),
             $respuesta->getEncuestaId(),
@@ -141,6 +156,7 @@ class EncuestaRepository implements EncuestaRepositoryInterface
         $stmt = $this->pdo->prepare(
             "UPDATE encuesta SET titulo = ?, descripcion = ?, activa = ? WHERE id = ?"
         );
+        /** @var \PDOStatement $stmt */
         $stmt->execute([
             $encuesta->getTitulo(),
             $encuesta->getDescripcion(),
@@ -152,6 +168,7 @@ class EncuestaRepository implements EncuestaRepositoryInterface
     public function delete(int $id): void
     {
         $stmt = $this->pdo->prepare("DELETE FROM encuesta WHERE id = ?");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$id]);
     }
 

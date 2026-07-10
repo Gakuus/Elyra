@@ -24,7 +24,9 @@ class DocumentoRepository implements DocumentoRepositoryInterface
     public function findById(int $id): ?Documento
     {
         $stmt = $this->pdo->prepare("SELECT " . self::SELECT_COLS . " FROM documento d" . self::JOIN_CATEGORIA . self::JOIN_ESPECIALIDAD . self::JOIN_PACIENTE . " WHERE d.id = ?");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$id]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
 
         if (!$row) return null;
@@ -35,7 +37,9 @@ class DocumentoRepository implements DocumentoRepositoryInterface
     public function findByCodigoQr(int $codigoQrId): ?Documento
     {
         $stmt = $this->pdo->prepare("SELECT " . self::SELECT_COLS . " FROM documento d" . self::JOIN_CATEGORIA . self::JOIN_ESPECIALIDAD . self::JOIN_PACIENTE . " WHERE d.codigo_qr_id = ?");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$codigoQrId]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
 
         if (!$row) return null;
@@ -46,7 +50,9 @@ class DocumentoRepository implements DocumentoRepositoryInterface
     public function findByEncuesta(int $encuestaId): ?Documento
     {
         $stmt = $this->pdo->prepare("SELECT " . self::SELECT_COLS . " FROM documento d" . self::JOIN_CATEGORIA . self::JOIN_ESPECIALIDAD . self::JOIN_PACIENTE . " WHERE d.encuesta_id = ?");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$encuestaId]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
 
         if (!$row) return null;
@@ -91,7 +97,9 @@ class DocumentoRepository implements DocumentoRepositoryInterface
         $params[] = ($page - 1) * $perPage;
 
         $stmt = $this->pdo->prepare($sql);
+        /** @var \PDOStatement $stmt */
         $stmt->execute($params);
+        /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll();
 
         return array_map(fn (array $row) => $this->hydrate($row), $rows);
@@ -120,18 +128,21 @@ class DocumentoRepository implements DocumentoRepositoryInterface
         }
 
         $stmt = $this->pdo->prepare($sql);
+        /** @var \PDOStatement $stmt */
         $stmt->execute($params);
         return (int) $stmt->fetchColumn();
     }
 
     public function countTotal(): int
     {
+        /** @var \PDOStatement $stmt */
         $stmt = $this->pdo->query("SELECT COUNT(*) FROM documento");
         return (int) $stmt->fetchColumn();
     }
 
     public function countActivos(): int
     {
+        /** @var \PDOStatement $stmt */
         $stmt = $this->pdo->query("SELECT COUNT(*) FROM documento WHERE activo = TRUE");
         return (int) $stmt->fetchColumn();
     }
@@ -157,7 +168,9 @@ class DocumentoRepository implements DocumentoRepositoryInterface
         $params[] = ($page - 1) * $perPage;
 
         $stmt = $this->pdo->prepare($sql);
+        /** @var \PDOStatement $stmt */
         $stmt->execute($params);
+        /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll();
 
         return array_map(fn (array $row) => $this->hydrate($row), $rows);
@@ -180,6 +193,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
         }
 
         $stmt = $this->pdo->prepare($sql);
+        /** @var \PDOStatement $stmt */
         $stmt->execute($params);
         return (int) $stmt->fetchColumn();
     }
@@ -211,7 +225,9 @@ class DocumentoRepository implements DocumentoRepositoryInterface
         $params[] = ($page - 1) * $perPage;
 
         $stmt = $this->pdo->prepare($sql);
+        /** @var \PDOStatement $stmt */
         $stmt->execute($params);
+        /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll();
 
         return array_map(fn (array $row) => $this->hydrate($row), $rows);
@@ -240,6 +256,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
         }
 
         $stmt = $this->pdo->prepare($sql);
+        /** @var \PDOStatement $stmt */
         $stmt->execute($params);
         return (int) $stmt->fetchColumn();
     }
@@ -247,7 +264,9 @@ class DocumentoRepository implements DocumentoRepositoryInterface
     public function getArchivoContent(int $id): ?string
     {
         $stmt = $this->pdo->prepare("SELECT archivo_contenido FROM documento WHERE id = ?");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$id]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $row ? $row['archivo_contenido'] : null;
     }
@@ -261,6 +280,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
             INSERT INTO documento (titulo, descripcion, archivo_path, archivo_nombre, archivo_contenido, codigo_qr_id, qr_path, categoria_id, especialidad_id, encuesta_id, paciente_id, subido_por, activo)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([
             $documento->getTitulo(),
             $documento->getDescripcion(),
@@ -286,6 +306,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
             UPDATE documento SET titulo = ?, descripcion = ?, categoria_id = ?, especialidad_id = ?, paciente_id = ?, activo = ?
             WHERE id = ?
         ");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([
             $documento->getTitulo(),
             $documento->getDescripcion(),
@@ -300,6 +321,7 @@ class DocumentoRepository implements DocumentoRepositoryInterface
     public function delete(int $id): void
     {
         $stmt = $this->pdo->prepare("UPDATE documento SET activo = FALSE WHERE id = ?");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$id]);
     }
 

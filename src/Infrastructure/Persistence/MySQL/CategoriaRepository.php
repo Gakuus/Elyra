@@ -19,7 +19,9 @@ class CategoriaRepository implements CategoriaRepositoryInterface
     public function findById(int $id): ?Categoria
     {
         $stmt = $this->pdo->prepare("SELECT * FROM categoria WHERE id = ?");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$id]);
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch();
 
         if (!$row) return null;
@@ -29,7 +31,9 @@ class CategoriaRepository implements CategoriaRepositoryInterface
 
     public function findAll(): array
     {
+        /** @var \PDOStatement $stmt */
         $stmt = $this->pdo->query("SELECT * FROM categoria ORDER BY nombre");
+        /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll();
 
         return array_map(fn (array $row) => $this->hydrate($row), $rows);
@@ -38,7 +42,9 @@ class CategoriaRepository implements CategoriaRepositoryInterface
     public function findByTipo(string $tipo): array
     {
         $stmt = $this->pdo->prepare("SELECT * FROM categoria WHERE tipo = ? ORDER BY nombre");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$tipo]);
+        /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll();
 
         return array_map(fn (array $row) => $this->hydrate($row), $rows);
@@ -47,6 +53,7 @@ class CategoriaRepository implements CategoriaRepositoryInterface
     public function save(Categoria $categoria): Categoria
     {
         $stmt = $this->pdo->prepare("INSERT INTO categoria (nombre, descripcion, tipo) VALUES (?, ?, ?)");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$categoria->getNombre(), $categoria->getDescripcion(), $categoria->getTipo()]);
         $categoria->setId((int) $this->pdo->lastInsertId());
         return $categoria;
@@ -55,12 +62,14 @@ class CategoriaRepository implements CategoriaRepositoryInterface
     public function update(Categoria $categoria): void
     {
         $stmt = $this->pdo->prepare("UPDATE categoria SET nombre = ?, descripcion = ?, tipo = ? WHERE id = ?");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$categoria->getNombre(), $categoria->getDescripcion(), $categoria->getTipo(), $categoria->getId()]);
     }
 
     public function delete(int $id): void
     {
         $stmt = $this->pdo->prepare("DELETE FROM categoria WHERE id = ?");
+        /** @var \PDOStatement $stmt */
         $stmt->execute([$id]);
     }
 
