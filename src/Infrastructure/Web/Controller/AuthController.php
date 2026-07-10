@@ -7,6 +7,7 @@ namespace Elyra\Infrastructure\Web\Controller;
 use Elyra\Domain\Entity\Paciente;
 use Elyra\Infrastructure\Persistence\MySQL\UsuarioRepository;
 use Elyra\Infrastructure\Service\AuthService;
+use Elyra\Infrastructure\Service\ErrorHandler;
 use Elyra\Infrastructure\Service\RateLimiter;
 use Elyra\Infrastructure\Service\SessionManager;
 use Elyra\Infrastructure\Service\Validator;
@@ -76,6 +77,7 @@ class AuthController extends BaseController
             $ip = '127.0.0.1';
         }
         if (!RateLimiter::checkRegistrationAttempts($ip)) {
+            ErrorHandler::log('WARNING', "Registro bloqueado por rate limit desde IP: {$ip}");
             $this->render('auth/registro', ['error' => 'Demasiados registros desde esta IP. Intente de nuevo más tarde.']);
             return;
         }
@@ -132,16 +134,19 @@ class AuthController extends BaseController
 
         if (!$v->isValid()) {
             $error = $v->getFirstError() ?? 'Las contraseñas no coinciden';
+            ErrorHandler::log('INFO', "Registro falló validación desde IP: {$ip}, username: {$username}, error: {$error}");
             $this->render('auth/registro', ['error' => $error]);
             return;
         }
 
         if ($telefono !== '' && !preg_match('/^[0-9]{8,9}$/', $telefono)) {
+            ErrorHandler::log('INFO', "Registro falló por teléfono inválido desde IP: {$ip}, username: {$username}");
             $this->render('auth/registro', ['error' => 'El teléfono debe tener 8 o 9 dígitos']);
             return;
         }
 
         if ($this->usuarioRepo->findFuncionarioByUsername($username) || $this->usuarioRepo->findPacienteByUsername($username)) {
+            ErrorHandler::log('INFO', "Registro falló: username duplicado '{$username}' desde IP: {$ip}");
             $this->render('auth/registro', ['error' => 'El nombre de usuario ya está registrado']);
             return;
         }
@@ -165,9 +170,11 @@ class AuthController extends BaseController
         try {
             $this->usuarioRepo->savePaciente($paciente);
             $userId = $paciente->getId();
+            ErrorHandler::log('INFO', "Registro exitoso: username '{$username}', IP: {$ip}");
             SessionManager::login($userId !== null ? $userId : 0, 'paciente', $paciente->getNombreCompleto());
             $this->redirect('/dashboard');
         } catch (\Exception $e) {
+            ErrorHandler::log('ERROR', "Registro falló con excepción: {$e->getMessage()}, IP: {$ip}, username: {$username}");
             $this->render('auth/registro', ['error' => 'Error al registrar. Verificá que los datos no estén duplicados.']);
         }
     }
