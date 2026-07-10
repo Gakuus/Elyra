@@ -169,22 +169,49 @@ class ConductorRepository implements ConductorRepositoryInterface
         }
     }
 
+    /** @param array<string, mixed> $row */
     private function hydrate(array $row): Funcionario
     {
+        /** @var int $id */
+        $id = $row['id'];
+        /** @var string $nombre */
+        $nombre = $row['nombre'];
+        /** @var string $apellido */
+        $apellido = $row['apellido'];
+        /** @var string $rol */
+        $rol = $row['rol'];
+        /** @var string|null $username */
+        $username = $row['username'];
+        /** @var string|null $passwordHash */
+        $passwordHash = $row['password_hash'];
+        /** @var string|null $email */
+        $email = $row['email'];
+        /** @var string|null $documentoIdentidad */
+        $documentoIdentidad = $row['documento_identidad'];
+        /** @var string|null $licencia */
+        $licencia = $row['licencia'];
+        /** @var string|null $telefono */
+        $telefono = $row['telefono'];
+        $activo = (bool) $row['activo'];
+        /** @var string|null $foto */
+        $foto = $row['foto'] ?? null;
+        /** @var string|null $createdAt */
+        $createdAt = $row['created_at'];
+
         return new Funcionario(
-            id: (int) $row['id'],
-            nombre: $row['nombre'],
-            apellido: $row['apellido'],
-            rol: new RolUsuario($row['rol']),
-            username: $row['username'],
-            passwordHash: $row['password_hash'],
-            email: $row['email'],
-            documentoIdentidad: $row['documento_identidad'],
-            licencia: $row['licencia'],
-            telefono: $row['telefono'],
-            activo: (bool) $row['activo'],
-            foto: $row['foto'] ?? null,
-            createdAt: $row['created_at'],
+            id: $id,
+            nombre: $nombre,
+            apellido: $apellido,
+            rol: new RolUsuario($rol),
+            username: $username,
+            passwordHash: $passwordHash,
+            email: $email,
+            documentoIdentidad: $documentoIdentidad,
+            licencia: $licencia,
+            telefono: $telefono,
+            activo: $activo,
+            foto: $foto,
+            createdAt: $createdAt,
         );
     }
 }

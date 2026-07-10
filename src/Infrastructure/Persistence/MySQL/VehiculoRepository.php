@@ -91,14 +91,26 @@ class VehiculoRepository implements VehiculoRepositoryInterface
         $stmt->execute([$id]);
     }
 
+    /** @param array<string, mixed> $row */
     private function hydrate(array $row): Vehiculo
     {
+        /** @var int $id */
+        $id = $row['id'];
+        /** @var string $patente */
+        $patente = $row['patente'];
+        /** @var string|null $modelo */
+        $modelo = $row['modelo'];
+        /** @var string|null $anio */
+        $anio = $row['anio'];
+        /** @var string|null $createdAt */
+        $createdAt = $row['created_at'];
+
         return new Vehiculo(
-            id: (int) $row['id'],
-            patente: $row['patente'],
-            modelo: $row['modelo'],
-            anio: $row['anio'],
-            createdAt: $row['created_at'],
+            id: $id,
+            patente: $patente,
+            modelo: $modelo,
+            anio: $anio,
+            createdAt: $createdAt,
         );
     }
 }

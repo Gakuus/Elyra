@@ -19,6 +19,7 @@ final class TipoElementoTest extends TestCase
         $this->assertSame($value, $tipo->value());
     }
 
+    /** @return array<string, array{string}> */
     public static function validTipoProvider(): array
     {
         return [

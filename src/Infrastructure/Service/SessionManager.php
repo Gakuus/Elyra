@@ -121,7 +121,9 @@ class SessionManager
     private static function checkTimeout(): void
     {
         if (isset($_SESSION['_created_at'])) {
-            if (time() - $_SESSION['_created_at'] > self::TIMEOUT) {
+            /** @var int $createdAt */
+            $createdAt = $_SESSION['_created_at'];
+            if (time() - $createdAt > self::TIMEOUT) {
                 self::destroy();
                 self::start();
             }

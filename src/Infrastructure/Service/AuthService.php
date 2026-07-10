@@ -47,7 +47,7 @@ class AuthService
             ];
         }
 
-        if (method_exists($user, 'isActivo') && !$user->isActivo()) {
+        if (!$user->isActivo()) {
             return [
                 'success' => false,
                 'error' => 'Usuario desactivado. Contacte al administrador.',

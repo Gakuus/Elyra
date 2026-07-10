@@ -60,9 +60,13 @@ class EncuestaController extends BaseController
 
     private function handleCrear(): void
     {
-        $titulo = trim($_POST['titulo'] ?? '');
-        $descripcion = trim($_POST['descripcion'] ?? '');
-        $preguntas = $_POST['preguntas'] ?? [];
+        /** @var string $tituloInput */
+        $tituloInput = $_POST['titulo'] ?? '';
+        $titulo = trim($tituloInput);
+        /** @var string $descripcionInput */
+        $descripcionInput = $_POST['descripcion'] ?? '';
+        $descripcion = trim($descripcionInput);
+        $preguntas = (array) ($_POST['preguntas'] ?? []);
 
         if (strlen($titulo) < 3 || strlen($titulo) > 200) {
             $this->render('encuestas/crear', ['error' => 'El título debe tener entre 3 y 200 caracteres.']);
@@ -78,7 +82,10 @@ class EncuestaController extends BaseController
         $preguntasData = [];
 
         foreach ($preguntas as $i => $p) {
+            /** @var array{texto?: string, tipo?: string, opciones?: mixed} $p */
+            /** @var string $texto */
             $texto = trim($p['texto'] ?? '');
+            /** @var string $tipo */
             $tipo = trim($p['tipo'] ?? '');
 
             if (strlen($texto) < 3) {
@@ -97,7 +104,9 @@ class EncuestaController extends BaseController
 
             $opciones = null;
             if ($tipo === 'multiple_choice') {
-                $opciones = array_map('trim', $p['opciones'] ?? []);
+                /** @var array<int, string> $opcionesRaw */
+                $opcionesRaw = (array) ($p['opciones'] ?? []);
+                $opciones = array_map('trim', $opcionesRaw);
                 $opciones = array_values(array_filter($opciones));
                 if (count($opciones) < 2) {
                     $this->render('encuestas/crear', ['error' => "La pregunta " . ($i + 1) . " necesita al menos 2 opciones."]);
@@ -112,10 +121,12 @@ class EncuestaController extends BaseController
             ];
         }
 
+        /** @var int $userId */
+        $userId = $_SESSION['user_id'] ?? 0;
         $encuesta = new Encuesta(
             id: null,
             titulo: $titulo,
-            creadaPor: (int) ($_SESSION['user_id'] ?? 0),
+            creadaPor: $userId,
             descripcion: $descripcion,
             activa: true,
         );
@@ -124,9 +135,10 @@ class EncuestaController extends BaseController
 
         foreach ($preguntasData as $orden => $pd) {
             $tipoVo = new TipoPregunta($pd['tipo']);
+            $encuestaId = $encuesta->getId();
             $pregunta = new Pregunta(
                 id: null,
-                encuestaId: $encuesta->getId(),
+                encuestaId: $encuestaId ?? 0,
                 tipo: $tipoVo,
                 texto: $pd['texto'],
                 orden: $orden,
@@ -143,7 +155,9 @@ class EncuestaController extends BaseController
     {
         $this->requireAuth();
 
-        $id = (int) ($_GET['id'] ?? 0);
+        /** @var string $idStr */
+        $idStr = $_GET['id'] ?? 0;
+        $id = (int) $idStr;
         if ($id <= 0) {
             $this->redirect('/encuestas');
             return;
@@ -156,6 +170,7 @@ class EncuestaController extends BaseController
         }
 
         $preguntas = $this->encuestaRepo->findPreguntasByEncuestaId($id);
+        /** @var array{totalRespuestas: int, stats: list<array{tipo: string, texto: string, datos: mixed}>} $agrupado */
         $agrupado = $this->encuestaRepo->findRespuestasAgrupadas($id);
 
         $encuestaArr = [

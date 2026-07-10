@@ -6,7 +6,9 @@ namespace Elyra\Infrastructure\Web;
 
 class Router
 {
+    /** @var array<array{method: string, pattern: string, controller: string, action: string}> */
     private array $routes = [];
+    /** @var callable[] */
     private array $middleware = [];
 
     public function addRoute(string $method, string $pattern, string $controller, string $action): void
@@ -47,11 +49,12 @@ class Router
         $this->middleware[] = $middleware;
     }
 
+    /** @return array{controller: string, action: string, params: array<string, string>}|null */
     public function dispatch(string $method, string $uri): ?array
     {
         $method = strtoupper($method);
-        $uri = parse_url($uri, PHP_URL_PATH);
-        $uri = rtrim($uri, '/') ?: '/';
+        $parsedUri = parse_url($uri, PHP_URL_PATH);
+        $uri = is_string($parsedUri) ? rtrim($parsedUri, '/') : '/';
 
         foreach ($this->routes as $route) {
             if ($route['method'] !== $method) {
@@ -79,6 +82,7 @@ class Router
         }
     }
 
+    /** @param array<array{method?: string, pattern: string, controller: string, action: string}> $routeDefinitions */
     public function loadRoutes(array $routeDefinitions): void
     {
         foreach ($routeDefinitions as $definition) {

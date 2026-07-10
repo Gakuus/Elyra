@@ -88,6 +88,7 @@ final class TrasladoRepositoryTest extends TestCase
         $this->stmt->method('fetchAll')->willReturn([]);
 
         $result = $this->repository->findAll();
+        // @phpstan-ignore-next-line staticMethod.alreadyNarrowedType
         $this->assertIsArray($result);
     }
 }

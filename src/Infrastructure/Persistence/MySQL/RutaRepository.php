@@ -82,16 +82,34 @@ class RutaRepository implements RutaRepositoryInterface
         $stmt->execute([$id]);
     }
 
+    /** @param array<string, mixed> $row */
     private function hydrate(array $row): Ruta
     {
+        /** @var int $id */
+        $id = $row['id'];
+        /** @var string $nombre */
+        $nombre = $row['nombre'];
+        /** @var string $origen */
+        $origen = $row['origen'];
+        /** @var string $destino */
+        $destino = $row['destino'];
+        /** @var string|null $distanciaKmRaw */
+        $distanciaKmRaw = $row['distancia_km'];
+        /** @var float|null $distanciaKm */
+        $distanciaKm = $distanciaKmRaw !== null ? (float) $distanciaKmRaw : null;
+        /** @var string|null $descripcion */
+        $descripcion = $row['descripcion'];
+        /** @var string|null $createdAt */
+        $createdAt = $row['created_at'];
+
         return new Ruta(
-            id: (int) $row['id'],
-            nombre: $row['nombre'],
-            origen: $row['origen'],
-            destino: $row['destino'],
-            distanciaKm: $row['distancia_km'] !== null ? (float) $row['distancia_km'] : null,
-            descripcion: $row['descripcion'],
-            createdAt: $row['created_at'],
+            id: $id,
+            nombre: $nombre,
+            origen: $origen,
+            destino: $destino,
+            distanciaKm: $distanciaKm,
+            descripcion: $descripcion,
+            createdAt: $createdAt,
         );
     }
 }

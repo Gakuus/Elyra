@@ -33,7 +33,7 @@ class DashboardController extends BaseController
 
     private function pacienteDashboard(): void
     {
-        $userId = SessionManager::getUserId();
+        $userId = SessionManager::getUserId() ?? 0;
 
         $totalDocs = $this->docRepo->countByPaciente($userId);
         $recientes = $this->docRepo->findByPaciente($userId, null, null, 1, 5);

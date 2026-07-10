@@ -172,6 +172,9 @@ class EncuestaRepository implements EncuestaRepositoryInterface
         $stmt->execute([$id]);
     }
 
+    /**
+     * @param array<int, string> $respuestas
+     */
     public function saveRespuestasBatch(int $encuestaId, string $sesionToken, ?string $tokenPaciente, array $respuestas): void
     {
         $preguntas = $this->findPreguntasByEncuestaId($encuestaId);
@@ -215,20 +218,27 @@ class EncuestaRepository implements EncuestaRepositoryInterface
         }
     }
 
+    /**
+     * @return list<array{encuesta: Encuesta, preguntas: list<Pregunta>}>
+     */
     public function findEncuestasConPreguntas(bool $soloActivas = false): array
     {
         $encuestas = $this->findAll($soloActivas);
+        /** @var list<array{encuesta: Encuesta, preguntas: list<Pregunta>}> $result */
         $result = [];
         foreach ($encuestas as $encuesta) {
             $preguntas = $this->findPreguntasByEncuestaId($encuesta->getId() ?? throw new \RuntimeException('Encuesta sin ID'));
             $result[] = [
                 'encuesta' => $encuesta,
-                'preguntas' => $preguntas,
+                'preguntas' => array_values($preguntas),
             ];
         }
         return $result;
     }
 
+    /**
+     * @return array{stats: list<array<string, mixed>>, totalRespuestas: int}
+     */
     public function findRespuestasAgrupadas(int $encuestaId): array
     {
         $preguntas = $this->findPreguntasByEncuestaId($encuestaId);
@@ -298,48 +308,106 @@ class EncuestaRepository implements EncuestaRepositoryInterface
         ];
     }
 
+    /** @param array<string, mixed> $row */
     private function hydrate(array $row): Encuesta
     {
+        /** @var int $id */
+        $id = $row['id'];
+        /** @var string $titulo */
+        $titulo = $row['titulo'];
+        /** @var int $creadaPor */
+        $creadaPor = $row['creada_por'];
+        /** @var string|null $descripcion */
+        $descripcion = $row['descripcion'];
+        /** @var bool $activa */
+        $activa = $row['activa'];
+        /** @var string|null $createdAt */
+        $createdAt = $row['created_at'];
+        /** @var string|null $updatedAt */
+        $updatedAt = $row['updated_at'];
+
         return new Encuesta(
-            id: (int) $row['id'],
-            titulo: $row['titulo'],
-            creadaPor: (int) $row['creada_por'],
-            descripcion: $row['descripcion'],
-            activa: (bool) $row['activa'],
-            createdAt: $row['created_at'],
-            updatedAt: $row['updated_at'],
+            id: $id,
+            titulo: $titulo,
+            creadaPor: $creadaPor,
+            descripcion: $descripcion,
+            activa: $activa,
+            createdAt: $createdAt,
+            updatedAt: $updatedAt,
         );
     }
 
+    /** @param array<string, mixed> $row */
     private function hydratePregunta(array $row): Pregunta
     {
+        /** @var string $opcionesJson */
+        $opcionesJson = $row['opciones'];
         /** @var list<string>|null $opciones */
-        $opciones = $row['opciones'] ? json_decode($row['opciones'], true) : null;
+        $opciones = $opcionesJson ? json_decode($opcionesJson, true) : null;
+
+        /** @var int $id */
+        $id = $row['id'];
+        /** @var int $encuestaId */
+        $encuestaId = $row['encuesta_id'];
+        /** @var string $tipo */
+        $tipo = $row['tipo'];
+        /** @var string $texto */
+        $texto = $row['texto'];
+        /** @var int $orden */
+        $orden = $row['orden'];
+        /** @var bool $requerida */
+        $requerida = $row['requerida'];
+        /** @var string|null $createdAt */
+        $createdAt = $row['created_at'];
 
         return new Pregunta(
-            id: (int) $row['id'],
-            encuestaId: (int) $row['encuesta_id'],
-            tipo: new TipoPregunta($row['tipo']),
-            texto: $row['texto'],
-            orden: (int) $row['orden'],
+            id: $id,
+            encuestaId: $encuestaId,
+            tipo: new TipoPregunta($tipo),
+            texto: $texto,
+            orden: $orden,
             opciones: $opciones,
-            requerida: (bool) $row['requerida'],
-            createdAt: $row['created_at'],
+            requerida: $requerida,
+            createdAt: $createdAt,
         );
     }
 
+    /** @param array<string, mixed> $row */
     private function hydrateRespuesta(array $row): Respuesta
     {
+        /** @var int $id */
+        $id = $row['id'];
+        /** @var string $sesionToken */
+        $sesionToken = $row['sesion_token'];
+        /** @var int $encuestaId */
+        $encuestaId = $row['encuesta_id'];
+        /** @var int $preguntaId */
+        $preguntaId = $row['pregunta_id'];
+        /** @var string|null $tokenPaciente */
+        $tokenPaciente = $row['token_paciente'];
+        /** @var string|null $valorOpcionRaw */
+        $valorOpcionRaw = $row['valor_opcion'];
+        /** @var int|null $valorOpcion */
+        $valorOpcion = $valorOpcionRaw !== null ? (int) $valorOpcionRaw : null;
+        /** @var string|null $valorTexto */
+        $valorTexto = $row['valor_texto'];
+        /** @var string|null $valorNumericoRaw */
+        $valorNumericoRaw = $row['valor_numerico'];
+        /** @var int|null $valorNumerico */
+        $valorNumerico = $valorNumericoRaw !== null ? (int) $valorNumericoRaw : null;
+        /** @var string|null $createdAt */
+        $createdAt = $row['created_at'];
+
         return new Respuesta(
-            id: (int) $row['id'],
-            sesionToken: $row['sesion_token'],
-            encuestaId: (int) $row['encuesta_id'],
-            preguntaId: (int) $row['pregunta_id'],
-            tokenPaciente: $row['token_paciente'],
-            valorOpcion: $row['valor_opcion'] !== null ? (int) $row['valor_opcion'] : null,
-            valorTexto: $row['valor_texto'],
-            valorNumerico: $row['valor_numerico'] !== null ? (int) $row['valor_numerico'] : null,
-            createdAt: $row['created_at'],
+            id: $id,
+            sesionToken: $sesionToken,
+            encuestaId: $encuestaId,
+            preguntaId: $preguntaId,
+            tokenPaciente: $tokenPaciente,
+            valorOpcion: $valorOpcion,
+            valorTexto: $valorTexto,
+            valorNumerico: $valorNumerico,
+            createdAt: $createdAt,
         );
     }
 }

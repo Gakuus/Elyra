@@ -7,10 +7,8 @@ parameters:
         - vendor/autoload.php
         - tests/bootstrap.php
     reportUnmatchedIgnoredErrors: false
-    treatPhpDocTypesAsCertain: false
     excludePaths:
         - vendor
 
 includes:
     - phpstan-baseline.neon
-

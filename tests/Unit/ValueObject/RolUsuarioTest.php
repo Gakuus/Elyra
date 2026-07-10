@@ -19,6 +19,7 @@ final class RolUsuarioTest extends TestCase
         $this->assertSame($value, $rol->value());
     }
 
+    /** @return array<string, array{string}> */
     public static function validRolProvider(): array
     {
         return [
@@ -35,6 +36,7 @@ final class RolUsuarioTest extends TestCase
         new RolUsuario($invalidValue);
     }
 
+    /** @return array<string, array{string}> */
     public static function invalidRolProvider(): array
     {
         return [
@@ -53,6 +55,7 @@ final class RolUsuarioTest extends TestCase
         $this->assertSame($esConductor, $r->esConductor());
     }
 
+    /** @return array<string, array{string, bool, bool, bool}> */
     public static function roleCheckProvider(): array
     {
         return [

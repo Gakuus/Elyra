@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Elyra\Infrastructure\Web\Controller;
 
+use Elyra\Infrastructure\Service\SessionManager;
+
 class TrasladoController extends BaseController
 {
     public function index(): void
@@ -58,19 +60,37 @@ class TrasladoController extends BaseController
 
     private function handleNuevo(): void
     {
-        $csrf = trim($_POST['_csrf_token'] ?? '');
-        if ($csrf !== ($_SESSION['_csrf_token'] ?? '')) {
+        /** @var string $csrfTokenRaw */
+        $csrfTokenRaw = $_POST['_csrf_token'] ?? '';
+        $csrf = trim($csrfTokenRaw);
+        /** @var string $csrfSession */
+        $csrfSession = $_SESSION['_csrf_token'] ?? '';
+        if ($csrf !== $csrfSession) {
             $this->render('traslados/nuevo', ['error' => 'Sesi&oacute;n inv&aacute;lida. Recarg&aacute; e intent&aacute; de nuevo.', 'conductores' => $this->mockConductores(), 'ubicaciones' => $this->mockUbicaciones(), 'rutas' => $this->mockRutas()]);
             return;
         }
 
-        $conductor = trim($_POST['conductor'] ?? '');
-        $elemento = trim($_POST['elemento'] ?? '');
-        $tipo = trim($_POST['tipo'] ?? '');
-        $origen = trim($_POST['origen'] ?? '');
-        $destino = trim($_POST['destino'] ?? '');
-        $fecha = trim($_POST['fecha_salida'] ?? '');
-        $hora = trim($_POST['hora_salida'] ?? '');
+        /** @var string $conductorRaw */
+        $conductorRaw = $_POST['conductor'] ?? '';
+        $conductor = trim($conductorRaw);
+        /** @var string $elementoRaw */
+        $elementoRaw = $_POST['elemento'] ?? '';
+        $elemento = trim($elementoRaw);
+        /** @var string $tipoRaw */
+        $tipoRaw = $_POST['tipo'] ?? '';
+        $tipo = trim($tipoRaw);
+        /** @var string $origenRaw */
+        $origenRaw = $_POST['origen'] ?? '';
+        $origen = trim($origenRaw);
+        /** @var string $destinoRaw */
+        $destinoRaw = $_POST['destino'] ?? '';
+        $destino = trim($destinoRaw);
+        /** @var string $fechaRaw */
+        $fechaRaw = $_POST['fecha_salida'] ?? '';
+        $fecha = trim($fechaRaw);
+        /** @var string $horaRaw */
+        $horaRaw = $_POST['hora_salida'] ?? '';
+        $hora = trim($horaRaw);
 
         if (strlen($conductor) < 2) {
             $this->render('traslados/nuevo', ['error' => 'Seleccion&aacute; un conductor v&aacute;lido.', 'conductores' => $this->mockConductores(), 'ubicaciones' => $this->mockUbicaciones(), 'rutas' => $this->mockRutas()]);
@@ -101,34 +121,48 @@ class TrasladoController extends BaseController
         if (!is_dir($storageDir)) mkdir($storageDir, 0775, true);
 
         $metaFile = $storageDir . '/.meta.json';
+        /** @var list<array<string, mixed>> $meta */
         $meta = [];
         if (is_file($metaFile)) {
-            $meta = json_decode(file_get_contents($metaFile), true) ?? [];
+            /** @var string $metaContent */
+            $metaContent = file_get_contents($metaFile);
+            /** @var list<array<string, mixed>> $decoded */
+            $decoded = json_decode($metaContent, true) ?? [];
+            $meta = $decoded;
         }
 
         $nextId = 1;
         if (!empty($meta)) {
+            /** @var list<int> $ids */
             $ids = array_column($meta, 'id');
-            $nextId = max($ids) + 1;
+            if ($ids !== []) {
+                $nextId = max($ids) + 1;
+            }
         }
 
         $year = date('y');
-        $secuencial = str_pad($nextId, 3, '0', STR_PAD_LEFT);
+        $secuencial = str_pad((string) $nextId, 3, '0', STR_PAD_LEFT);
         $codigo = "TR-{$year}{$secuencial}";
 
+        /** @var string $copilotoRaw */
+        $copilotoRaw = $_POST['copiloto'] ?? '';
+        /** @var string $rutaRaw */
+        $rutaRaw = $_POST['ruta'] ?? '';
+        /** @var string $horaLlegadaRaw */
+        $horaLlegadaRaw = $_POST['hora_llegada'] ?? '';
         $meta[] = [
             'id' => $nextId,
             'codigo' => $codigo,
             'conductor' => $conductor,
-            'copiloto' => trim($_POST['copiloto'] ?? ''),
+            'copiloto' => trim($copilotoRaw),
             'elemento' => $elemento,
             'tipo' => $tipo,
             'origen' => $origen,
             'destino' => $destino,
-            'ruta' => trim($_POST['ruta'] ?? ''),
+            'ruta' => trim($rutaRaw),
             'fecha' => $fecha,
             'hora' => $hora,
-            'hora_llegada' => trim($_POST['hora_llegada'] ?? ''),
+            'hora_llegada' => trim($horaLlegadaRaw),
             'estado' => 'pendiente',
         ];
 
@@ -137,11 +171,13 @@ class TrasladoController extends BaseController
         $this->redirect('/traslados?creado=1');
     }
 
+    /** @return list<string> */
     private function mockConductores(): array
     {
         return ['Carlos Gómez', 'Ana Martínez', 'Luis Fernández', 'Ricardo Álvarez'];
     }
 
+    /** @return list<string> */
     private function mockUbicaciones(): array
     {
         return [
@@ -159,6 +195,7 @@ class TrasladoController extends BaseController
         ];
     }
 
+    /** @return list<string> */
     private function mockRutas(): array
     {
         return [
@@ -175,7 +212,9 @@ class TrasladoController extends BaseController
         $this->requireAuth();
         $this->denyPaciente();
 
-        $id = (int) ($_GET['id'] ?? 0);
+        /** @var string $idRaw */
+        $idRaw = $_GET['id'] ?? '0';
+        $id = (int) $idRaw;
         if ($id <= 0) {
             $this->redirect('/traslados');
             return;
@@ -195,6 +234,7 @@ class TrasladoController extends BaseController
         ]);
     }
 
+    /** @return array<string, mixed>|null */
     private function findTrasladoById(int $id): ?array
     {
         $all = $this->mockTraslados();
@@ -204,12 +244,21 @@ class TrasladoController extends BaseController
         return null;
     }
 
+    /**
+     * @param array<string, mixed> $traslado
+     * @return list<array{estado: string, completado: bool, activo: bool, fecha: string}>
+     */
     private function buildTimeline(array $traslado): array
     {
         $estados = ['pendiente', 'en_curso', 'en_destino', 'en_retorno', 'completado'];
         $timeline = [];
 
-        $fechaHora = ($traslado['fecha'] ?? '') . ' ' . ($traslado['hora'] ?? '');
+        /** @var string $fechaVal */
+        $fechaVal = $traslado['fecha'] ?? '';
+        /** @var string $horaVal */
+        $horaVal = $traslado['hora'] ?? '';
+        $fechaHora = $fechaVal . ' ' . $horaVal;
+        /** @var string $actual */
         $actual = $traslado['estado'];
 
         foreach ($estados as $e) {
@@ -257,7 +306,9 @@ class TrasladoController extends BaseController
         $this->requireAuth();
         $this->denyPaciente();
 
-        $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
+        /** @var string $idRaw */
+        $idRaw = $_GET['id'] ?? $_POST['id'] ?? '0';
+        $id = (int) $idRaw;
         if ($id <= 0) {
             $this->redirect('/traslados');
             return;
@@ -278,10 +329,12 @@ class TrasladoController extends BaseController
             'cancelado' => [],
         ];
 
+        /** @var string $current */
         $current = $traslado['estado'];
         $allowed = $stateMachine[$current] ?? [];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            /** @var string $nuevoEstado */
             $nuevoEstado = $_POST['estado'] ?? '';
 
             if (!in_array($nuevoEstado, $allowed, true)) {
@@ -330,9 +383,13 @@ class TrasladoController extends BaseController
 
         $traslados = $this->mockTraslados();
 
+        /** @var string $estado */
         $estado = $_GET['estado'] ?? '';
+        /** @var string $conductor */
         $conductor = $_GET['conductor'] ?? '';
+        /** @var string $buscar */
         $buscar = $_GET['buscar'] ?? '';
+        /** @var string $fecha */
         $fecha = $_GET['fecha'] ?? '';
 
         if ($estado !== '') {
@@ -343,12 +400,24 @@ class TrasladoController extends BaseController
         }
         if ($buscar !== '') {
             $q = mb_strtolower($buscar);
-            $traslados = array_filter($traslados, fn($t) =>
-                mb_strpos(mb_strtolower($t['codigo'] ?? ''), $q) !== false ||
-                mb_strpos(mb_strtolower($t['paciente'] ?? $t['elemento'] ?? ''), $q) !== false ||
-                mb_strpos(mb_strtolower($t['origen'] ?? ''), $q) !== false ||
-                mb_strpos(mb_strtolower($t['destino'] ?? ''), $q) !== false
-            );
+            $traslados = array_filter($traslados, function ($t) use ($q) {
+                /** @var mixed $codigoRaw */
+                $codigoRaw = $t['codigo'] ?? '';
+                /** @var mixed $pacienteRaw */
+                $pacienteRaw = $t['paciente'] ?? $t['elemento'] ?? '';
+                /** @var mixed $origenRaw */
+                $origenRaw = $t['origen'] ?? '';
+                /** @var mixed $destinoRaw */
+                $destinoRaw = $t['destino'] ?? '';
+                $codigo = is_string($codigoRaw) ? $codigoRaw : '';
+                $paciente = is_string($pacienteRaw) ? $pacienteRaw : '';
+                $origen = is_string($origenRaw) ? $origenRaw : '';
+                $destino = is_string($destinoRaw) ? $destinoRaw : '';
+                return mb_strpos(mb_strtolower($codigo), $q) !== false ||
+                    mb_strpos(mb_strtolower($paciente), $q) !== false ||
+                    mb_strpos(mb_strtolower($origen), $q) !== false ||
+                    mb_strpos(mb_strtolower($destino), $q) !== false;
+            });
         }
         if ($fecha !== '') {
             $traslados = array_filter($traslados, fn($t) => ($t['fecha'] ?? '') === $fecha);
@@ -356,7 +425,12 @@ class TrasladoController extends BaseController
 
         usort($traslados, fn($a, $b) => ($b['id'] ?? 0) <=> ($a['id'] ?? 0));
 
-        $conductores = array_unique(array_column(array_merge($this->mockTraslados(), $this->storedTraslados()), 'conductor'));
+        /** @var list<string> $conductoresRaw */
+        $conductoresRaw = array_column(array_merge($this->mockTraslados(), $this->storedTraslados()), 'conductor');
+        /** @var array<int|string, string> $conductoresUnique */
+        $conductoresUnique = array_unique($conductoresRaw);
+        /** @var list<string> $conductores */
+        $conductores = array_values($conductoresUnique);
         sort($conductores);
 
         $estadosList = [
@@ -392,10 +466,19 @@ class TrasladoController extends BaseController
     private function updateTrasladoEstado(int $id, string $nuevoEstado): void
     {
         $metaFile = __DIR__ . '/../../../../storage/traslados/.meta.json';
-        $traslados = is_file($metaFile) ? (json_decode(file_get_contents($metaFile), true) ?? []) : [];
+        /** @var list<array<string, mixed>> $traslados */
+        $traslados = [];
+        if (is_file($metaFile)) {
+            /** @var string $content */
+            $content = file_get_contents($metaFile);
+            /** @var list<array<string, mixed>> $decoded */
+            $decoded = json_decode($content, true) ?? [];
+            $traslados = $decoded;
+        }
 
         $updated = false;
         foreach ($traslados as &$t) {
+            /** @var array<string, mixed> $t */
             if ($t['id'] === $id) {
                 $t['estado'] = $nuevoEstado;
                 $t['updated_at'] = date('d/m/Y H:i');
@@ -410,6 +493,7 @@ class TrasladoController extends BaseController
         }
     }
 
+    /** @return list<array<string, mixed>> */
     private function mockTraslados(): array
     {
         $mock = [
@@ -432,10 +516,15 @@ class TrasladoController extends BaseController
         return array_merge($mock, $storedMapped);
     }
 
+    /** @return list<array<string, mixed>> */
     private function storedTraslados(): array
     {
         $metaFile = __DIR__ . '/../../../../storage/traslados/.meta.json';
         if (!is_file($metaFile)) return [];
-        return json_decode(file_get_contents($metaFile), true) ?? [];
+        /** @var string $content */
+        $content = file_get_contents($metaFile);
+        /** @var list<array<string, mixed>> $decoded */
+        $decoded = json_decode($content, true) ?? [];
+        return $decoded;
     }
 }

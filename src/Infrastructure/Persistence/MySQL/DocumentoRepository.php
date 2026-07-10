@@ -268,7 +268,9 @@ class DocumentoRepository implements DocumentoRepositoryInterface
         $stmt->execute([$id]);
         /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-        return $row ? $row['archivo_contenido'] : null;
+        /** @var string|null $content */
+        $content = $row ? $row['archivo_contenido'] : null;
+        return $content;
     }
 
     public function save(Documento $documento): Documento
@@ -325,27 +327,72 @@ class DocumentoRepository implements DocumentoRepositoryInterface
         $stmt->execute([$id]);
     }
 
+    /** @param array<string, mixed> $row */
     private function hydrate(array $row): Documento
     {
+        /** @var int $id */
+        $id = $row['id'];
+        /** @var string $titulo */
+        $titulo = $row['titulo'];
+        /** @var string $archivoPath */
+        $archivoPath = $row['archivo_path'];
+        /** @var string $archivoNombre */
+        $archivoNombre = $row['archivo_nombre'];
+        /** @var string|null $codigoQrIdRaw */
+        $codigoQrIdRaw = $row['codigo_qr_id'];
+        /** @var int|null $codigoQrId */
+        $codigoQrId = $codigoQrIdRaw !== null ? (int) $codigoQrIdRaw : null;
+        /** @var int $categoriaId */
+        $categoriaId = $row['categoria_id'];
+        /** @var int $subidoPor */
+        $subidoPor = $row['subido_por'];
+        /** @var string|null $descripcion */
+        $descripcion = $row['descripcion'];
+        /** @var string|null $qrPath */
+        $qrPath = $row['qr_path'];
+        /** @var string|null $especialidadIdRaw */
+        $especialidadIdRaw = $row['especialidad_id'];
+        /** @var int|null $especialidadId */
+        $especialidadId = $especialidadIdRaw !== null ? (int) $especialidadIdRaw : null;
+        /** @var string|null $encuestaIdRaw */
+        $encuestaIdRaw = $row['encuesta_id'];
+        /** @var int|null $encuestaId */
+        $encuestaId = $encuestaIdRaw !== null ? (int) $encuestaIdRaw : null;
+        /** @var string|null $pacienteIdRaw */
+        $pacienteIdRaw = $row['paciente_id'];
+        /** @var int|null $pacienteId */
+        $pacienteId = $pacienteIdRaw !== null ? (int) $pacienteIdRaw : null;
+        $activo = (bool) $row['activo'];
+        /** @var string|null $createdAt */
+        $createdAt = $row['created_at'];
+        /** @var string|null $updatedAt */
+        $updatedAt = $row['updated_at'];
+        /** @var string|null $categoriaNombre */
+        $categoriaNombre = $row['categoria_nombre'] ?? null;
+        /** @var string|null $especialidadNombre */
+        $especialidadNombre = $row['especialidad_nombre'] ?? null;
+        /** @var string|null $pacienteNombre */
+        $pacienteNombre = $row['paciente_nombre'] ?? null;
+
         return new Documento(
-            id: (int) $row['id'],
-            titulo: $row['titulo'],
-            archivoPath: $row['archivo_path'],
-            archivoNombre: $row['archivo_nombre'],
-            codigoQrId: $row['codigo_qr_id'] !== null ? (int) $row['codigo_qr_id'] : null,
-            categoriaId: (int) $row['categoria_id'],
-            subidoPor: (int) $row['subido_por'],
-            descripcion: $row['descripcion'],
-            qrPath: $row['qr_path'],
-            especialidadId: $row['especialidad_id'] !== null ? (int) $row['especialidad_id'] : null,
-            encuestaId: $row['encuesta_id'] !== null ? (int) $row['encuesta_id'] : null,
-            pacienteId: $row['paciente_id'] !== null ? (int) $row['paciente_id'] : null,
-            activo: (bool) $row['activo'],
-            createdAt: $row['created_at'],
-            updatedAt: $row['updated_at'],
-            categoriaNombre: $row['categoria_nombre'] ?? null,
-            especialidadNombre: $row['especialidad_nombre'] ?? null,
-            pacienteNombre: $row['paciente_nombre'] ?? null
+            id: $id,
+            titulo: $titulo,
+            archivoPath: $archivoPath,
+            archivoNombre: $archivoNombre,
+            codigoQrId: $codigoQrId,
+            categoriaId: $categoriaId,
+            subidoPor: $subidoPor,
+            descripcion: $descripcion,
+            qrPath: $qrPath,
+            especialidadId: $especialidadId,
+            encuestaId: $encuestaId,
+            pacienteId: $pacienteId,
+            activo: $activo,
+            createdAt: $createdAt,
+            updatedAt: $updatedAt,
+            categoriaNombre: $categoriaNombre,
+            especialidadNombre: $especialidadNombre,
+            pacienteNombre: $pacienteNombre
         );
     }
 }

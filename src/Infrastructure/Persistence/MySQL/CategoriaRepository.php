@@ -73,13 +73,23 @@ class CategoriaRepository implements CategoriaRepositoryInterface
         $stmt->execute([$id]);
     }
 
+    /** @param array<string, mixed> $row */
     private function hydrate(array $row): Categoria
     {
+        /** @var int $id */
+        $id = $row['id'];
+        /** @var string $nombre */
+        $nombre = $row['nombre'];
+        /** @var string|null $descripcion */
+        $descripcion = $row['descripcion'];
+        /** @var string $tipo */
+        $tipo = $row['tipo'];
+
         return new Categoria(
-            id: (int) $row['id'],
-            nombre: $row['nombre'],
-            descripcion: $row['descripcion'],
-            tipo: $row['tipo']
+            id: $id,
+            nombre: $nombre,
+            descripcion: $descripcion,
+            tipo: $tipo
         );
     }
 }

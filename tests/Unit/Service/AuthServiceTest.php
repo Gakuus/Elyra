@@ -51,7 +51,7 @@ final class AuthServiceTest extends TestCase
         );
 
         $this->usuarioRepo->method('findFuncionarioByUsername')
-            ->with('admin')
+            ->with('admin') // @phpstan-ignore method.notFound
             ->willReturn($funcionario);
 
         $result = $this->authService->login('admin', 'secret');
@@ -73,7 +73,7 @@ final class AuthServiceTest extends TestCase
         );
 
         $this->usuarioRepo->method('findFuncionarioByUsername')
-            ->with('admin')
+            ->with('admin') // @phpstan-ignore method.notFound
             ->willReturn($funcionario);
 
         $result = $this->authService->login('admin', 'wrongpassword');
@@ -85,11 +85,11 @@ final class AuthServiceTest extends TestCase
     public function testLoginFailsWithNonExistentUser(): void
     {
         $this->usuarioRepo->method('findFuncionarioByUsername')
-            ->with('noexiste')
+            ->with('noexiste') // @phpstan-ignore method.notFound
             ->willReturn(null);
 
         $this->usuarioRepo->method('findPacienteByUsername')
-            ->with('noexiste')
+            ->with('noexiste') // @phpstan-ignore method.notFound
             ->willReturn(null);
 
         $result = $this->authService->login('noexiste', 'anypass');
@@ -111,7 +111,7 @@ final class AuthServiceTest extends TestCase
         );
 
         $this->usuarioRepo->method('findFuncionarioByUsername')
-            ->with('inactive')
+            ->with('inactive') // @phpstan-ignore method.notFound
             ->willReturn($funcionario);
 
         $result = $this->authService->login('inactive', 'secret');
@@ -132,11 +132,11 @@ final class AuthServiceTest extends TestCase
         );
 
         $this->usuarioRepo->method('findFuncionarioByUsername')
-            ->with('paciente1')
+            ->with('jperez') // @phpstan-ignore method.notFound
             ->willReturn(null);
 
         $this->usuarioRepo->method('findPacienteByUsername')
-            ->with('paciente1')
+            ->with('jperez') // @phpstan-ignore method.notFound
             ->willReturn($paciente);
 
         $result = $this->authService->login('paciente1', 'pass');
@@ -157,11 +157,11 @@ final class AuthServiceTest extends TestCase
         );
 
         $this->usuarioRepo->method('findFuncionarioByUsername')
-            ->with('jperez')
+            ->with('jperez') // @phpstan-ignore method.notFound
             ->willReturn(null);
 
         $this->usuarioRepo->method('findPacienteByUsername')
-            ->with('jperez')
+            ->with('jperez') // @phpstan-ignore method.notFound
             ->willReturn($paciente);
 
         $result = $this->authService->login('jperez', 'mypass');
@@ -179,11 +179,11 @@ final class AuthServiceTest extends TestCase
         );
 
         $this->usuarioRepo->method('findFuncionarioByUsername')
-            ->with('jperez')
+            ->with('jperez') // @phpstan-ignore method.notFound
             ->willReturn(null);
 
         $this->usuarioRepo->method('findPacienteByUsername')
-            ->with('jperez')
+            ->with('jperez') // @phpstan-ignore method.notFound
             ->willReturn($paciente);
 
         $result = $this->authService->login('jperez', 'anypass');

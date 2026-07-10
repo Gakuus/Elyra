@@ -259,54 +259,134 @@ class TrasladoRepository implements TrasladoRepositoryInterface
         }
     }
 
+    /** @param array<string, mixed> $row */
     private function hydrate(array $row): Traslado
     {
+        /** @var int $id */
+        $id = $row['id'];
+        /** @var string $codigo */
+        $codigo = $row['codigo'];
+        /** @var int $conductorId */
+        $conductorId = $row['conductor_id'];
+        /** @var string $origen */
+        $origen = $row['origen'];
+        /** @var string $destino */
+        $destino = $row['destino'];
+        /** @var int $registradoPor */
+        $registradoPor = $row['registrado_por'];
+        /** @var string|null $copilotoIdRaw */
+        $copilotoIdRaw = $row['copiloto_id'];
+        /** @var int|null $copilotoId */
+        $copilotoId = $copilotoIdRaw !== null ? (int) $copilotoIdRaw : null;
+        /** @var string|null $vehiculoIdRaw */
+        $vehiculoIdRaw = $row['vehiculo_id'];
+        /** @var int|null $vehiculoId */
+        $vehiculoId = $vehiculoIdRaw !== null ? (int) $vehiculoIdRaw : null;
+        /** @var string|null $rutaIdRaw */
+        $rutaIdRaw = $row['ruta_id'];
+        /** @var int|null $rutaId */
+        $rutaId = $rutaIdRaw !== null ? (int) $rutaIdRaw : null;
+        /** @var string|null $horaSalidaEstimada */
+        $horaSalidaEstimada = $row['hora_salida_estimada'];
+        /** @var string|null $horaSalidaEfectiva */
+        $horaSalidaEfectiva = $row['hora_salida_efectiva'];
+        /** @var string|null $horaLlegadaDestino */
+        $horaLlegadaDestino = $row['hora_llegada_destino'];
+        /** @var string|null $horaInicioRetorno */
+        $horaInicioRetorno = $row['hora_inicio_retorno'];
+        /** @var string|null $horaLlegadaHospital */
+        $horaLlegadaHospital = $row['hora_llegada_hospital'];
+        /** @var string|null $estado */
+        $estado = $row['estado'];
+        /** @var string|null $motivoCancelacion */
+        $motivoCancelacion = $row['motivo_cancelacion'];
+        /** @var string|null $observaciones */
+        $observaciones = $row['observaciones'];
+        /** @var string|null $createdAt */
+        $createdAt = $row['created_at'];
+        /** @var string|null $updatedAt */
+        $updatedAt = $row['updated_at'];
+
         return new Traslado(
-            id: (int) $row['id'],
-            codigo: $row['codigo'],
-            conductorId: (int) $row['conductor_id'],
-            origen: $row['origen'],
-            destino: $row['destino'],
-            registradoPor: (int) $row['registrado_por'],
-            copilotoId: $row['copiloto_id'] !== null ? (int) $row['copiloto_id'] : null,
-            vehiculoId: $row['vehiculo_id'] !== null ? (int) $row['vehiculo_id'] : null,
-            rutaId: $row['ruta_id'] !== null ? (int) $row['ruta_id'] : null,
-            horaSalidaEstimada: $row['hora_salida_estimada'],
-            horaSalidaEfectiva: $row['hora_salida_efectiva'],
-            horaLlegadaDestino: $row['hora_llegada_destino'],
-            horaInicioRetorno: $row['hora_inicio_retorno'],
-            horaLlegadaHospital: $row['hora_llegada_hospital'],
-            estado: $row['estado'],
-            motivoCancelacion: $row['motivo_cancelacion'],
-            observaciones: $row['observaciones'],
-            createdAt: $row['created_at'],
-            updatedAt: $row['updated_at'],
+            id: $id,
+            codigo: $codigo,
+            conductorId: $conductorId,
+            origen: $origen,
+            destino: $destino,
+            registradoPor: $registradoPor,
+            copilotoId: $copilotoId,
+            vehiculoId: $vehiculoId,
+            rutaId: $rutaId,
+            horaSalidaEstimada: $horaSalidaEstimada,
+            horaSalidaEfectiva: $horaSalidaEfectiva,
+            horaLlegadaDestino: $horaLlegadaDestino,
+            horaInicioRetorno: $horaInicioRetorno,
+            horaLlegadaHospital: $horaLlegadaHospital,
+            estado: $estado,
+            motivoCancelacion: $motivoCancelacion,
+            observaciones: $observaciones,
+            createdAt: $createdAt,
+            updatedAt: $updatedAt,
         );
     }
 
+    /** @param array<string, mixed> $row */
     private function hydrateElemento(array $row): ElementoTraslado
     {
+        /** @var int $id */
+        $id = $row['id'];
+        /** @var int $trasladoId */
+        $trasladoId = $row['traslado_id'];
+        /** @var string $tipo */
+        $tipo = $row['tipo'];
+        /** @var int $cantidad */
+        $cantidad = $row['cantidad'];
+        /** @var string|null $pacienteIdRaw */
+        $pacienteIdRaw = $row['paciente_id'];
+        /** @var int|null $pacienteId */
+        $pacienteId = $pacienteIdRaw !== null ? (int) $pacienteIdRaw : null;
+        /** @var string|null $descripcion */
+        $descripcion = $row['descripcion'];
+        /** @var string|null $createdAt */
+        $createdAt = $row['created_at'];
+
         return new ElementoTraslado(
-            id: (int) $row['id'],
-            trasladoId: (int) $row['traslado_id'],
-            tipo: new TipoElemento($row['tipo']),
-            cantidad: (int) $row['cantidad'],
-            pacienteId: $row['paciente_id'] !== null ? (int) $row['paciente_id'] : null,
-            descripcion: $row['descripcion'],
-            createdAt: $row['created_at'],
+            id: $id,
+            trasladoId: $trasladoId,
+            tipo: new TipoElemento($tipo),
+            cantidad: $cantidad,
+            pacienteId: $pacienteId,
+            descripcion: $descripcion,
+            createdAt: $createdAt,
         );
     }
 
+    /** @param array<string, mixed> $row */
     private function hydrateHistorial(array $row): HistorialEstado
     {
+        /** @var int $id */
+        $id = $row['id'];
+        /** @var int $trasladoId */
+        $trasladoId = $row['traslado_id'];
+        /** @var string $estadoNuevo */
+        $estadoNuevo = $row['estado_nuevo'];
+        /** @var int $actualizadoPor */
+        $actualizadoPor = $row['actualizado_por'];
+        /** @var string|null $estadoAnterior */
+        $estadoAnterior = $row['estado_anterior'];
+        /** @var string|null $observacion */
+        $observacion = $row['observacion'];
+        /** @var string|null $createdAt */
+        $createdAt = $row['created_at'];
+
         return new HistorialEstado(
-            id: (int) $row['id'],
-            trasladoId: (int) $row['traslado_id'],
-            estadoNuevo: $row['estado_nuevo'],
-            actualizadoPor: (int) $row['actualizado_por'],
-            estadoAnterior: $row['estado_anterior'],
-            observacion: $row['observacion'],
-            createdAt: $row['created_at'],
+            id: $id,
+            trasladoId: $trasladoId,
+            estadoNuevo: $estadoNuevo,
+            actualizadoPor: $actualizadoPor,
+            estadoAnterior: $estadoAnterior,
+            observacion: $observacion,
+            createdAt: $createdAt,
         );
     }
 }
