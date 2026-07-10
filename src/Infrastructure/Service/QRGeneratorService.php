@@ -61,7 +61,13 @@ class QRGeneratorService
         $size = 200;
         $img = imagecreatetruecolor($size, $size);
         $white = imagecolorallocate($img, 255, 255, 255);
+        if ($white === false) {
+            $white = 0;
+        }
         $black = imagecolorallocate($img, 0, 0, 0);
+        if ($black === false) {
+            $black = 0;
+        }
         imagefill($img, 0, 0, $white);
 
         $chars = str_split($data);

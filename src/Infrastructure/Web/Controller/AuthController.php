@@ -49,7 +49,7 @@ class AuthController extends BaseController
             $this->redirect('/dashboard');
         }
 
-        $this->render('auth/login', ['error' => $result['error']]);
+        $this->render('auth/login', ['error' => $result['error'] ?? '']);
     }
 
     public function registro(): void

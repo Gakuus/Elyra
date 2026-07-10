@@ -79,7 +79,7 @@ final class AuthServiceTest extends TestCase
         $result = $this->authService->login('admin', 'wrongpassword');
 
         $this->assertFalse($result['success']);
-        $this->assertSame('Credenciales inválidas', $result['error']);
+        $this->assertSame('Credenciales inválidas', $result['error'] ?? '');
     }
 
     public function testLoginFailsWithNonExistentUser(): void
@@ -95,7 +95,7 @@ final class AuthServiceTest extends TestCase
         $result = $this->authService->login('noexiste', 'anypass');
 
         $this->assertFalse($result['success']);
-        $this->assertSame('Credenciales inválidas', $result['error']);
+        $this->assertSame('Credenciales inválidas', $result['error'] ?? '');
     }
 
     public function testLoginFailsWithInactiveUser(): void
@@ -117,7 +117,7 @@ final class AuthServiceTest extends TestCase
         $result = $this->authService->login('inactive', 'secret');
 
         $this->assertFalse($result['success']);
-        $this->assertStringContainsString('desactivado', $result['error']);
+        $this->assertStringContainsString('desactivado', $result['error'] ?? '');
     }
 
     public function testLoginFailsWithInactivePaciente(): void
@@ -142,7 +142,7 @@ final class AuthServiceTest extends TestCase
         $result = $this->authService->login('paciente1', 'pass');
 
         $this->assertFalse($result['success']);
-        $this->assertStringContainsString('desactivado', $result['error']);
+        $this->assertStringContainsString('desactivado', $result['error'] ?? '');
     }
 
     public function testLoginSuccessForPaciente(): void

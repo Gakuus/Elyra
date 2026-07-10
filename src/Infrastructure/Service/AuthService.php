@@ -15,9 +15,15 @@ class AuthService
         $this->usuarioRepo = $usuarioRepo;
     }
 
+    /**
+     * @return array{success: bool, error?: string, user?: mixed}
+     */
     public function login(string $username, string $password): array
     {
         $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        if (!is_string($ip)) {
+            $ip = '127.0.0.1';
+        }
 
         if (!RateLimiter::checkLoginAttempts($ip)) {
             return [
@@ -48,7 +54,7 @@ class AuthService
             ];
         }
 
-        if (!method_exists($user, 'verificarPassword') || !$user->verificarPassword($password)) {
+        if (!$user->verificarPassword($password)) {
             return [
                 'success' => false,
                 'error' => 'Credenciales inválidas',
@@ -58,7 +64,11 @@ class AuthService
         RateLimiter::resetLoginAttempts($ip);
 
         $rol = $user instanceof \Elyra\Domain\Entity\Funcionario ? $user->getRol()->value() : 'paciente';
-        SessionManager::login($user->getId(), $rol, $user->getNombreCompleto());
+        $userId = $user->getId();
+        if ($userId === null) {
+            return ['success' => false, 'error' => 'Error interno'];
+        }
+        SessionManager::login($userId, $rol, $user->getNombreCompleto());
 
         return [
             'success' => true,
