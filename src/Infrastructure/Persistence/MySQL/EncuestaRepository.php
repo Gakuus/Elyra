@@ -296,13 +296,16 @@ class EncuestaRepository implements EncuestaRepositoryInterface
 
     private function hydratePregunta(array $row): Pregunta
     {
+        /** @var list<string>|null $opciones */
+        $opciones = $row['opciones'] ? json_decode($row['opciones'], true) : null;
+
         return new Pregunta(
             id: (int) $row['id'],
             encuestaId: (int) $row['encuesta_id'],
             tipo: new TipoPregunta($row['tipo']),
             texto: $row['texto'],
             orden: (int) $row['orden'],
-            opciones: $row['opciones'] ? json_decode($row['opciones'], true) : null,
+            opciones: $opciones,
             requerida: (bool) $row['requerida'],
             createdAt: $row['created_at'],
         );

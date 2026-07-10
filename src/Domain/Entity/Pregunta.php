@@ -12,11 +12,13 @@ class Pregunta
     private int $encuestaId;
     private TipoPregunta $tipo;
     private string $texto;
+    /** @var list<string>|null */
     private ?array $opciones;
     private bool $requerida;
     private int $orden;
     private ?string $createdAt;
 
+    /** @param list<string>|null $opciones */
     public function __construct(
         ?int $id,
         int $encuestaId,
@@ -41,6 +43,7 @@ class Pregunta
     public function getEncuestaId(): int { return $this->encuestaId; }
     public function getTipo(): TipoPregunta { return $this->tipo; }
     public function getTexto(): string { return $this->texto; }
+    /** @return list<string>|null */
     public function getOpciones(): ?array { return $this->opciones; }
     public function isRequerida(): bool { return $this->requerida; }
     public function getOrden(): int { return $this->orden; }
