@@ -26,6 +26,7 @@ $eActual = $estados[$t['estado']];
                     <div class="alert alert-info mb-0">Este traslado ya está en su estado final. No hay acciones disponibles.</div>
                 <?php else: ?>
                     <form method="POST" action="/traslados/actualizar-estado" class="row g-3">
+                        <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars(\Elyra\Infrastructure\Service\SessionManager::getCsrfToken()) ?>">
                         <input type="hidden" name="id" value="<?= $t['id'] ?>">
 
                         <div class="col-12">
