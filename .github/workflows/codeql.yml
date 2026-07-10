@@ -18,10 +18,10 @@ jobs:
       security-events: write
     steps:
       - uses: actions/checkout@v7
-      - uses: github/codeql-action/init@v4
+      - uses: github/codeql-action/init@v3
         with:
           languages: javascript-typescript
-      - uses: github/codeql-action/analyze@v4
+      - uses: github/codeql-action/analyze@v3
 
   analyze-php:
     name: Analyze PHP
@@ -32,7 +32,7 @@ jobs:
       security-events: write
     steps:
       - uses: actions/checkout@v7
-      - uses: github/codeql-action/init@v4
+      - uses: github/codeql-action/init@v3
         with:
           languages: php
-      - uses: github/codeql-action/analyze@v4
+      - uses: github/codeql-action/analyze@v3
