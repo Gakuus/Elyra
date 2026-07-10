@@ -16,6 +16,9 @@
                 <h5 class="fw-bold mb-3"><i class="bi bi-plus-square me-2 text-primary"></i>Nueva encuesta</h5>
 
                 <form method="post" id="encuestaForm">
+                    <div style="position:absolute;left:-9999px" aria-hidden="true">
+                        <input type="text" name="website" tabindex="-1" autocomplete="off" value="">
+                    </div>
                     <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars($_SESSION['_csrf_token'] ?? '') ?>">
 
                     <div class="mb-3">
@@ -52,7 +55,7 @@
 </div>
 
 <?php ob_start(); ?>
-<script>
+<script nonce="<?= $nonce ?>">
 (function () {
     var qIndex = 0;
     var container = document.getElementById('questionsContainer');

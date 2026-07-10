@@ -119,7 +119,7 @@ $frontendLimit = 8;
 </div>
 
 <?php $scripts = <<<HTML
-<script>
+<script nonce="{$nonce}">
 document.addEventListener('DOMContentLoaded', function() {
     var ciInput = document.getElementById('ci');
     if (ciInput) {

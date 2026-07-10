@@ -31,6 +31,9 @@
                     </div>
 
                     <form method="post" enctype="multipart/form-data">
+                        <div style="position:absolute;left:-9999px" aria-hidden="true">
+                            <input type="text" name="website" tabindex="-1" autocomplete="off" value="">
+                        </div>
 
                         <div class="row g-2 mb-2">
                             <div class="col-sm-6">

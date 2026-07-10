@@ -54,7 +54,15 @@ class AuthService
             ];
         }
 
+        if (!RateLimiter::checkAccountLockout($username)) {
+            return [
+                'success' => false,
+                'error' => 'Demasiados intentos. Intente de nuevo en 15 minutos.',
+            ];
+        }
+
         if (!$user->verificarPassword($password)) {
+            RateLimiter::incrementAccountAttempts($username);
             return [
                 'success' => false,
                 'error' => 'Credenciales inválidas',
@@ -62,6 +70,7 @@ class AuthService
         }
 
         RateLimiter::resetLoginAttempts($ip);
+        RateLimiter::resetAccountAttempts($username);
 
         $rol = $user instanceof \Elyra\Domain\Entity\Funcionario ? $user->getRol()->value() : 'paciente';
         $userId = $user->getId();

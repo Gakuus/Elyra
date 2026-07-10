@@ -73,6 +73,7 @@ function renderBreadcrumbs(string $uri, array $map): void {
             <div class="sidebar-section-title">Gestión</div>
             <a href="/dashboard" class="sidebar-link <?= $currentUri === '/dashboard' ? 'active' : '' ?>"><img src="/img/silk/house.png" width="16" height="16" alt=""> Panel</a>
             <a href="/perfil" class="sidebar-link <?= $currentUri === '/perfil' ? 'active' : '' ?>"><img src="/img/silk/user.png" width="16" height="16" alt=""> Mi Perfil</a>
+            <a href="/noticias" class="sidebar-link <?= str_starts_with($currentUri, '/noticias') ? 'active' : '' ?>"><img src="/img/silk/newspaper.png" width="16" height="16" alt=""> Noticias</a>
         </div>
         <div class="sidebar-section">
             <div class="sidebar-section-title">Documentación</div>
@@ -126,8 +127,23 @@ function renderBreadcrumbs(string $uri, array $map): void {
 
 <?php endif; ?>
 
-<script src="/js/elyra.js?v=5" defer></script>
-<script src="/js/components/ui.js?v=5" defer></script>
+<script nonce="<?= $nonce ?>" src="/js/elyra.js?v=5" defer></script>
+<script nonce="<?= $nonce ?>" src="/js/components/ui.js?v=5" defer></script>
+<script nonce="<?= $nonce ?>">
+(function() {
+    var timeout = 1800000; // 30 min
+    var timer;
+    function resetTimer() {
+        clearTimeout(timer);
+        timer = setTimeout(function() { window.location.href = '/logout?timeout=1'; }, timeout);
+    }
+    document.addEventListener('mousemove', resetTimer);
+    document.addEventListener('keydown', resetTimer);
+    document.addEventListener('click', resetTimer);
+    document.addEventListener('scroll', resetTimer);
+    resetTimer();
+})();
+</script>
 <?= $scripts ?? '' ?>
 </body>
 </html>

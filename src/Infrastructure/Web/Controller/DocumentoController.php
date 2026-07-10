@@ -10,6 +10,7 @@ use Elyra\Domain\Entity\Paciente;
 use Elyra\Infrastructure\Persistence\MySQL\CategoriaRepository;
 use Elyra\Infrastructure\Persistence\MySQL\DocumentoRepository;
 use Elyra\Infrastructure\Persistence\MySQL\UsuarioRepository;
+use Elyra\Infrastructure\Service\ErrorHandler;
 use Elyra\Infrastructure\Service\SessionManager;
 use Elyra\Infrastructure\Service\Validator;
 
@@ -405,6 +406,14 @@ class DocumentoController extends BaseController
             return;
         }
 
+        $userId = SessionManager::getUserId();
+        ErrorHandler::log('INFO', 'Documento visto', [
+            'user_id' => $userId,
+            'doc_id' => $id,
+            'titulo' => $doc?->getTitulo(),
+            'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+        ]);
+
         $this->render('documentos/ver', [
             'doc' => $doc ? $this->docToArray($doc) : null,
         ] + $this->viewCategorias());
@@ -427,6 +436,15 @@ class DocumentoController extends BaseController
             http_response_code(403);
             exit;
         }
+
+        $userId = SessionManager::getUserId();
+        $disposition = !empty($_GET['descargar']) ? 'descarga' : 'vista';
+        ErrorHandler::log('INFO', "Documento {$disposition}", [
+            'user_id' => $userId,
+            'doc_id' => $id,
+            'titulo' => $doc->getTitulo(),
+            'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+        ]);
 
         $contenido = $this->docRepo->getArchivoContent($id);
         if ($contenido === null) {

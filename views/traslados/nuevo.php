@@ -16,6 +16,9 @@
                 <h5 class="card-title mb-3"><i class="bi bi-plus-circle me-2 text-primary"></i>Registrar nuevo traslado</h5>
 
                 <form method="post">
+                    <div style="position:absolute;left:-9999px" aria-hidden="true">
+                        <input type="text" name="website" tabindex="-1" autocomplete="off" value="">
+                    </div>
                     <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars($_SESSION['_csrf_token'] ?? '') ?>">
 
                     <h6 class="text-muted mb-3"><i class="bi bi-person-badge me-1"></i> Personal</h6>
