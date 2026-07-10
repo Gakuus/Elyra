@@ -9,6 +9,7 @@ use Elyra\Infrastructure\Persistence\MySQL\EncuestaRepository;
 use Elyra\Infrastructure\Persistence\MySQL\UsuarioRepository;
 use Elyra\Domain\Entity\Pregunta;
 use Elyra\Domain\Entity\Respuesta;
+use Elyra\Infrastructure\Service\RateLimiter;
 use Elyra\Infrastructure\Service\SessionManager;
 
 class PublicController extends BaseController
@@ -176,6 +177,15 @@ class PublicController extends BaseController
 
     private function handleResponderEncuesta(): void
     {
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        if (!is_string($ip)) {
+            $ip = '127.0.0.1';
+        }
+        if (!RateLimiter::checkSurveySubmission($ip)) {
+            $this->render('publico/encuesta', ['error' => 'Ya respondiste esta encuesta recientemente. Intente de nuevo más tarde.']);
+            return;
+        }
+
         /** @var string $idStr */
         $idStr = $_POST['encuesta_id'] ?? 0;
         $id = (int) $idStr;
@@ -234,6 +244,8 @@ class PublicController extends BaseController
         $tokenPaciente = $_GET['token'] ?? null;
 
         $this->encuestaRepo->saveRespuestasBatch($id, $sesionToken, $tokenPaciente, $respuestas);
+
+        RateLimiter::incrementSurveySubmission($ip);
 
         $this->redirect('/publico/encuesta?ok=1&id=' . $id);
     }

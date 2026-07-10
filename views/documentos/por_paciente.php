@@ -26,7 +26,7 @@ $frontendLimit = 8;
 
         <?php if (!empty($ci) && !empty($ciError)): ?>
             <div class="msg msg-warning mb-2 text-center fw-bold">
-                <i class="bi bi-exclamation-triangle me-1"></i> <?= $ciError ?>
+                <i class="bi bi-exclamation-triangle me-1"></i> <?= htmlspecialchars($ciError) ?>
             </div>
 
         <?php elseif (!empty($ci) && !empty($ciPaciente)):

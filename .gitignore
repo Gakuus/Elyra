@@ -8,8 +8,12 @@
 *.pdf
 /composer.lock
 /storage/uploads/
+/storage/docs/
+/storage/traslados/
 
 # Storage content (not structure)
 /storage/uploads/
+/storage/docs/
 /storage/encuestas/
+/storage/traslados/
 storage/rate-limit/

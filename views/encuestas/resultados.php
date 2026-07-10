@@ -47,7 +47,7 @@
                                 </div>
                                 <div class="mt-2 text-center small text-muted">
                                     <?php foreach ($s['datos'] as $v => $c): ?>
-                                        <span class="me-2"><?= $v ?>: <?= $c ?></span>
+                                        <span class="me-2"><?= htmlspecialchars((string) $v) ?>: <?= $c ?></span>
                                     <?php endforeach; ?>
                                 </div>
                             </div>
