@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Elyra\Infrastructure\Web\Controller;
 
-use Elyra\Infrastructure\Persistence\MySQL\DocumentoRepository;
-use Elyra\Infrastructure\Persistence\MySQL\EncuestaRepository;
-use Elyra\Infrastructure\Persistence\MySQL\UsuarioRepository;
+use Elyra\Domain\Entity\Noticia;
 use Elyra\Domain\Entity\Pregunta;
 use Elyra\Domain\Entity\Respuesta;
+use Elyra\Infrastructure\Persistence\MySQL\DocumentoRepository;
+use Elyra\Infrastructure\Persistence\MySQL\EncuestaRepository;
+use Elyra\Infrastructure\Persistence\MySQL\NoticiaRepository;
+use Elyra\Infrastructure\Persistence\MySQL\UsuarioRepository;
 use Elyra\Infrastructure\Service\RateLimiter;
 use Elyra\Infrastructure\Service\SessionManager;
 
@@ -17,12 +19,14 @@ class PublicController extends BaseController
     private DocumentoRepository $docRepo;
     private UsuarioRepository $usuarioRepo;
     private EncuestaRepository $encuestaRepo;
+    private NoticiaRepository $noticiaRepo;
 
     public function __construct()
     {
         $this->docRepo = new DocumentoRepository();
         $this->usuarioRepo = new UsuarioRepository();
         $this->encuestaRepo = new EncuestaRepository();
+        $this->noticiaRepo = new NoticiaRepository();
     }
 
     public function home(): void
@@ -30,6 +34,29 @@ class PublicController extends BaseController
         if (SessionManager::isAuthenticated()) {
             $this->redirect('/dashboard');
         }
+
+        $noticiasSemana = $this->noticiaRepo->findThisWeek();
+
+        $meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','setiembre','octubre','noviembre','diciembre'];
+
+        $formatear = function (Noticia $n) use ($meses): array {
+            $created = $n->getCreatedAt();
+            $fecha = '';
+            if ($created) {
+                $ts = (int) strtotime($created);
+                $fecha = date('j', $ts) . ' de ' . ($meses[(int) date('n', $ts) - 1] ?? '') . ' de ' . date('Y', $ts);
+            }
+            return [
+                'id' => $n->getId(),
+                'titulo' => $n->getTitulo(),
+                'contenido' => $n->getContenido(),
+                'imagen' => $n->getImagen(),
+                'creada' => $fecha,
+            ];
+        };
+
+        $noticiasSemanaArr = array_map($formatear, $noticiasSemana);
+
         require __DIR__ . '/../../../../views/publico/home.php';
     }
 

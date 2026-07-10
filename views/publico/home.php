@@ -22,13 +22,14 @@
         .hero-section h1 { font-size:44px; font-weight:bold; margin:14px 0; }
         .hero-section .lead { font-size:18px; margin-bottom:20px; color:#CCD9F0; }
         .section { padding:70px 0; }
-        .section-title { font-size:22px; font-weight:bold; color:#3B5998; margin-bottom:6px; }
-        .section-subtitle { font-size:13px; color:#777; margin-bottom:28px; }
-        .news-card { border:1px solid #ddd; background:#fff; }
-        .news-card .card-footer { background:#f6f6f6; border-top:1px solid #ddd; padding:6px 10px; }
-        .service-card { border:1px solid #ddd; background:#fff; text-align:center; padding:20px 10px; }
+        .section-title { font-size:28px; font-weight:bold; color:#3B5998; margin-bottom:8px; }
+        .section-subtitle { font-size:15px; color:#777; margin-bottom:32px; }
+
+        .service-card { border:1px solid #ddd; background:#fff; text-align:center; padding:32px 20px; }
         .service-card:hover { border-color:#3B5998; }
-        .service-icon { font-size:32px; color:#3B5998; margin-bottom:8px; }
+        .service-card h6 { font-size:15px !important; }
+        .service-card p { font-size:13px !important; }
+        .service-icon { font-size:40px; color:#3B5998; margin-bottom:12px; }
         .public-footer { background:#2A4780; color:#CCD9F0; padding:20px 0; font-size:11px; text-align:center; border-top:2px solid #1A3560; }
         .public-footer .text-muted { color:#99AACC; }
         .contact-section { background:#f6f6f6; border-top:1px solid #ddd; }
@@ -68,57 +69,87 @@
             <a href="/login" class="btn btn-primary btn-lg" style="font-size:14px;padding:8px 24px;">
                 <i class="bi bi-person-badge"></i> Acceso al sistema
             </a>
-            <a href="#noticias" class="btn btn-lg" style="font-size:14px;padding:8px 24px;background:rgba(255,255,255,0.12);color:#fff;border-color:rgba(255,255,255,0.3);">
-                <i class="bi bi-newspaper"></i> Últimas noticias
+            <a href="#noticias-semana" class="btn btn-lg" style="font-size:14px;padding:8px 24px;background:rgba(255,255,255,0.12);color:#fff;border-color:rgba(255,255,255,0.3);">
+                <i class="bi bi-newspaper"></i> Noticias
             </a>
         </div>
     </div>
 </div>
 
-<section id="noticias" class="section">
+<?php if (!empty($noticiasSemanaArr)): ?>
+<style>
+.carousel-item { display:none; }
+.carousel-item.active { display:block; }
+.car-slide { position:relative; height:320px; background-size:cover; background-position:center; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; justify-content:flex-end; }
+.car-slide::before { content:''; position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.05) 100%); }
+.car-slide .container { position:relative; z-index:2; padding-bottom:60px; }
+.car-slide h2 { font-size:24px; font-weight:700; color:#fff; margin:0 0 6px 0; max-width:600px; line-height:1.25; }
+.car-slide p { font-size:14px; color:rgba(255,255,255,0.8); margin:0 0 12px 0; max-width:520px; line-height:1.5; }
+.car-slide .meta { font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:10px; }
+.car-slide .btn-outline-light { font-size:13px; padding:6px 20px; border-radius:6px; }
+.c-prev { position:absolute; top:50%; transform:translateY(-50%); left:12px; z-index:3; background:rgba(0,0,0,0.35); border:none; color:#fff; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; }
+.c-next { position:absolute; top:50%; transform:translateY(-50%); right:12px; z-index:3; background:rgba(0,0,0,0.35); border:none; color:#fff; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; }
+.c-next:hover,
+.c-prev:hover { background:rgba(0,0,0,0.6); }
+.c-indic { position:absolute; bottom:14px; left:0; right:0; z-index:3; display:flex; align-items:center; justify-content:center; gap:6px; }
+.c-indic button { width:8px; height:8px; border-radius:50%; border:0; background:rgba(255,255,255,0.4); cursor:pointer; padding:0; transition:all 0.2s; }
+.c-indic button.active { background:#fff; width:20px; border-radius:4px; }
+@media (max-width:768px) {
+    .car-slide { height:220px; border-radius:8px; }
+    .car-slide h2 { font-size:18px; }
+    .car-slide p { font-size:13px; }
+}
+</style>
+
+<section id="noticias-semana" class="section" style="background:#f8f9fb;padding-top:0;">
     <div class="container">
-        <div class="section-title">Últimas noticias</div>
-        <div class="section-subtitle">Novedades del Hospital de Clínicas</div>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="news-card">
-                    <div class="p-3">
-                        <p class="small text-muted mb-1"><i class="bi bi-calendar3"></i> 26 de junio de 2026</p>
-                        <h5 class="fw-semibold" style="font-size:13px;margin:0 0 6px 0;">Cirugía de tórax recibe premio internacional</h5>
-                        <p class="small text-muted mb-0">La Dra. Macarena Muto fue galardonada por su contribución a la cirugía torácica a nivel internacional.</p>
-                    </div>
-                    <div class="card-footer">
-                        <a href="#" class="btn btn-sm btn-primary">Leer más</a>
+        <div class="section-title">Noticias de la semana</div>
+        <div class="section-subtitle">Lo más destacado de los últimos días</div>
+        <div id="noticiasCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000" style="position:relative;">
+            <div class="carousel-inner">
+                <?php foreach ($noticiasSemanaArr as $i => $n): 
+                    $imgBg = $n['imagen'] ? 'background-image:url(\'/uploads/noticias/' . rawurlencode($n['imagen']) . '\')' : 'background:linear-gradient(135deg,#1a1a2e,#16213e)';
+                ?>
+                <div class="carousel-item <?= $i === 0 ? 'active' : '' ?>">
+                    <div class="car-slide" style="<?= $imgBg ?>">
+                        <div class="container">
+                            <h2><?= htmlspecialchars($n['titulo']) ?></h2>
+                            <p><?= htmlspecialchars(mb_substr($n['contenido'], 0, 120)) ?><?= mb_strlen($n['contenido']) > 120 ? '…' : '' ?></p>
+                            <p class="meta"><i class="bi bi-calendar3"></i> <?= htmlspecialchars($n['creada']) ?></p>
+                            <a href="#" class="btn btn-outline-light btn-sm">Leer más <i class="bi bi-arrow-right"></i></a>
+                        </div>
+                        <button class="c-ctrl c-prev" type="button" data-bs-target="#noticiasCarousel" data-bs-slide="prev">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <button class="c-ctrl c-next" type="button" data-bs-target="#noticiasCarousel" data-bs-slide="next">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
                     </div>
                 </div>
+                <?php endforeach; ?>
             </div>
-            <div class="col-md-4">
-                <div class="news-card">
-                    <div class="p-3">
-                        <p class="small text-muted mb-1"><i class="bi bi-calendar3"></i> 25 de junio de 2026</p>
-                        <h5 class="fw-semibold" style="font-size:13px;margin:0 0 6px 0;">Nuevo motor para cirugía de pie</h5>
-                        <p class="small text-muted mb-0">El Hospital incorporó un moderno motor quirúrgico para cirugías de pie y tobillo.</p>
-                    </div>
-                    <div class="card-footer">
-                        <a href="#" class="btn btn-sm btn-primary">Leer más</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="news-card">
-                    <div class="p-3">
-                        <p class="small text-muted mb-1"><i class="bi bi-calendar3"></i> 25 de junio de 2026</p>
-                        <h5 class="fw-semibold" style="font-size:13px;margin:0 0 6px 0;">Las paredes del piso 10 tienen nuevas historias</h5>
-                        <p class="small text-muted mb-0">Nueva exposición artística en el Hospital de Clínicas que transforma los espacios.</p>
-                    </div>
-                    <div class="card-footer">
-                        <a href="#" class="btn btn-sm btn-primary">Leer más</a>
-                    </div>
-                </div>
+            <div class="c-indic">
+                <?php foreach ($noticiasSemanaArr as $i => $n): ?>
+                <button type="button" data-bs-target="#noticiasCarousel" data-bs-slide-to="<?= $i ?>" class="<?= $i === 0 ? 'active' : '' ?>" aria-label="Slide <?= $i + 1 ?>"></button>
+                <?php endforeach; ?>
             </div>
         </div>
     </div>
 </section>
+<script nonce="<?= \Elyra\Infrastructure\Service\SessionManager::getNonce() ?>">
+document.addEventListener('DOMContentLoaded', function(){
+    var carousel = document.getElementById('noticiasCarousel');
+    if (carousel) {
+        carousel.addEventListener('slid.bs.carousel', function(e){
+            var dots = carousel.querySelectorAll('.c-indic button');
+            dots.forEach(function(d, i){
+                d.classList.toggle('active', i === e.to);
+            });
+        });
+    }
+});
+</script>
+<?php endif; ?>
 
     <section id="servicios" class="section" style="background:#f2f2f2;border-top:1px solid #ddd;">
         <div class="container">
@@ -189,7 +220,7 @@
                         <h6 class="fw-semibold" style="font-size:13px;margin:0 0 6px 0;color:#3B5998;">Lain</h6>
                         <p class="small text-muted mb-2" style="font-size:11px;">
                             Colectivo de desarrollo de software conformado por estudiantes de la
-                            Facultad de Ingenier&iacute;a. Nos especializamos en aplicaciones web con
+                            ITSP. Nos especializamos en aplicaciones web con
                             impacto social, combinando tecnolog&iacute;as modernas con dise&ntilde;o funcional
                             y accesible.
                         </p>
@@ -249,7 +280,7 @@
                 <ul class="list-unstyled" style="font-size:12px;">
                     <li class="mb-2"><i class="bi bi-geo-alt" style="color:#3B5998;margin-right:6px;"></i> Av. Italia s/n - Montevideo, Uruguay</li>
                     <li class="mb-2"><i class="bi bi-telephone" style="color:#3B5998;margin-right:6px;"></i> 1953 / 0800 1953</li>
-                    <li class="mb-2"><i class="bi bi-envelope" style="color:#3B5998;margin-right:6px;"></i> atencionalusuario@hc.edu.uy</li>
+                    <li class="mb-2"><i class="bi bi-envelope" style="color:#3B5998;margin-right:6px;"></i> lainsmes@gmail.com</li>
                 </ul>
             </div>
             <div class="col-md-6">
@@ -270,7 +301,8 @@
     </div>
 </div>
 
-<script src="/js/elyra.js" defer></script>
-<script src="/js/components/ui.js" defer></script>
+<script nonce="<?= \Elyra\Infrastructure\Service\SessionManager::getNonce() ?>" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+<script nonce="<?= \Elyra\Infrastructure\Service\SessionManager::getNonce() ?>" src="/js/elyra.js" defer></script>
+<script nonce="<?= \Elyra\Infrastructure\Service\SessionManager::getNonce() ?>" src="/js/components/ui.js" defer></script>
 </body>
 </html>
