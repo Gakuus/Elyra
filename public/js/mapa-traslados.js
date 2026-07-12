@@ -226,34 +226,18 @@
     }
 
     function connectSSE() {
-        var es = new EventSource('/api/ubicaciones/stream');
+        var statusText = 'Actualizando cada 5s';
+        statusEl.innerHTML = '<div class="pulse-dot"></div><span>' + statusText + '</span>';
 
-        es.addEventListener('connected', function () {
-            statusEl.innerHTML = '<div class="pulse-dot"></div><span>Conectado</span>';
-        });
-
-        es.addEventListener('position_update', function (e) {
-            var data = JSON.parse(e.data);
-            var existing = ubicacionesCache.find(function (u) {
-                return u.conductor_id === data.conductor_id;
-            });
-
-            if (existing) {
-                existing.latitud = data.latitud;
-                existing.longitud = data.longitud;
-                existing.heading = data.heading;
-                existing.velocidad = data.velocidad;
-                updateMarker(existing);
-                updateSidebar(ubicacionesCache);
-            }
-        });
-
-        es.onerror = function () {
-            statusEl.innerHTML = '<span style="color:#f44336;">Reconectando...</span>';
-        };
+        setInterval(function () {
+            statusEl.innerHTML = '<div class="pulse-dot"></div><span>Actualizando...</span>';
+            fetchUbicaciones();
+            setTimeout(function () {
+                statusEl.innerHTML = '<div class="pulse-dot"></div><span>' + statusText + '</span>';
+            }, 1000);
+        }, 5000);
     }
 
     fetchUbicaciones();
-    setInterval(fetchUbicaciones, 5000);
     connectSSE();
 })();
