@@ -14,6 +14,7 @@ use Elyra\Application\UseCases\Ruta\ListarRutasUseCase;
 use Elyra\Domain\Entity\Funcionario;
 use Elyra\Domain\Entity\Traslado;
 use Elyra\Domain\ValueObject\EstadoTraslado;
+use Elyra\Infrastructure\Persistence\MySQL\CatalogoElementoRepository;
 use Elyra\Infrastructure\Persistence\MySQL\ConductorRepository;
 use Elyra\Infrastructure\Persistence\MySQL\RutaRepository;
 use Elyra\Infrastructure\Persistence\MySQL\TrasladoRepository;
@@ -31,6 +32,8 @@ class TrasladoController extends BaseController
     private HistorialTrasladosUseCase $historialTraslados;
     private ListarConductoresUseCase $listarConductores;
     private ListarRutasUseCase $listarRutas;
+    private CatalogoElementoRepository $catalogoRepo;
+    private UsuarioRepository $usuarioRepo;
 
     public function __construct()
     {
@@ -46,6 +49,8 @@ class TrasladoController extends BaseController
         $this->historialTraslados = new HistorialTrasladosUseCase($trasladoRepo);
         $this->listarConductores = new ListarConductoresUseCase($conductorRepo);
         $this->listarRutas = new ListarRutasUseCase($rutaRepo);
+        $this->catalogoRepo = new CatalogoElementoRepository();
+        $this->usuarioRepo = $usuarioRepo;
     }
 
     public function index(): void
@@ -101,20 +106,58 @@ class TrasladoController extends BaseController
             return;
         }
 
+        $this->render('traslados/nuevo', $this->getFormData());
+    }
+
+    /** @return array<string, mixed> */
+    private function getFormData(): array
+    {
         $conductoresResult = $this->listarConductores->execute(['activo' => true]);
-        $conductoresNames = array_map(
-            fn(Funcionario $c) => $c->getApellido() . ', ' . $c->getNombre(),
+        $conductores = array_map(
+            fn(Funcionario $c) => ['id' => $c->getId(), 'nombre' => $c->getApellido() . ', ' . $c->getNombre()],
             $conductoresResult['conductores']
         );
 
-        $rutasResult = $this->listarRutas->execute();
-        $rutasNames = array_map(fn($r) => $r->getNombre() . ': ' . $r->getOrigen() . ' → ' . $r->getDestino(), $rutasResult['rutas']);
+        $copilotos = $this->usuarioRepo->findAllFuncionarios(true);
+        $copilotosList = array_values(array_filter(
+            $copilotos,
+            fn(Funcionario $f) => $f->getRol()->value() === 'copiloto'
+        ));
+        $copilotosMapped = array_map(
+            fn(Funcionario $c) => ['id' => $c->getId(), 'nombre' => $c->getApellido() . ', ' . $c->getNombre()],
+            $copilotosList
+        );
 
-        $this->render('traslados/nuevo', [
-            'conductores' => $conductoresNames,
+        $pacientes = $this->usuarioRepo->findAllPacientes();
+        $pacientesMapped = array_map(
+            fn($p) => ['id' => $p->getId(), 'nombre' => $p->getApellido() . ', ' . $p->getNombre() . ' (CI: ' . ($p->getDocumentoIdentidad() ?? '-') . ')'],
+            $pacientes
+        );
+
+        $insumos = $this->catalogoRepo->findByTipo('insumo', true);
+        $equipamiento = $this->catalogoRepo->findByTipo('equipamiento', true);
+        $organos = $this->catalogoRepo->findByTipo('organo', true);
+
+        $rutasResult = $this->listarRutas->execute();
+        $rutasMapped = array_map(
+            fn($r) => [
+                'id' => $r->getId(),
+                'nombre' => $r->getNombre() . ': ' . $r->getOrigen() . ' → ' . $r->getDestino(),
+                'distancia_km' => $r->getDistanciaKm(),
+            ],
+            $rutasResult['rutas']
+        );
+
+        return [
+            'conductores' => $conductores,
+            'copilotos' => $copilotosMapped,
+            'pacientes' => $pacientesMapped,
+            'insumos' => array_map(fn($i) => ['id' => $i->getId(), 'nombre' => $i->getNombre()], $insumos),
+            'equipamiento' => array_map(fn($e) => ['id' => $e->getId(), 'nombre' => $e->getNombre()], $equipamiento),
+            'organos' => array_map(fn($o) => ['id' => $o->getId(), 'nombre' => $o->getNombre()], $organos),
+            'rutas' => $rutasMapped,
             'ubicaciones' => $this->getUbicaciones(),
-            'rutas' => $rutasNames,
-        ]);
+        ];
     }
 
     private function handleNuevo(): void
@@ -129,12 +172,12 @@ class TrasladoController extends BaseController
             return;
         }
 
-        /** @var string $conductorRaw */
-        $conductorRaw = $_POST['conductor'] ?? '';
-        $conductorNombre = trim($conductorRaw);
-        /** @var string $elementoRaw */
-        $elementoRaw = $_POST['elemento'] ?? '';
-        $elemento = trim($elementoRaw);
+        /** @var string $conductorIdRaw */
+        $conductorIdRaw = $_POST['conductor_id'] ?? '0';
+        $conductorId = (int) $conductorIdRaw;
+        /** @var string $copilotoIdRaw */
+        $copilotoIdRaw = $_POST['copiloto_id'] ?? '';
+        $copilotoId = $copilotoIdRaw !== '' ? (int) $copilotoIdRaw : null;
         /** @var string $tipoRaw */
         $tipoRaw = $_POST['tipo'] ?? '';
         $tipo = trim($tipoRaw);
@@ -144,35 +187,76 @@ class TrasladoController extends BaseController
         /** @var string $destinoRaw */
         $destinoRaw = $_POST['destino'] ?? '';
         $destino = trim($destinoRaw);
+        /** @var string $rutaIdRaw */
+        $rutaIdRaw = $_POST['ruta_id'] ?? '';
+        $rutaId = $rutaIdRaw !== '' ? (int) $rutaIdRaw : null;
         /** @var string $fechaRaw */
         $fechaRaw = $_POST['fecha_salida'] ?? '';
         $fecha = trim($fechaRaw);
         /** @var string $horaRaw */
         $horaRaw = $_POST['hora_salida'] ?? '';
         $hora = trim($horaRaw);
+        /** @var string $horaLlegadaRaw */
+        $horaLlegadaRaw = $_POST['hora_llegada'] ?? '';
+        $horaLlegada = trim($horaLlegadaRaw);
 
-        $conductoresResult = $this->listarConductores->execute(['activo' => true]);
-        $conductoresNames = array_map(
-            fn(Funcionario $c) => $c->getApellido() . ', ' . $c->getNombre(),
-            $conductoresResult['conductores']
-        );
-        $rutasResult = $this->listarRutas->execute();
-        $rutasNames = array_map(fn($r) => $r->getNombre() . ': ' . $r->getOrigen() . ' → ' . $r->getDestino(), $rutasResult['rutas']);
-        $formDefaults = ['conductores' => $conductoresNames, 'ubicaciones' => $this->getUbicaciones(), 'rutas' => $rutasNames];
+        $formDefaults = $this->getFormData();
 
-        if ($conductorNombre === '') {
+        if ($conductorId <= 0) {
             $this->render('traslados/nuevo', ['error' => 'Seleccion&aacute; un conductor v&aacute;lido.'] + $formDefaults);
             return;
         }
 
-        if (strlen($elemento) < 3) {
-            $this->render('traslados/nuevo', ['error' => 'El elemento a trasladar debe tener al menos 3 caracteres.'] + $formDefaults);
+        if (!in_array($tipo, ['paciente', 'equipamiento', 'insumo', 'organo'], true)) {
+            $this->render('traslados/nuevo', ['error' => 'Seleccion&aacute; un tipo v&aacute;lido.'] + $formDefaults);
             return;
         }
 
-        if (!in_array($tipo, ['paciente', 'equipamiento', 'insumo'], true)) {
-            $this->render('traslados/nuevo', ['error' => 'Seleccion&aacute; un tipo v&aacute;lido.'] + $formDefaults);
-            return;
+        $descripcion = '';
+        $pacienteId = null;
+
+        if ($tipo === 'paciente') {
+            /** @var string $pacienteIdRaw */
+            $pacienteIdRaw = $_POST['paciente_id'] ?? '0';
+            $pacienteId = (int) $pacienteIdRaw;
+            if ($pacienteId <= 0) {
+                $this->render('traslados/nuevo', ['error' => 'Seleccion&aacute; un paciente v&aacute;lido.'] + $formDefaults);
+                return;
+            }
+            $pacientes = $this->usuarioRepo->findAllPacientes();
+            foreach ($pacientes as $p) {
+                if ($p->getId() === $pacienteId) {
+                    $descripcion = $p->getApellido() . ', ' . $p->getNombre();
+                    break;
+                }
+            }
+        } elseif ($tipo === 'organo') {
+            /** @var string $organoIdRaw */
+            $organoIdRaw = $_POST['catalogo_elemento_id'] ?? '0';
+            $organoId = (int) $organoIdRaw;
+            /** @var string $pacienteAsociadoRaw */
+            $pacienteAsociadoRaw = $_POST['paciente_id'] ?? '0';
+            $pacienteId = (int) $pacienteAsociadoRaw;
+            if ($organoId <= 0) {
+                $this->render('traslados/nuevo', ['error' => 'Seleccion&aacute; un &oacute;rgano v&aacute;lido.'] + $formDefaults);
+                return;
+            }
+            if ($pacienteId <= 0) {
+                $this->render('traslados/nuevo', ['error' => 'Seleccion&aacute; el paciente asociado al &oacute;rgano.'] + $formDefaults);
+                return;
+            }
+            $organo = $this->catalogoRepo->findById($organoId);
+            $descripcion = $organo !== null ? $organo->getNombre() : '';
+        } elseif (in_array($tipo, ['insumo', 'equipamiento'], true)) {
+            /** @var string $catalogoIdRaw */
+            $catalogoIdRaw = $_POST['catalogo_elemento_id'] ?? '0';
+            $catalogoId = (int) $catalogoIdRaw;
+            if ($catalogoId <= 0) {
+                $this->render('traslados/nuevo', ['error' => 'Seleccion&aacute; un elemento del cat&aacute;logo.'] + $formDefaults);
+                return;
+            }
+            $item = $this->catalogoRepo->findById($catalogoId);
+            $descripcion = $item !== null ? $item->getNombre() : '';
         }
 
         if ($origen === $destino || $origen === '' || $destino === '') {
@@ -185,30 +269,40 @@ class TrasladoController extends BaseController
             return;
         }
 
-        $conductorId = $this->findConductorIdByName($conductorNombre);
-        if ($conductorId === null) {
-            $this->render('traslados/nuevo', ['error' => 'Conductor no encontrado.'] + $formDefaults);
-            return;
-        }
-
         $userId = SessionManager::getUserId() ?? 0;
         $horaSalida = $fecha . ' ' . $hora;
 
+        /** @var array{tipo: string, descripcion: string, cantidad: int} $elementoBase */
+        $elementoBase = [
+            'tipo' => $tipo,
+            'descripcion' => $descripcion,
+            'cantidad' => 1,
+        ];
+        $elemento = $pacienteId !== null
+            ? $elementoBase + ['pacienteId' => $pacienteId]
+            : $elementoBase;
+
+        /** @var list<array{tipo: string, descripcion: string, cantidad: int, pacienteId?: int}> $elementos */
+        $elementos = [$elemento];
+
+        /** @var array{conductorId: int, origen: string, destino: string, registradoPor: int, horaSalidaEstimada: string, elementos: list<array{tipo: string, descripcion: string, cantidad: int, pacienteId?: int}>} $input */
+        $input = [
+            'conductorId' => $conductorId,
+            'origen' => $origen,
+            'destino' => $destino,
+            'registradoPor' => $userId,
+            'horaSalidaEstimada' => $horaSalida,
+            'elementos' => $elementos,
+        ];
+        if ($copilotoId !== null) {
+            $input['copilotoId'] = $copilotoId;
+        }
+        if ($rutaId !== null) {
+            $input['rutaId'] = $rutaId;
+        }
+
         try {
-            $this->registrarTraslado->execute([
-                'conductorId' => $conductorId,
-                'origen' => $origen,
-                'destino' => $destino,
-                'registradoPor' => $userId,
-                'horaSalidaEstimada' => $horaSalida,
-                'elementos' => [
-                    [
-                        'tipo' => $tipo,
-                        'descripcion' => $elemento,
-                        'cantidad' => 1,
-                    ],
-                ],
-            ]);
+            $this->registrarTraslado->execute($input);
         } catch (\InvalidArgumentException | \DomainException $e) {
             $this->render('traslados/nuevo', ['error' => $e->getMessage()] + $formDefaults);
             return;
@@ -484,33 +578,48 @@ class TrasladoController extends BaseController
         ];
     }
 
-    private function findConductorIdByName(string $nombre): ?int
+    public function apiCatalogo(): void
     {
-        $result = $this->listarConductores->execute(['activo' => true]);
-        foreach ($result['conductores'] as $c) {
-            $fullName = $c->getApellido() . ', ' . $c->getNombre();
-            if ($fullName === $nombre) {
-                return $c->getId();
-            }
+        $this->requireAuth();
+        $tipo = $_GET['tipo'] ?? '';
+        if (!in_array($tipo, ['insumo', 'equipamiento', 'organo'], true)) {
+            $this->json(['error' => 'Tipo inválido'], 400);
+            return;
         }
-        return null;
+        $items = $this->catalogoRepo->findByTipo($tipo, true);
+        $this->json(array_map(fn($i) => ['id' => $i->getId(), 'nombre' => $i->getNombre(), 'descripcion' => $i->getDescripcion()], $items));
+    }
+
+    public function apiPacientes(): void
+    {
+        $this->requireAuth();
+        $pacientes = $this->usuarioRepo->findAllPacientes();
+        $this->json(array_map(fn($p) => ['id' => $p->getId(), 'nombre' => $p->getApellido() . ', ' . $p->getNombre(), 'documento' => $p->getDocumentoIdentidad()], $pacientes));
+    }
+
+    public function apiCopilotos(): void
+    {
+        $this->requireAuth();
+        $all = $this->usuarioRepo->findAllFuncionarios(true);
+        $copilotos = array_values(array_filter($all, fn(Funcionario $f) => $f->getRol()->value() === 'copiloto'));
+        $this->json(array_map(fn(Funcionario $c) => ['id' => $c->getId(), 'nombre' => $c->getApellido() . ', ' . $c->getNombre()], $copilotos));
+    }
+
+    public function apiRutasInfo(): void
+    {
+        $this->requireAuth();
+        $rutasResult = $this->listarRutas->execute();
+        $this->json(array_map(fn($r) => [
+            'id' => $r->getId(),
+            'nombre' => $r->getNombre(),
+            'origen' => $r->getOrigen(),
+            'destino' => $r->getDestino(),
+            'distancia_km' => $r->getDistanciaKm(),
+        ], $rutasResult['rutas']));
     }
 
     private function redirectBack(string $url, string $error): void
     {
-        $conductoresResult = $this->listarConductores->execute(['activo' => true]);
-        $conductoresNames = array_map(
-            fn(Funcionario $c) => $c->getApellido() . ', ' . $c->getNombre(),
-            $conductoresResult['conductores']
-        );
-        $rutasResult = $this->listarRutas->execute();
-        $rutasNames = array_map(fn($r) => $r->getNombre() . ': ' . $r->getOrigen() . ' → ' . $r->getDestino(), $rutasResult['rutas']);
-
-        $this->render('traslados/nuevo', [
-            'error' => $error,
-            'conductores' => $conductoresNames,
-            'ubicaciones' => $this->getUbicaciones(),
-            'rutas' => $rutasNames,
-        ]);
+        $this->render('traslados/nuevo', ['error' => $error] + $this->getFormData());
     }
 }

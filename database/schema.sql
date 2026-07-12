@@ -215,6 +215,20 @@ CREATE TABLE historial_estado (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================================
+-- CATÁLOGO DE ELEMENTOS PARA TRASLADOS
+-- =============================================================
+
+CREATE TABLE IF NOT EXISTS catalogo_elemento (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tipo ENUM('insumo', 'equipamiento', 'organo') NOT NULL,
+    nombre VARCHAR(150) NOT NULL,
+    descripcion TEXT NULL,
+    activo BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_catalogo_tipo_nombre (tipo, nombre)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================
 -- INDICES
 -- =============================================================
 
@@ -234,6 +248,10 @@ CREATE INDEX idx_encuesta_creada_por ON encuesta(creada_por);
 CREATE INDEX idx_pregunta_encuesta ON pregunta(encuesta_id);
 CREATE INDEX idx_respuesta_sesion ON respuesta(sesion_token);
 CREATE INDEX idx_respuesta_pregunta ON respuesta(pregunta_id);
+
+-- Catálogo
+CREATE INDEX idx_catalogo_tipo ON catalogo_elemento(tipo);
+CREATE INDEX idx_catalogo_activo ON catalogo_elemento(activo);
 
 -- Ambulancias
 CREATE TABLE ubicacion_conductor (

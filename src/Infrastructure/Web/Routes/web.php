@@ -44,6 +44,7 @@ return [
     ['method' => 'GET',  'pattern' => '/traslados/nuevo',           'controller' => 'TrasladoController',  'action' => 'nuevo'],
     ['method' => 'POST', 'pattern' => '/traslados/nuevo',           'controller' => 'TrasladoController',  'action' => 'nuevo'],
     ['method' => 'GET',  'pattern' => '/traslados/ver',       'controller' => 'TrasladoController',  'action' => 'ver'],
+    ['method' => 'GET',  'pattern' => '/traslados/actualizar-estado', 'controller' => 'TrasladoController', 'action' => 'actualizarEstado'],
     ['method' => 'POST', 'pattern' => '/traslados/actualizar-estado', 'controller' => 'TrasladoController', 'action' => 'actualizarEstado'],
     ['method' => 'GET',  'pattern' => '/traslados/historial',      'controller' => 'TrasladoController',  'action' => 'historial'],
     ['method' => 'GET',  'pattern' => '/traslados/mapa',            'controller' => 'UbicacionController', 'action' => 'mapa'],
@@ -52,6 +53,11 @@ return [
     ['method' => 'GET',  'pattern' => '/api/ubicaciones/activas',   'controller' => 'UbicacionController', 'action' => 'activas'],
     ['method' => 'GET',  'pattern' => '/api/ubicaciones/historial', 'controller' => 'UbicacionController', 'action' => 'historial'],
     ['method' => 'GET',  'pattern' => '/api/ubicaciones/stream',    'controller' => 'UbicacionController', 'action' => 'eventStream'],
+
+    ['method' => 'GET',  'pattern' => '/api/catalogo',              'controller' => 'TrasladoController',  'action' => 'apiCatalogo'],
+    ['method' => 'GET',  'pattern' => '/api/pacientes',             'controller' => 'TrasladoController',  'action' => 'apiPacientes'],
+    ['method' => 'GET',  'pattern' => '/api/copilotos',             'controller' => 'TrasladoController',  'action' => 'apiCopilotos'],
+    ['method' => 'GET',  'pattern' => '/api/rutas-info',            'controller' => 'TrasladoController',  'action' => 'apiRutasInfo'],
 
     ['method' => 'GET',  'pattern' => '/conductores',           'controller' => 'ConductorController', 'action' => 'index'],
     ['method' => 'GET',  'pattern' => '/conductores/crear',     'controller' => 'ConductorController', 'action' => 'crear'],

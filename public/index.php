@@ -90,6 +90,7 @@ $route = $router->dispatch($method, $uri);
 
 if ($route === null) {
     http_response_code(404);
+    $nonce = \Elyra\Infrastructure\Service\SessionManager::getNonce();
     require __DIR__ . '/../views/errors/404.php';
     exit;
 }
@@ -101,6 +102,7 @@ if (!class_exists($controllerClass)) {
     if ($debug) {
         echo "Controller {$controllerClass} no encontrado.";
     } else {
+        $nonce = \Elyra\Infrastructure\Service\SessionManager::getNonce();
         require __DIR__ . '/../views/errors/500.php';
     }
     exit;
@@ -113,6 +115,7 @@ if (!method_exists($controller, $route['action'])) {
     if ($debug) {
         echo "Método {$route['action']} no encontrado en {$route['controller']}.";
     } else {
+        $nonce = \Elyra\Infrastructure\Service\SessionManager::getNonce();
         require __DIR__ . '/../views/errors/500.php';
     }
     exit;
