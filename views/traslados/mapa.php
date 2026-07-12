@@ -1,18 +1,28 @@
 <?php $titulo = 'Mapa en vivo'; ?>
 <?php ob_start(); ?>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" nonce="<?= $nonce ?>" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" nonce="<?= $nonce ?>"></script>
 
 <style>
     .mapa-container {
         display: flex;
-        height: calc(100vh - 160px);
-        margin: -1.5rem;
-        position: relative;
+        position: fixed;
+        top: 60px;
+        left: 240px;
+        right: 0;
+        bottom: 40px;
+        z-index: 10;
+    }
+    .web20-content {
+        padding: 0 !important;
+        overflow: visible !important;
+        max-width: 100% !important;
     }
     #map {
         flex: 1;
+        height: 100%;
+        min-height: 100%;
         z-index: 1;
     }
     .mapa-sidebar {

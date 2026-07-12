@@ -170,10 +170,14 @@ class UbicacionController extends BaseController
     {
         $this->requireAuth();
 
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
         header('Content-Type: text/event-stream');
         header('Cache-Control: no-cache');
         header('Connection: keep-alive');
         header('X-Accel-Buffering: no');
+        ob_implicit_flush(true);
 
         $broadcaster = LocationBroadcaster::getInstance();
         $broadcaster->cleanStaleListeners();
