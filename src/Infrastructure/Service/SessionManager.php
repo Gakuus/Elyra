@@ -252,4 +252,12 @@ class SessionManager
             @file_put_contents($file, json_encode($sessions), LOCK_EX);
         }
     }
+
+    public static function destroyAllSessionsForUser(int $userId): void
+    {
+        $file = self::sessionFilePath($userId);
+        if (file_exists($file)) {
+            @unlink($file);
+        }
+    }
 }

@@ -38,6 +38,9 @@ $breadcrumbMap = [
     '/conductores/crear' => ['Crear conductor', '/conductores'],
     '/rutas' => ['Rutas', '/dashboard'],
     '/rutas/crear' => ['Crear ruta', '/rutas'],
+    '/funcionarios' => ['Funcionarios', '/dashboard'],
+    '/funcionarios/crear' => ['Crear funcionario', '/funcionarios'],
+    '/funcionarios/editar' => ['Editar funcionario', '/funcionarios'],
     '/perfil' => ['Mi Perfil', '/dashboard'],
 ];
 
@@ -90,6 +93,7 @@ function renderBreadcrumbs(string $uri, array $map): void {
             <a href="/traslados/historial" class="sidebar-link <?= $currentUri === '/traslados/historial' ? 'active' : '' ?>"><img src="/img/silk/clock.png" width="16" height="16" alt=""> Historial</a>
             <a href="/rutas" class="sidebar-link <?= $currentUri === '/rutas' ? 'active' : '' ?>"><img src="/img/silk/map.png" width="16" height="16" alt=""> Rutas</a>
             <a href="/conductores" class="sidebar-link <?= $currentUri === '/conductores' ? 'active' : '' ?>"><img src="/img/silk/group.png" width="16" height="16" alt=""> Conductores</a>
+            <a href="/funcionarios" class="sidebar-link <?= str_starts_with($currentUri, '/funcionarios') ? 'active' : '' ?>"><img src="/img/silk/user_edit.png" width="16" height="16" alt=""> Funcionarios</a>
         </div>
         <?php else: ?>
         <div class="sidebar-section">
@@ -127,7 +131,7 @@ function renderBreadcrumbs(string $uri, array $map): void {
 
 <?php endif; ?>
 
-<script nonce="<?= $nonce ?>" src="/js/elyra.js?v=5" defer></script>
+<script nonce="<?= $nonce ?>" src="/js/elyra.js?v=6" defer></script>
 <script nonce="<?= $nonce ?>" src="/js/components/ui.js?v=5" defer></script>
 <script nonce="<?= $nonce ?>">
 (function() {

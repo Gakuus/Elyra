@@ -320,7 +320,7 @@ class EncuestaRepository implements EncuestaRepositoryInterface
         /** @var string|null $descripcion */
         $descripcion = $row['descripcion'];
         /** @var bool $activa */
-        $activa = $row['activa'];
+        $activa = (bool) $row['activa'];
         /** @var string|null $createdAt */
         $createdAt = $row['created_at'];
         /** @var string|null $updatedAt */
@@ -356,7 +356,7 @@ class EncuestaRepository implements EncuestaRepositoryInterface
         /** @var int $orden */
         $orden = $row['orden'];
         /** @var bool $requerida */
-        $requerida = $row['requerida'];
+        $requerida = (bool) $row['requerida'];
         /** @var string|null $createdAt */
         $createdAt = $row['created_at'];
 

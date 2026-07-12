@@ -85,6 +85,10 @@ class UsuarioRepository implements UsuarioRepositoryInterface
         $foto = is_string($fotoRaw) ? $fotoRaw : null;
         /** @var string|null $createdAt */
         $createdAt = $row['created_at'];
+        /** @var string|null $resetToken */
+        $resetToken = $row['reset_token'] ?? null;
+        /** @var string|null $resetTokenExpiresAt */
+        $resetTokenExpiresAt = $row['reset_token_expires_at'] ?? null;
 
         return new Funcionario(
             id: $id,
@@ -99,7 +103,9 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             telefono: $telefono,
             activo: $activo,
             foto: $foto,
-            createdAt: $createdAt
+            createdAt: $createdAt,
+            resetToken: $resetToken,
+            resetTokenExpiresAt: $resetTokenExpiresAt
         );
     }
 
@@ -136,6 +142,8 @@ class UsuarioRepository implements UsuarioRepositoryInterface
         $documentoIdentidad = $row['documento_identidad'];
         /** @var string|null $licencia */
         $licencia = $row['licencia'];
+        /** @var string|null $licenciaConducir */
+        $licenciaConducir = $row['licencia_conducir'] ?? null;
         /** @var string|null $telefono */
         $telefono = $row['telefono'];
         $activo = (bool) $row['activo'];
@@ -143,6 +151,10 @@ class UsuarioRepository implements UsuarioRepositoryInterface
         $foto = is_string($fotoRaw) ? $fotoRaw : null;
         /** @var string|null $createdAt */
         $createdAt = $row['created_at'];
+        /** @var string|null $resetToken */
+        $resetToken = $row['reset_token'] ?? null;
+        /** @var string|null $resetTokenExpiresAt */
+        $resetTokenExpiresAt = $row['reset_token_expires_at'] ?? null;
 
         return new Funcionario(
             id: $id,
@@ -154,10 +166,13 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             email: $emailVal,
             documentoIdentidad: $documentoIdentidad,
             licencia: $licencia,
+            licenciaConducir: $licenciaConducir,
             telefono: $telefono,
             activo: $activo,
             foto: $foto,
-            createdAt: $createdAt
+            createdAt: $createdAt,
+            resetToken: $resetToken,
+            resetTokenExpiresAt: $resetTokenExpiresAt
         );
     }
 
@@ -215,14 +230,15 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             $id = (int) $this->pdo->lastInsertId();
 
             $stmt = $this->pdo->prepare("
-                INSERT INTO funcionario (id, username, password_hash, licencia, telefono, activo, rol)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO funcionario (id, username, password_hash, licencia, licencia_conducir, telefono, activo, rol)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ");
             $stmt->execute([
                 $id,
                 $funcionario->getUsername(),
                 $funcionario->getPasswordHash(),
                 $funcionario->getLicencia(),
+                $funcionario->getLicenciaConducir(),
                 $funcionario->getTelefono(),
                 $funcionario->isActivo() ? 1 : 0,
                 $funcionario->getRol()->value(),
@@ -319,12 +335,13 @@ class UsuarioRepository implements UsuarioRepositoryInterface
         ]);
 
         $stmt = $this->pdo->prepare("
-            UPDATE funcionario SET username = ?, licencia = ?, telefono = ?, activo = ?, rol = ?
+            UPDATE funcionario SET username = ?, licencia = ?, licencia_conducir = ?, telefono = ?, activo = ?, rol = ?
             WHERE id = ?
         ");
         $stmt->execute([
             $funcionario->getUsername(),
             $funcionario->getLicencia(),
+            $funcionario->getLicenciaConducir(),
             $funcionario->getTelefono(),
             $funcionario->isActivo() ? 1 : 0,
             $funcionario->getRol()->value(),
@@ -378,6 +395,8 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             $documentoIdentidad = $row['documento_identidad'];
             /** @var string|null $licencia */
             $licencia = $row['licencia'];
+            /** @var string|null $licenciaConducir */
+            $licenciaConducir = $row['licencia_conducir'] ?? null;
             /** @var string|null $telefono */
             $telefono = $row['telefono'];
             $activo = (bool) $row['activo'];
@@ -385,6 +404,10 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             $foto = is_string($fotoRaw) ? $fotoRaw : null;
             /** @var string|null $createdAt */
             $createdAt = $row['created_at'];
+            /** @var string|null $resetToken */
+            $resetToken = $row['reset_token'] ?? null;
+            /** @var string|null $resetTokenExpiresAt */
+            $resetTokenExpiresAt = $row['reset_token_expires_at'] ?? null;
 
             $result[] = new Funcionario(
                 id: $id,
@@ -396,10 +419,13 @@ class UsuarioRepository implements UsuarioRepositoryInterface
                 email: $email,
                 documentoIdentidad: $documentoIdentidad,
                 licencia: $licencia,
+                licenciaConducir: $licenciaConducir,
                 telefono: $telefono,
                 activo: $activo,
                 foto: $foto,
-                createdAt: $createdAt
+                createdAt: $createdAt,
+                resetToken: $resetToken,
+                resetTokenExpiresAt: $resetTokenExpiresAt
             );
         }
         return $result;
@@ -476,6 +502,10 @@ class UsuarioRepository implements UsuarioRepositoryInterface
         $foto = is_string($fotoRaw) ? $fotoRaw : null;
         /** @var string|null $createdAt */
         $createdAt = $row['created_at'];
+        /** @var string|null $resetToken */
+        $resetToken = $row['reset_token'] ?? null;
+        /** @var string|null $resetTokenExpiresAt */
+        $resetTokenExpiresAt = $row['reset_token_expires_at'] ?? null;
 
         return new Paciente(
             id: $id,
@@ -490,7 +520,9 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             telefono: $telefono,
             activo: $activo,
             foto: $foto,
-            createdAt: $createdAt
+            createdAt: $createdAt,
+            resetToken: $resetToken,
+            resetTokenExpiresAt: $resetTokenExpiresAt
         );
     }
 
@@ -514,33 +546,125 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             $email = $row['email'];
             /** @var string|null $documentoIdentidad */
             $documentoIdentidad = $row['documento_identidad'];
-            /** @var string|null $licencia */
-            $licencia = $row['licencia'];
-            /** @var string|null $telefono */
-            $telefono = $row['telefono'];
-            $activo = (bool) $row['activo'];
-            /** @var string|null $foto */
-            $foto = $row['foto'] ?? null;
-            /** @var string|null $createdAt */
-            $createdAt = $row['created_at'];
+        /** @var string|null $licencia */
+        $licencia = $row['licencia'];
+        /** @var string|null $licenciaConducir */
+        $licenciaConducir = $row['licencia_conducir'] ?? null;
+        /** @var string|null $telefono */
+        $telefono = $row['telefono'];
+        $activo = (bool) $row['activo'];
+        $fotoRaw = $row['foto'] ?? null;
+        $foto = is_string($fotoRaw) ? $fotoRaw : null;
+        /** @var string|null $createdAt */
+        $createdAt = $row['created_at'];
+        /** @var string|null $resetToken */
+        $resetToken = $row['reset_token'] ?? null;
+        /** @var string|null $resetTokenExpiresAt */
+        $resetTokenExpiresAt = $row['reset_token_expires_at'] ?? null;
 
-            return new Funcionario(
-                id: $id,
-                nombre: $nombre,
-                apellido: $apellido,
-                rol: new RolUsuario($rol),
-                username: $username,
-                passwordHash: $passwordHash,
-                email: $email,
-                documentoIdentidad: $documentoIdentidad,
-                licencia: $licencia,
-                telefono: $telefono,
-                activo: $activo,
-                foto: $foto,
-                createdAt: $createdAt
+        return new Funcionario(
+            id: $id,
+            nombre: $nombre,
+            apellido: $apellido,
+            rol: new RolUsuario($rol),
+            username: $username,
+            passwordHash: $passwordHash,
+            email: $email,
+            documentoIdentidad: $documentoIdentidad,
+            licencia: $licencia,
+            licenciaConducir: $licenciaConducir,
+            telefono: $telefono,
+            activo: $activo,
+            foto: $foto,
+            createdAt: $createdAt,
+                resetToken: $resetToken,
+                resetTokenExpiresAt: $resetTokenExpiresAt
             );
         }
 
         return $this->hydratePaciente($row);
+    }
+
+    public function findUserByEmail(string $email): ?\Elyra\Domain\Entity\Usuario
+    {
+        $stmt = $this->pdo->prepare("SELECT id FROM usuario WHERE email = ?");
+        /** @var \PDOStatement $stmt */
+        $stmt->execute([$email]);
+        /** @var array<string, mixed>|false $row */
+        $row = $stmt->fetch();
+
+        if (!$row) {
+            return null;
+        }
+
+        /** @var int $id */
+        $id = $row['id'];
+        return $this->findById($id);
+    }
+
+    public function saveResetToken(int $userId, ?string $token, ?string $expiresAt): void
+    {
+        $stmt = $this->pdo->prepare("
+            UPDATE usuario SET reset_token = ?, reset_token_expires_at = ? WHERE id = ?
+        ");
+        $stmt->execute([$token, $expiresAt, $userId]);
+    }
+
+    public function findUserByResetToken(string $token): ?\Elyra\Domain\Entity\Usuario
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT u.id, u.tipo FROM usuario u
+            LEFT JOIN funcionario f ON f.id = u.id
+            WHERE u.reset_token = ? AND (u.tipo != 'funcionario' OR f.activo = 1)
+        ");
+        $stmt->execute([$token]);
+        /** @var array<string, mixed>|false $row */
+        $row = $stmt->fetch();
+
+        if (!$row) {
+            return null;
+        }
+
+        /** @var int $id */
+        $id = $row['id'];
+        return $this->findById($id);
+    }
+
+    public function updatePasswordHash(int $userId, string $passwordHash): void
+    {
+        $stmt = $this->pdo->prepare("SELECT tipo FROM usuario WHERE id = ?");
+        $stmt->execute([$userId]);
+        /** @var array<string, mixed>|false $row */
+        $row = $stmt->fetch();
+
+        if (!$row) {
+            return;
+        }
+
+        /** @var string $tipo */
+        $tipo = $row['tipo'];
+
+        if ($tipo === 'funcionario') {
+            $stmt2 = $this->pdo->prepare("UPDATE funcionario SET password_hash = ? WHERE id = ?");
+            $stmt2->execute([$passwordHash, $userId]);
+        } else {
+            $stmt2 = $this->pdo->prepare("UPDATE paciente SET password_hash = ? WHERE id = ?");
+            $stmt2->execute([$passwordHash, $userId]);
+        }
+    }
+
+    public function beginTransaction(): void
+    {
+        $this->pdo->beginTransaction();
+    }
+
+    public function commit(): void
+    {
+        $this->pdo->commit();
+    }
+
+    public function rollback(): void
+    {
+        $this->pdo->rollBack();
     }
 }

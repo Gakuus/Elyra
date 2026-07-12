@@ -76,6 +76,16 @@ class RateLimiter
         self::reset("account:{$username}");
     }
 
+    public static function checkResetAttempts(string $ip): bool
+    {
+        return self::check("reset:{$ip}", 3, 3600);
+    }
+
+    public static function incrementResetAttempts(string $ip): int
+    {
+        return self::increment("reset:{$ip}", 3600);
+    }
+
     private static function storagePath(string $key): string
     {
         $dir = self::$storageDir ?: sys_get_temp_dir() . '/elyra_rate_limit';

@@ -44,6 +44,9 @@
             </form>
 
             <p class="text-center mt-3 mb-0 small">
+                <a href="/recuperar-contrasena">¿Olvidaste tu contraseña?</a>
+            </p>
+            <p class="text-center mt-2 mb-0 small">
                 <a href="/registro">¿No tenés cuenta? Registrate</a>
             </p>
         </div>

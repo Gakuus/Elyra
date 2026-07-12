@@ -4,10 +4,50 @@ declare(strict_types=1);
 
 namespace Elyra\Infrastructure\Web\Controller;
 
+use Elyra\Application\UseCases\Traslado\ActualizarEstadoTrasladoUseCase;
+use Elyra\Application\UseCases\Traslado\HistorialTrasladosUseCase;
+use Elyra\Application\UseCases\Traslado\ListarTrasladosUseCase;
+use Elyra\Application\UseCases\Traslado\RegistrarTrasladoUseCase;
+use Elyra\Application\UseCases\Traslado\VerDetalleTrasladoUseCase;
+use Elyra\Application\UseCases\Conductor\ListarConductoresUseCase;
+use Elyra\Application\UseCases\Ruta\ListarRutasUseCase;
+use Elyra\Domain\Entity\Funcionario;
+use Elyra\Domain\Entity\Traslado;
+use Elyra\Domain\ValueObject\EstadoTraslado;
+use Elyra\Infrastructure\Persistence\MySQL\ConductorRepository;
+use Elyra\Infrastructure\Persistence\MySQL\RutaRepository;
+use Elyra\Infrastructure\Persistence\MySQL\TrasladoRepository;
+use Elyra\Infrastructure\Persistence\MySQL\UsuarioRepository;
+use Elyra\Infrastructure\Service\FileStorageService;
+use Elyra\Infrastructure\Service\QRGeneratorService;
 use Elyra\Infrastructure\Service\SessionManager;
 
 class TrasladoController extends BaseController
 {
+    private ListarTrasladosUseCase $listarTraslados;
+    private VerDetalleTrasladoUseCase $verDetalle;
+    private RegistrarTrasladoUseCase $registrarTraslado;
+    private ActualizarEstadoTrasladoUseCase $actualizarEstado;
+    private HistorialTrasladosUseCase $historialTraslados;
+    private ListarConductoresUseCase $listarConductores;
+    private ListarRutasUseCase $listarRutas;
+
+    public function __construct()
+    {
+        $trasladoRepo = new TrasladoRepository();
+        $conductorRepo = new ConductorRepository();
+        $rutaRepo = new RutaRepository();
+        $usuarioRepo = new UsuarioRepository();
+
+        $this->listarTraslados = new ListarTrasladosUseCase($trasladoRepo);
+        $this->verDetalle = new VerDetalleTrasladoUseCase($trasladoRepo);
+        $this->registrarTraslado = new RegistrarTrasladoUseCase($trasladoRepo);
+        $this->actualizarEstado = new ActualizarEstadoTrasladoUseCase($trasladoRepo);
+        $this->historialTraslados = new HistorialTrasladosUseCase($trasladoRepo);
+        $this->listarConductores = new ListarConductoresUseCase($conductorRepo);
+        $this->listarRutas = new ListarRutasUseCase($rutaRepo);
+    }
+
     public function index(): void
     {
         $this->requireAuth();
@@ -15,29 +55,39 @@ class TrasladoController extends BaseController
         if (SessionManager::isPaciente()) {
             $this->render('traslados/index', [
                 'isPaciente' => true,
-                'activos' => [],
-                'historico' => [],
+                'traslados' => [],
+                'pendientes' => 0,
+                'enCurso' => 0,
+                'completadosHoy' => 0,
+                'totalHoy' => 0,
             ]);
             return;
         }
 
-        $traslados = $this->mockTraslados();
+        $activos = $this->listarTraslados->execute(['estado' => '']);
+        $hoy = date('Y-m-d');
+        $completadosHoy = $this->listarTraslados->execute(['estado' => 'completado', 'fechaDesde' => $hoy, 'fechaHasta' => $hoy]);
 
-        $pendientes = count(array_filter($traslados, fn($t) => $t['estado'] === 'pendiente'));
-        $enCurso = count(array_filter($traslados, fn($t) => in_array($t['estado'], ['en_curso', 'en_destino', 'en_retorno'], true)));
-        $hoy = date('d/m/Y');
-        $completadosHoy = count(array_filter($traslados, fn($t) => $t['estado'] === 'completado' && $t['fecha'] === $hoy));
-        $total = count(array_filter($traslados, fn($t) => $t['estado'] !== 'cancelado'));
+        $pendientes = 0;
+        $enCurso = 0;
+        foreach ($activos['traslados'] as $t) {
+            $e = $t->getEstado()->value();
+            if ($e === 'pendiente') {
+                $pendientes++;
+            } elseif (in_array($e, ['en_curso', 'en_destino', 'en_retorno'], true)) {
+                $enCurso++;
+            }
+        }
 
-        $activos = array_values(array_filter($traslados, fn($t) => in_array($t['estado'], ['pendiente', 'en_curso', 'en_destino', 'en_retorno'], true)));
+        $trasladosMapped = array_map(fn(Traslado $t) => $this->mapTraslado($t), $activos['traslados']);
 
         $this->render('traslados/index', [
             'isPaciente' => false,
+            'traslados' => $trasladosMapped,
             'pendientes' => $pendientes,
             'enCurso' => $enCurso,
-            'completadosHoy' => $completadosHoy,
-            'total' => $total,
-            'activos' => $activos,
+            'completadosHoy' => count($completadosHoy['traslados']),
+            'totalHoy' => $activos['total'],
         ]);
     }
 
@@ -51,10 +101,19 @@ class TrasladoController extends BaseController
             return;
         }
 
+        $conductoresResult = $this->listarConductores->execute(['activo' => true]);
+        $conductoresNames = array_map(
+            fn(Funcionario $c) => $c->getApellido() . ', ' . $c->getNombre(),
+            $conductoresResult['conductores']
+        );
+
+        $rutasResult = $this->listarRutas->execute();
+        $rutasNames = array_map(fn($r) => $r->getNombre() . ': ' . $r->getOrigen() . ' → ' . $r->getDestino(), $rutasResult['rutas']);
+
         $this->render('traslados/nuevo', [
-            'conductores' => $this->mockConductores(),
-            'ubicaciones' => $this->mockUbicaciones(),
-            'rutas' => $this->mockRutas(),
+            'conductores' => $conductoresNames,
+            'ubicaciones' => $this->getUbicaciones(),
+            'rutas' => $rutasNames,
         ]);
     }
 
@@ -66,13 +125,13 @@ class TrasladoController extends BaseController
         /** @var string $csrfSession */
         $csrfSession = $_SESSION['_csrf_token'] ?? '';
         if ($csrf !== $csrfSession) {
-            $this->render('traslados/nuevo', ['error' => 'Sesi&oacute;n inv&aacute;lida. Recarg&aacute; e intent&aacute; de nuevo.', 'conductores' => $this->mockConductores(), 'ubicaciones' => $this->mockUbicaciones(), 'rutas' => $this->mockRutas()]);
+            $this->redirectBack('/traslados/nuevo', 'Sesi&oacute;n inv&aacute;lida. Recarg&aacute; e intent&aacute; de nuevo.');
             return;
         }
 
         /** @var string $conductorRaw */
         $conductorRaw = $_POST['conductor'] ?? '';
-        $conductor = trim($conductorRaw);
+        $conductorNombre = trim($conductorRaw);
         /** @var string $elementoRaw */
         $elementoRaw = $_POST['elemento'] ?? '';
         $elemento = trim($elementoRaw);
@@ -92,119 +151,70 @@ class TrasladoController extends BaseController
         $horaRaw = $_POST['hora_salida'] ?? '';
         $hora = trim($horaRaw);
 
-        if (strlen($conductor) < 2) {
-            $this->render('traslados/nuevo', ['error' => 'Seleccion&aacute; un conductor v&aacute;lido.', 'conductores' => $this->mockConductores(), 'ubicaciones' => $this->mockUbicaciones(), 'rutas' => $this->mockRutas()]);
+        $conductoresResult = $this->listarConductores->execute(['activo' => true]);
+        $conductoresNames = array_map(
+            fn(Funcionario $c) => $c->getApellido() . ', ' . $c->getNombre(),
+            $conductoresResult['conductores']
+        );
+        $rutasResult = $this->listarRutas->execute();
+        $rutasNames = array_map(fn($r) => $r->getNombre() . ': ' . $r->getOrigen() . ' → ' . $r->getDestino(), $rutasResult['rutas']);
+        $formDefaults = ['conductores' => $conductoresNames, 'ubicaciones' => $this->getUbicaciones(), 'rutas' => $rutasNames];
+
+        if ($conductorNombre === '') {
+            $this->render('traslados/nuevo', ['error' => 'Seleccion&aacute; un conductor v&aacute;lido.'] + $formDefaults);
             return;
         }
 
         if (strlen($elemento) < 3) {
-            $this->render('traslados/nuevo', ['error' => 'El elemento a trasladar debe tener al menos 3 caracteres.', 'conductores' => $this->mockConductores(), 'ubicaciones' => $this->mockUbicaciones(), 'rutas' => $this->mockRutas()]);
+            $this->render('traslados/nuevo', ['error' => 'El elemento a trasladar debe tener al menos 3 caracteres.'] + $formDefaults);
             return;
         }
 
         if (!in_array($tipo, ['paciente', 'equipamiento', 'insumo'], true)) {
-            $this->render('traslados/nuevo', ['error' => 'Seleccion&aacute; un tipo v&aacute;lido.', 'conductores' => $this->mockConductores(), 'ubicaciones' => $this->mockUbicaciones(), 'rutas' => $this->mockRutas()]);
+            $this->render('traslados/nuevo', ['error' => 'Seleccion&aacute; un tipo v&aacute;lido.'] + $formDefaults);
             return;
         }
 
         if ($origen === $destino || $origen === '' || $destino === '') {
-            $this->render('traslados/nuevo', ['error' => 'Seleccion&aacute; origen y destino v&aacute;lidos y distintos.', 'conductores' => $this->mockConductores(), 'ubicaciones' => $this->mockUbicaciones(), 'rutas' => $this->mockRutas()]);
+            $this->render('traslados/nuevo', ['error' => 'Seleccion&aacute; origen y destino v&aacute;lidos y distintos.'] + $formDefaults);
             return;
         }
 
-        if (!$fecha || !$hora) {
-            $this->render('traslados/nuevo', ['error' => 'Complet&aacute; fecha y hora de salida.', 'conductores' => $this->mockConductores(), 'ubicaciones' => $this->mockUbicaciones(), 'rutas' => $this->mockRutas()]);
+        if ($fecha === '' || $hora === '') {
+            $this->render('traslados/nuevo', ['error' => 'Complet&aacute; fecha y hora de salida.'] + $formDefaults);
             return;
         }
 
-        $storageDir = __DIR__ . '/../../../../storage/traslados';
-        if (!is_dir($storageDir)) mkdir($storageDir, 0775, true);
-
-        $metaFile = $storageDir . '/.meta.json';
-        /** @var list<array<string, mixed>> $meta */
-        $meta = [];
-        if (is_file($metaFile)) {
-            /** @var string $metaContent */
-            $metaContent = file_get_contents($metaFile);
-            /** @var list<array<string, mixed>> $decoded */
-            $decoded = json_decode($metaContent, true) ?? [];
-            $meta = $decoded;
+        $conductorId = $this->findConductorIdByName($conductorNombre);
+        if ($conductorId === null) {
+            $this->render('traslados/nuevo', ['error' => 'Conductor no encontrado.'] + $formDefaults);
+            return;
         }
 
-        $nextId = 1;
-        if (!empty($meta)) {
-            /** @var list<int> $ids */
-            $ids = array_column($meta, 'id');
-            if ($ids !== []) {
-                $nextId = max($ids) + 1;
-            }
+        $userId = SessionManager::getUserId() ?? 0;
+        $horaSalida = $fecha . ' ' . $hora;
+
+        try {
+            $this->registrarTraslado->execute([
+                'conductorId' => $conductorId,
+                'origen' => $origen,
+                'destino' => $destino,
+                'registradoPor' => $userId,
+                'horaSalidaEstimada' => $horaSalida,
+                'elementos' => [
+                    [
+                        'tipo' => $tipo,
+                        'descripcion' => $elemento,
+                        'cantidad' => 1,
+                    ],
+                ],
+            ]);
+        } catch (\InvalidArgumentException | \DomainException $e) {
+            $this->render('traslados/nuevo', ['error' => $e->getMessage()] + $formDefaults);
+            return;
         }
-
-        $year = date('y');
-        $secuencial = str_pad((string) $nextId, 3, '0', STR_PAD_LEFT);
-        $codigo = "TR-{$year}{$secuencial}";
-
-        /** @var string $copilotoRaw */
-        $copilotoRaw = $_POST['copiloto'] ?? '';
-        /** @var string $rutaRaw */
-        $rutaRaw = $_POST['ruta'] ?? '';
-        /** @var string $horaLlegadaRaw */
-        $horaLlegadaRaw = $_POST['hora_llegada'] ?? '';
-        $meta[] = [
-            'id' => $nextId,
-            'codigo' => $codigo,
-            'conductor' => $conductor,
-            'copiloto' => trim($copilotoRaw),
-            'elemento' => $elemento,
-            'tipo' => $tipo,
-            'origen' => $origen,
-            'destino' => $destino,
-            'ruta' => trim($rutaRaw),
-            'fecha' => $fecha,
-            'hora' => $hora,
-            'hora_llegada' => trim($horaLlegadaRaw),
-            'estado' => 'pendiente',
-        ];
-
-        file_put_contents($metaFile, json_encode($meta, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
 
         $this->redirect('/traslados?creado=1');
-    }
-
-    /** @return list<string> */
-    private function mockConductores(): array
-    {
-        return ['Carlos Gómez', 'Ana Martínez', 'Luis Fernández', 'Ricardo Álvarez'];
-    }
-
-    /** @return list<string> */
-    private function mockUbicaciones(): array
-    {
-        return [
-            'Hospital de Clínicas - Emergencias',
-            'Hospital de Clínicas - Cardiología',
-            'Hospital de Clínicas - Cirugía',
-            'Hospital de Clínicas - Terapia Intensiva',
-            'Hospital de Clínicas - Nefrología',
-            'Hospital de Clínicas - Maternidad',
-            'Hospital de Clínicas - Pediatría',
-            'Hospital de Clínicas - Diagnóstico por Imágenes',
-            'Hospital de Clínicas - Quirófano',
-            'Clínica Privada - Centro',
-            'Sanatorio Español',
-        ];
-    }
-
-    /** @return list<string> */
-    private function mockRutas(): array
-    {
-        return [
-            'Ruta 1: Emergencias → Cardiología',
-            'Ruta 2: Emergencias → Cirugía',
-            'Ruta 3: Emergencias → Terapia Intensiva',
-            'Ruta 4: Emergencias → Quirófano',
-            'Ruta 5: Externo → Hospital',
-        ];
     }
 
     public function ver(): void
@@ -215,51 +225,198 @@ class TrasladoController extends BaseController
         /** @var string $idRaw */
         $idRaw = $_GET['id'] ?? '0';
         $id = (int) $idRaw;
+
+        $result = $this->verDetalle->execute(['id' => $id]);
+        if ($result === null) {
+            $this->redirect('/traslados');
+            return;
+        }
+
+        $traslado = $result['traslado'];
+        $t = $this->mapTrasladoDetalle($traslado);
+        $timeline = $this->buildTimeline($traslado);
+
+        $this->render('traslados/ver', ['t' => $t, 'timeline' => $timeline]);
+    }
+
+    public function actualizarEstado(): void
+    {
+        $this->requireAuth();
+        $this->denyPaciente();
+
+        /** @var string $idRaw */
+        $idRaw = $_GET['id'] ?? $_POST['id'] ?? '0';
+        $id = (int) $idRaw;
         if ($id <= 0) {
             $this->redirect('/traslados');
             return;
         }
 
-        $traslado = $this->findTrasladoById($id);
-        if (!$traslado) {
+        $result = $this->verDetalle->execute(['id' => $id]);
+        if ($result === null) {
             $this->redirect('/traslados');
             return;
         }
 
-        $timeline = $this->buildTimeline($traslado);
+        $traslado = $result['traslado'];
 
-        $this->render('traslados/ver', [
-            't' => $traslado,
-            'timeline' => $timeline,
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            /** @var string $nuevoEstado */
+            $nuevoEstado = $_POST['estado'] ?? '';
+            $userId = SessionManager::getUserId() ?? 0;
+
+            try {
+                $this->actualizarEstado->execute([
+                    'id' => $id,
+                    'nuevoEstado' => $nuevoEstado,
+                    'actualizadoPor' => $userId,
+                ]);
+                $_SESSION['flash_success'] = 'Estado actualizado a ' . $this->estadoLabel($nuevoEstado);
+            } catch (\DomainException | \InvalidArgumentException $e) {
+                $_SESSION['flash_error'] = $e->getMessage();
+            }
+
+            $this->redirect('/traslados/ver?id=' . $id);
+            return;
+        }
+
+        $estadosMap = [
+            'pendiente' => ['label' => 'Pendiente', 'class' => 'warning'],
+            'en_curso' => ['label' => 'En curso', 'class' => 'primary'],
+            'en_destino' => ['label' => 'En destino', 'class' => 'info'],
+            'en_retorno' => ['label' => 'En retorno', 'class' => 'secondary'],
+            'completado' => ['label' => 'Completado', 'class' => 'success'],
+            'cancelado' => ['label' => 'Cancelado', 'class' => 'danger'],
+        ];
+
+        $estadoActual = $traslado->getEstado();
+        $allowed = $estadoActual->transicionesPermitidas();
+
+        $t = $this->mapTrasladoDetalle($traslado);
+
+        $this->render('traslados/actualizar_estado', [
+            't' => $t,
+            'allowed' => $allowed,
+            'estados' => $estadosMap,
         ]);
     }
 
-    /** @return array<string, mixed>|null */
-    private function findTrasladoById(int $id): ?array
+    public function historial(): void
     {
-        $all = $this->mockTraslados();
-        foreach ($all as $t) {
-            if ($t['id'] === $id) return $t;
+        $this->requireAuth();
+
+        if (SessionManager::isPaciente()) {
+            $this->render('traslados/historial', [
+                'isPaciente' => true,
+                'traslados' => [],
+                'estadosList' => [],
+                'conductores' => [],
+                'filtros' => ['buscar' => '', 'estado' => '', 'conductor' => '', 'fecha' => ''],
+            ]);
+            return;
         }
-        return null;
+
+        /** @var string $estado */
+        $estado = $_GET['estado'] ?? '';
+        /** @var string $buscar */
+        $buscar = $_GET['buscar'] ?? '';
+        /** @var string $conductor */
+        $conductor = $_GET['conductor'] ?? '';
+        /** @var string $fecha */
+        $fecha = $_GET['fecha'] ?? '';
+
+        $result = $this->historialTraslados->execute([
+            'estado' => $estado !== '' ? $estado : null,
+        ]);
+
+        $conductoresResult = $this->listarConductores->execute([]);
+        $conductoresNames = array_map(
+            fn(Funcionario $c) => $c->getApellido() . ', ' . $c->getNombre(),
+            $conductoresResult['conductores']
+        );
+
+        $estadosList = [
+            'pendiente' => 'Pendiente',
+            'en_curso' => 'En curso',
+            'en_destino' => 'En destino',
+            'en_retorno' => 'En retorno',
+            'completado' => 'Completado',
+            'cancelado' => 'Cancelado',
+        ];
+
+        $trasladosMapped = array_map(fn(Traslado $t) => $this->mapTrasladoHistorial($t), $result['traslados']);
+
+        $this->render('traslados/historial', [
+            'traslados' => $trasladosMapped,
+            'estadosList' => $estadosList,
+            'conductores' => $conductoresNames,
+            'filtros' => compact('estado', 'buscar', 'conductor', 'fecha'),
+        ]);
     }
 
-    /**
-     * @param array<string, mixed> $traslado
-     * @return list<array{estado: string, completado: bool, activo: bool, fecha: string}>
-     */
-    private function buildTimeline(array $traslado): array
+    /** @return array{id: int|null, codigo: string, conductor: string, origen: string, destino: string, estado: string, estado_texto: string, salida: string} */
+    private function mapTraslado(Traslado $t): array
+    {
+        return [
+            'id' => $t->getId(),
+            'codigo' => $t->getCodigo(),
+            'conductor' => 'Conductor #' . $t->getConductorId(),
+            'origen' => $t->getOrigen(),
+            'destino' => $t->getDestino(),
+            'estado' => $t->getEstado()->value(),
+            'estado_texto' => $this->estadoLabel($t->getEstado()->value()),
+            'salida' => $t->getHoraSalidaEstimada() ?? '',
+        ];
+    }
+
+    /** @return array{id: int|null, codigo: string, conductor: string, copiloto: string, origen: string, destino: string, estado: string, fecha: string, hora: string, hora_llegada: string} */
+    private function mapTrasladoDetalle(Traslado $t): array
+    {
+        $salida = $t->getHoraSalidaEstimada() ?? '';
+        $fecha = '';
+        $hora = '';
+        if ($salida !== '' && str_contains($salida, ' ')) {
+            [$fecha, $hora] = explode(' ', $salida, 2);
+        }
+
+        return [
+            'id' => $t->getId(),
+            'codigo' => $t->getCodigo(),
+            'conductor' => 'Conductor #' . $t->getConductorId(),
+            'copiloto' => $t->getCopilotoId() !== null ? 'Copiloto #' . $t->getCopilotoId() : '-',
+            'origen' => $t->getOrigen(),
+            'destino' => $t->getDestino(),
+            'estado' => $t->getEstado()->value(),
+            'fecha' => $fecha,
+            'hora' => $hora,
+            'hora_llegada' => $t->getHoraLlegadaDestino() ?? '-',
+        ];
+    }
+
+    /** @return array{id: int|null, codigo: string, conductor: string, origen: string, destino: string, estado: string, fecha: string} */
+    private function mapTrasladoHistorial(Traslado $t): array
+    {
+        $salida = $t->getHoraSalidaEstimada() ?? '';
+        $fecha = $salida;
+
+        return [
+            'id' => $t->getId(),
+            'codigo' => $t->getCodigo(),
+            'conductor' => 'Conductor #' . $t->getConductorId(),
+            'origen' => $t->getOrigen(),
+            'destino' => $t->getDestino(),
+            'estado' => $t->getEstado()->value(),
+            'fecha' => $fecha,
+        ];
+    }
+
+    /** @return list<array{estado: string, completado: bool, activo: bool, fecha: string}> */
+    private function buildTimeline(Traslado $traslado): array
     {
         $estados = ['pendiente', 'en_curso', 'en_destino', 'en_retorno', 'completado'];
         $timeline = [];
-
-        /** @var string $fechaVal */
-        $fechaVal = $traslado['fecha'] ?? '';
-        /** @var string $horaVal */
-        $horaVal = $traslado['hora'] ?? '';
-        $fechaHora = $fechaVal . ' ' . $horaVal;
-        /** @var string $actual */
-        $actual = $traslado['estado'];
+        $actual = $traslado->getEstado()->value();
+        $fechaHora = $traslado->getHoraSalidaEstimada() ?? '';
 
         foreach ($estados as $e) {
             $completado = false;
@@ -268,15 +425,10 @@ class TrasladoController extends BaseController
             if ($e === $actual) {
                 $completado = true;
                 $activo = true;
-            } elseif (in_array($actual, ['pendiente', 'cancelado'], true) && $e === 'pendiente') {
-                $completado = true;
-                $activo = $actual === 'pendiente';
             } else {
                 $idxActual = array_search($actual, $estados, true);
                 $idxE = array_search($e, $estados, true);
-                if ($idxActual !== false && $idxE < $idxActual) {
-                    $completado = true;
-                } elseif ($actual === 'cancelado' && $e === 'pendiente') {
+                if ($idxActual !== false && $idxE !== false && $idxE < $idxActual) {
                     $completado = true;
                 }
             }
@@ -301,230 +453,64 @@ class TrasladoController extends BaseController
         return $timeline;
     }
 
-    public function actualizarEstado(): void
-    {
-        $this->requireAuth();
-        $this->denyPaciente();
-
-        /** @var string $idRaw */
-        $idRaw = $_GET['id'] ?? $_POST['id'] ?? '0';
-        $id = (int) $idRaw;
-        if ($id <= 0) {
-            $this->redirect('/traslados');
-            return;
-        }
-
-        $traslado = $this->findTrasladoById($id);
-        if (!$traslado) {
-            $this->redirect('/traslados');
-            return;
-        }
-
-        $stateMachine = [
-            'pendiente' => ['en_curso', 'cancelado'],
-            'en_curso' => ['en_destino', 'cancelado'],
-            'en_destino' => ['en_retorno', 'cancelado'],
-            'en_retorno' => ['completado', 'cancelado'],
-            'completado' => [],
-            'cancelado' => [],
-        ];
-
-        /** @var string $current */
-        $current = $traslado['estado'];
-        $allowed = $stateMachine[$current] ?? [];
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            /** @var string $nuevoEstado */
-            $nuevoEstado = $_POST['estado'] ?? '';
-
-            if (!in_array($nuevoEstado, $allowed, true)) {
-                $_SESSION['flash_error'] = 'Transición de estado no válida.';
-                $this->redirect('/traslados/ver?id=' . $id);
-                return;
-            }
-
-            $this->updateTrasladoEstado($id, $nuevoEstado);
-
-            $_SESSION['flash_success'] = 'Estado actualizado a ' . $this->estadoLabel($nuevoEstado);
-            $this->redirect('/traslados/ver?id=' . $id);
-            return;
-        }
-
-        $estados = [
-            'pendiente' => ['label' => 'Pendiente', 'class' => 'warning'],
-            'en_curso' => ['label' => 'En curso', 'class' => 'primary'],
-            'en_destino' => ['label' => 'En destino', 'class' => 'info'],
-            'en_retorno' => ['label' => 'En retorno', 'class' => 'secondary'],
-            'completado' => ['label' => 'Completado', 'class' => 'success'],
-            'cancelado' => ['label' => 'Cancelado', 'class' => 'danger'],
-        ];
-
-        $this->render('traslados/actualizar_estado', [
-            't' => $traslado,
-            'allowed' => $allowed,
-            'estados' => $estados,
-        ]);
-    }
-
-    public function historial(): void
-    {
-        $this->requireAuth();
-
-        if (SessionManager::isPaciente()) {
-            $this->render('traslados/historial', [
-                'isPaciente' => true,
-                'traslados' => [],
-                'estadosList' => [],
-                'conductores' => [],
-                'filtros' => [],
-            ]);
-            return;
-        }
-
-        $traslados = $this->mockTraslados();
-
-        /** @var string $estado */
-        $estado = $_GET['estado'] ?? '';
-        /** @var string $conductor */
-        $conductor = $_GET['conductor'] ?? '';
-        /** @var string $buscar */
-        $buscar = $_GET['buscar'] ?? '';
-        /** @var string $fecha */
-        $fecha = $_GET['fecha'] ?? '';
-
-        if ($estado !== '') {
-            $traslados = array_filter($traslados, fn($t) => $t['estado'] === $estado);
-        }
-        if ($conductor !== '') {
-            $traslados = array_filter($traslados, fn($t) => ($t['conductor'] ?? '') === $conductor);
-        }
-        if ($buscar !== '') {
-            $q = mb_strtolower($buscar);
-            $traslados = array_filter($traslados, function ($t) use ($q) {
-                /** @var mixed $codigoRaw */
-                $codigoRaw = $t['codigo'] ?? '';
-                /** @var mixed $pacienteRaw */
-                $pacienteRaw = $t['paciente'] ?? $t['elemento'] ?? '';
-                /** @var mixed $origenRaw */
-                $origenRaw = $t['origen'] ?? '';
-                /** @var mixed $destinoRaw */
-                $destinoRaw = $t['destino'] ?? '';
-                $codigo = is_string($codigoRaw) ? $codigoRaw : '';
-                $paciente = is_string($pacienteRaw) ? $pacienteRaw : '';
-                $origen = is_string($origenRaw) ? $origenRaw : '';
-                $destino = is_string($destinoRaw) ? $destinoRaw : '';
-                return mb_strpos(mb_strtolower($codigo), $q) !== false ||
-                    mb_strpos(mb_strtolower($paciente), $q) !== false ||
-                    mb_strpos(mb_strtolower($origen), $q) !== false ||
-                    mb_strpos(mb_strtolower($destino), $q) !== false;
-            });
-        }
-        if ($fecha !== '') {
-            $traslados = array_filter($traslados, fn($t) => ($t['fecha'] ?? '') === $fecha);
-        }
-
-        usort($traslados, fn($a, $b) => ($b['id'] ?? 0) <=> ($a['id'] ?? 0));
-
-        /** @var list<string> $conductoresRaw */
-        $conductoresRaw = array_column(array_merge($this->mockTraslados(), $this->storedTraslados()), 'conductor');
-        /** @var array<int|string, string> $conductoresUnique */
-        $conductoresUnique = array_unique($conductoresRaw);
-        /** @var list<string> $conductores */
-        $conductores = array_values($conductoresUnique);
-        sort($conductores);
-
-        $estadosList = [
-            'pendiente' => 'Pendiente',
-            'en_curso' => 'En curso',
-            'en_destino' => 'En destino',
-            'en_retorno' => 'En retorno',
-            'completado' => 'Completado',
-            'cancelado' => 'Cancelado',
-        ];
-
-        $this->render('traslados/historial', [
-            'traslados' => $traslados,
-            'estadosList' => $estadosList,
-            'conductores' => $conductores,
-            'filtros' => compact('estado', 'conductor', 'buscar', 'fecha'),
-        ]);
-    }
-
     private function estadoLabel(string $estado): string
     {
-        $map = [
+        return match ($estado) {
             'pendiente' => 'Pendiente',
             'en_curso' => 'En curso',
             'en_destino' => 'En destino',
             'en_retorno' => 'En retorno',
             'completado' => 'Completado',
             'cancelado' => 'Cancelado',
-        ];
-        return $map[$estado] ?? $estado;
+            default => $estado,
+        };
     }
 
-    private function updateTrasladoEstado(int $id, string $nuevoEstado): void
+    /** @return list<string> */
+    private function getUbicaciones(): array
     {
-        $metaFile = __DIR__ . '/../../../../storage/traslados/.meta.json';
-        /** @var list<array<string, mixed>> $traslados */
-        $traslados = [];
-        if (is_file($metaFile)) {
-            /** @var string $content */
-            $content = file_get_contents($metaFile);
-            /** @var list<array<string, mixed>> $decoded */
-            $decoded = json_decode($content, true) ?? [];
-            $traslados = $decoded;
-        }
+        return [
+            'Hospital de Clínicas - Emergencias',
+            'Hospital de Clínicas - Cardiología',
+            'Hospital de Clínicas - Cirugía',
+            'Hospital de Clínicas - Terapia Intensiva',
+            'Hospital de Clínicas - Nefrología',
+            'Hospital de Clínicas - Maternidad',
+            'Hospital de Clínicas - Pediatría',
+            'Hospital de Clínicas - Diagnóstico por Imágenes',
+            'Hospital de Clínicas - Quirófano',
+            'Clínica Privada - Centro',
+            'Sanatorio Español',
+        ];
+    }
 
-        $updated = false;
-        foreach ($traslados as &$t) {
-            /** @var array<string, mixed> $t */
-            if ($t['id'] === $id) {
-                $t['estado'] = $nuevoEstado;
-                $t['updated_at'] = date('d/m/Y H:i');
-                $updated = true;
-                break;
+    private function findConductorIdByName(string $nombre): ?int
+    {
+        $result = $this->listarConductores->execute(['activo' => true]);
+        foreach ($result['conductores'] as $c) {
+            $fullName = $c->getApellido() . ', ' . $c->getNombre();
+            if ($fullName === $nombre) {
+                return $c->getId();
             }
         }
-        unset($t);
-
-        if ($updated) {
-            file_put_contents($metaFile, json_encode($traslados, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-        }
+        return null;
     }
 
-    /** @return list<array<string, mixed>> */
-    private function mockTraslados(): array
+    private function redirectBack(string $url, string $error): void
     {
-        $mock = [
-            ['id' => 1, 'codigo' => 'TR-001', 'paciente' => 'Juan Pérez', 'origen' => 'Emergencias', 'destino' => 'Cardiología', 'conductor' => 'Carlos Gómez', 'estado' => 'pendiente', 'fecha' => '06/07/2026', 'hora' => '09:00'],
-            ['id' => 2, 'codigo' => 'TR-002', 'paciente' => 'María López', 'origen' => 'Emergencias', 'destino' => 'Cirugía', 'conductor' => 'Ana Martínez', 'estado' => 'en_curso', 'fecha' => '06/07/2026', 'hora' => '10:30'],
-            ['id' => 3, 'codigo' => 'TR-003', 'paciente' => 'Pedro Ramírez', 'origen' => 'Terapia', 'destino' => 'Diagnóstico por Imágenes', 'conductor' => 'Luis Fernández', 'estado' => 'en_destino', 'fecha' => '06/07/2026', 'hora' => '11:00'],
-            ['id' => 4, 'codigo' => 'TR-004', 'paciente' => 'Laura Fernández', 'origen' => 'Emergencias', 'destino' => 'Nefrología', 'conductor' => 'Carlos Gómez', 'estado' => 'completado', 'fecha' => '06/07/2026', 'hora' => '08:00'],
-            ['id' => 5, 'codigo' => 'TR-005', 'paciente' => 'Diego Torres', 'origen' => 'Emergencias', 'destino' => 'Cirugía', 'conductor' => 'Ana Martínez', 'estado' => 'cancelado', 'fecha' => '05/07/2026', 'hora' => '14:00'],
-            ['id' => 6, 'codigo' => 'TR-006', 'paciente' => 'Sofía García', 'origen' => 'Maternidad', 'destino' => 'Pediatría', 'conductor' => 'Luis Fernández', 'estado' => 'pendiente', 'fecha' => '06/07/2026', 'hora' => '14:00'],
-            ['id' => 7, 'codigo' => 'TR-007', 'paciente' => 'Roberto Acosta', 'origen' => 'Emergencias', 'destino' => 'Terapia Intensiva', 'conductor' => 'Carlos Gómez', 'estado' => 'completado', 'fecha' => '05/07/2026', 'hora' => '16:00'],
-            ['id' => 8, 'codigo' => 'TR-008', 'paciente' => 'Valentina Ríos', 'origen' => 'Emergencias', 'destino' => 'Quirófano', 'conductor' => 'Ana Martínez', 'estado' => 'en_retorno', 'fecha' => '06/07/2026', 'hora' => '12:00'],
-        ];
+        $conductoresResult = $this->listarConductores->execute(['activo' => true]);
+        $conductoresNames = array_map(
+            fn(Funcionario $c) => $c->getApellido() . ', ' . $c->getNombre(),
+            $conductoresResult['conductores']
+        );
+        $rutasResult = $this->listarRutas->execute();
+        $rutasNames = array_map(fn($r) => $r->getNombre() . ': ' . $r->getOrigen() . ' → ' . $r->getDestino(), $rutasResult['rutas']);
 
-        $stored = $this->storedTraslados();
-        $storedMapped = array_map(function ($s) {
-            $s['paciente'] = $s['elemento'];
-            return $s;
-        }, $stored);
-
-        return array_merge($mock, $storedMapped);
-    }
-
-    /** @return list<array<string, mixed>> */
-    private function storedTraslados(): array
-    {
-        $metaFile = __DIR__ . '/../../../../storage/traslados/.meta.json';
-        if (!is_file($metaFile)) return [];
-        /** @var string $content */
-        $content = file_get_contents($metaFile);
-        /** @var list<array<string, mixed>> $decoded */
-        $decoded = json_decode($content, true) ?? [];
-        return $decoded;
+        $this->render('traslados/nuevo', [
+            'error' => $error,
+            'conductores' => $conductoresNames,
+            'ubicaciones' => $this->getUbicaciones(),
+            'rutas' => $rutasNames,
+        ]);
     }
 }

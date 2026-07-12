@@ -14,6 +14,8 @@ class Usuario
     private ?string $documentoIdentidad;
     private ?string $foto;
     private ?string $createdAt;
+    private ?string $resetToken;
+    private ?string $resetTokenExpiresAt;
 
     public function __construct(
         ?int $id,
@@ -23,7 +25,9 @@ class Usuario
         ?string $email = null,
         ?string $documentoIdentidad = null,
         ?string $foto = null,
-        ?string $createdAt = null
+        ?string $createdAt = null,
+        ?string $resetToken = null,
+        ?string $resetTokenExpiresAt = null
     ) {
         $this->id = $id;
         $this->tipo = $tipo;
@@ -33,6 +37,8 @@ class Usuario
         $this->documentoIdentidad = $documentoIdentidad;
         $this->foto = $foto;
         $this->createdAt = $createdAt;
+        $this->resetToken = $resetToken;
+        $this->resetTokenExpiresAt = $resetTokenExpiresAt;
     }
 
     public function getId(): ?int
@@ -104,5 +110,15 @@ class Usuario
     public function setDocumentoIdentidad(?string $documentoIdentidad): void
     {
         $this->documentoIdentidad = $documentoIdentidad;
+    }
+
+    public function getResetToken(): ?string
+    {
+        return $this->resetToken;
+    }
+
+    public function getResetTokenExpiresAt(): ?string
+    {
+        return $this->resetTokenExpiresAt;
     }
 }

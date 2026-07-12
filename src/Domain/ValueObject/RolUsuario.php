@@ -6,7 +6,7 @@ namespace Elyra\Domain\ValueObject;
 
 class RolUsuario
 {
-    private const VALIDOS = ['admin', 'superadmin', 'conductor'];
+    private const VALIDOS = ['admin', 'superadmin', 'conductor', 'copiloto'];
 
     private string $value;
 
@@ -51,6 +51,11 @@ class RolUsuario
     public function esConductor(): bool
     {
         return $this->value === 'conductor';
+    }
+
+    public function esCopiloto(): bool
+    {
+        return $this->value === 'copiloto';
     }
 
     /** @return list<string> */

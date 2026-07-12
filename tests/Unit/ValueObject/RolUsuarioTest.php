@@ -26,6 +26,7 @@ final class RolUsuarioTest extends TestCase
             'admin' => ['admin'],
             'superadmin' => ['superadmin'],
             'conductor' => ['conductor'],
+            'copiloto' => ['copiloto'],
         ];
     }
 
@@ -62,6 +63,7 @@ final class RolUsuarioTest extends TestCase
             'admin' => ['admin', true, false, false],
             'superadmin' => ['superadmin', true, true, false],
             'conductor' => ['conductor', false, false, true],
+            'copiloto' => ['copiloto', false, false, false],
         ];
     }
 
@@ -83,6 +85,6 @@ final class RolUsuarioTest extends TestCase
 
     public function testValores(): void
     {
-        $this->assertSame(['admin', 'superadmin', 'conductor'], RolUsuario::valores());
+        $this->assertSame(['admin', 'superadmin', 'conductor', 'copiloto'], RolUsuario::valores());
     }
 }

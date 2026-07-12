@@ -1,9 +1,10 @@
 -- =============================================================
 -- ELYRA — Hospital de Clínicas
 -- Esquema de Base de Datos MySQL
--- Versión: 6.2 (agregado foto LONGBLOB a usuario)
--- Migración desde 6.1:
---   ALTER TABLE usuario ADD COLUMN foto LONGBLOB NULL AFTER documento_identidad;
+-- Versión: 6.3 (agregado reset_token y reset_token_expires_at a usuario)
+-- Migración desde 6.2:
+--   ALTER TABLE usuario ADD COLUMN reset_token VARCHAR(64) NULL AFTER foto;
+--   ALTER TABLE usuario ADD COLUMN reset_token_expires_at DATETIME NULL AFTER reset_token;
 -- =============================================================
 
 CREATE DATABASE IF NOT EXISTS elyra
@@ -27,6 +28,8 @@ CREATE TABLE usuario (
     email VARCHAR(150) UNIQUE,
     documento_identidad VARCHAR(20) UNIQUE,
     foto LONGBLOB NULL,
+    reset_token VARCHAR(64) NULL,
+    reset_token_expires_at DATETIME NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -35,9 +38,10 @@ CREATE TABLE funcionario (
     username VARCHAR(50) UNIQUE,
     password_hash VARCHAR(255),
     licencia VARCHAR(50),
+    licencia_conducir VARCHAR(50),
     telefono VARCHAR(20),
     activo BOOLEAN DEFAULT TRUE,
-    rol ENUM('admin', 'superadmin', 'conductor'),
+    rol ENUM('admin', 'superadmin', 'conductor', 'copiloto'),
     FOREIGN KEY (id) REFERENCES usuario(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

@@ -12,6 +12,8 @@ class Paciente extends Usuario
     private ?string $passwordHash;
     private ?string $telefono;
     private bool $activo;
+    private ?string $resetToken;
+    private ?string $resetTokenExpiresAt;
 
     public function __construct(
         ?int $id,
@@ -26,7 +28,9 @@ class Paciente extends Usuario
         ?string $telefono = null,
         bool $activo = true,
         ?string $foto = null,
-        ?string $createdAt = null
+        ?string $createdAt = null,
+        ?string $resetToken = null,
+        ?string $resetTokenExpiresAt = null
     ) {
         parent::__construct($id, 'paciente', $nombre, $apellido, $email, $documentoIdentidad, $foto, $createdAt);
         $this->tokenAcceso = $tokenAcceso;
@@ -35,6 +39,8 @@ class Paciente extends Usuario
         $this->passwordHash = $passwordHash;
         $this->telefono = $telefono;
         $this->activo = $activo;
+        $this->resetToken = $resetToken;
+        $this->resetTokenExpiresAt = $resetTokenExpiresAt;
     }
 
     public function getTokenAcceso(): ?string
@@ -93,5 +99,25 @@ class Paciente extends Usuario
             return false;
         }
         return password_verify($password, $this->passwordHash);
+    }
+
+    public function getResetToken(): ?string
+    {
+        return $this->resetToken;
+    }
+
+    public function setResetToken(?string $token): void
+    {
+        $this->resetToken = $token;
+    }
+
+    public function getResetTokenExpiresAt(): ?string
+    {
+        return $this->resetTokenExpiresAt;
+    }
+
+    public function setResetTokenExpiresAt(?string $expiresAt): void
+    {
+        $this->resetTokenExpiresAt = $expiresAt;
     }
 }
