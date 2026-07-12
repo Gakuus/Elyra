@@ -187,7 +187,7 @@
 <script nonce="<?= $nonce ?>">
 var TRACKING_CONFIG = {
     conductorId: <?= (int) $conductor_id ?>,
-    csrfToken: '<?= htmlspecialchars($_SESSION['_csrf_token'] ?? '') ?>',
+    csrfToken: '<?= htmlspecialchars(\Elyra\Infrastructure\Service\SessionManager::getCsrfToken()) ?>',
     intervalMs: 5000,
     ubicacionActual: <?= json_encode($ubicacion_actual, JSON_UNESCAPED_UNICODE) ?>
 };

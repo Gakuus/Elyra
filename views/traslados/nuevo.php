@@ -19,7 +19,7 @@
                     <div style="position:absolute;left:-9999px" aria-hidden="true">
                         <input type="text" name="website" tabindex="-1" autocomplete="off" value="">
                     </div>
-                    <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars($_SESSION['_csrf_token'] ?? '') ?>">
+                    <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars(\Elyra\Infrastructure\Service\SessionManager::getCsrfToken()) ?>">
 
                     <h6 class="text-muted mb-3"><i class="bi bi-person-badge me-1"></i> Personal</h6>
                     <div class="row g-3 mb-4">
