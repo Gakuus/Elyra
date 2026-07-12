@@ -167,7 +167,11 @@ CREATE TABLE traslado (
     vehiculo_id INT NULL,
     ruta_id INT NULL,
     origen VARCHAR(200) NOT NULL,
+    origen_lat DECIMAL(10, 7) NULL,
+    origen_lng DECIMAL(10, 7) NULL,
     destino VARCHAR(200) NOT NULL,
+    destino_lat DECIMAL(10, 7) NULL,
+    destino_lng DECIMAL(10, 7) NULL,
     hora_salida_estimada DATETIME,
     hora_salida_efectiva DATETIME,
     hora_llegada_destino DATETIME,
@@ -230,6 +234,32 @@ CREATE INDEX idx_encuesta_creada_por ON encuesta(creada_por);
 CREATE INDEX idx_pregunta_encuesta ON pregunta(encuesta_id);
 CREATE INDEX idx_respuesta_sesion ON respuesta(sesion_token);
 CREATE INDEX idx_respuesta_pregunta ON respuesta(pregunta_id);
+
+-- Ambulancias
+CREATE TABLE ubicacion_conductor (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    conductor_id INT NOT NULL,
+    traslado_id INT NULL,
+    latitud DECIMAL(10, 7) NOT NULL,
+    longitud DECIMAL(10, 7) NOT NULL,
+    heading SMALLINT NULL,
+    velocidad DECIMAL(5, 1) NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_conductor (conductor_id),
+    FOREIGN KEY (conductor_id) REFERENCES funcionario(id) ON DELETE CASCADE,
+    FOREIGN KEY (traslado_id) REFERENCES traslado(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE historial_ubicacion (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    conductor_id INT NOT NULL,
+    traslado_id INT NULL,
+    latitud DECIMAL(10, 7) NOT NULL,
+    longitud DECIMAL(10, 7) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_hist_conductor (conductor_id, created_at),
+    INDEX idx_hist_traslado (traslado_id, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Ambulancias
 CREATE INDEX idx_traslado_estado ON traslado(estado);

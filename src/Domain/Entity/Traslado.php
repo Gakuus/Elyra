@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Elyra\Domain\Entity;
 
+use Elyra\Domain\ValueObject\Coordenada;
 use Elyra\Domain\ValueObject\EstadoTraslado;
 
 class Traslado
@@ -15,7 +16,9 @@ class Traslado
     private ?int $vehiculoId;
     private ?int $rutaId;
     private string $origen;
+    private ?Coordenada $origenCoordenada;
     private string $destino;
+    private ?Coordenada $destinoCoordenada;
     private ?string $horaSalidaEstimada;
     private ?string $horaSalidaEfectiva;
     private ?string $horaLlegadaDestino;
@@ -47,7 +50,9 @@ class Traslado
         ?string $motivoCancelacion = null,
         ?string $observaciones = null,
         ?string $createdAt = null,
-        ?string $updatedAt = null
+        ?string $updatedAt = null,
+        ?Coordenada $origenCoordenada = null,
+        ?Coordenada $destinoCoordenada = null
     ) {
         $this->id = $id;
         $this->codigo = $codigo;
@@ -68,6 +73,8 @@ class Traslado
         $this->observaciones = $observaciones;
         $this->createdAt = $createdAt;
         $this->updatedAt = $updatedAt;
+        $this->origenCoordenada = $origenCoordenada;
+        $this->destinoCoordenada = $destinoCoordenada;
     }
 
     public function getId(): ?int { return $this->id; }
@@ -77,7 +84,9 @@ class Traslado
     public function getVehiculoId(): ?int { return $this->vehiculoId; }
     public function getRutaId(): ?int { return $this->rutaId; }
     public function getOrigen(): string { return $this->origen; }
+    public function getOrigenCoordenada(): ?Coordenada { return $this->origenCoordenada; }
     public function getDestino(): string { return $this->destino; }
+    public function getDestinoCoordenada(): ?Coordenada { return $this->destinoCoordenada; }
     public function getHoraSalidaEstimada(): ?string { return $this->horaSalidaEstimada; }
     public function getHoraSalidaEfectiva(): ?string { return $this->horaSalidaEfectiva; }
     public function getHoraLlegadaDestino(): ?string { return $this->horaLlegadaDestino; }

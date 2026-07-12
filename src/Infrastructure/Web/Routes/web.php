@@ -46,6 +46,12 @@ return [
     ['method' => 'GET',  'pattern' => '/traslados/ver',       'controller' => 'TrasladoController',  'action' => 'ver'],
     ['method' => 'POST', 'pattern' => '/traslados/actualizar-estado', 'controller' => 'TrasladoController', 'action' => 'actualizarEstado'],
     ['method' => 'GET',  'pattern' => '/traslados/historial',      'controller' => 'TrasladoController',  'action' => 'historial'],
+    ['method' => 'GET',  'pattern' => '/traslados/mapa',            'controller' => 'UbicacionController', 'action' => 'mapa'],
+    ['method' => 'GET',  'pattern' => '/traslados/tracking',        'controller' => 'UbicacionController', 'action' => 'conductorView'],
+    ['method' => 'POST', 'pattern' => '/api/ubicacion',             'controller' => 'UbicacionController', 'action' => 'registrar'],
+    ['method' => 'GET',  'pattern' => '/api/ubicaciones/activas',   'controller' => 'UbicacionController', 'action' => 'activas'],
+    ['method' => 'GET',  'pattern' => '/api/ubicaciones/historial', 'controller' => 'UbicacionController', 'action' => 'historial'],
+    ['method' => 'GET',  'pattern' => '/api/ubicaciones/stream',    'controller' => 'UbicacionController', 'action' => 'eventStream'],
 
     ['method' => 'GET',  'pattern' => '/conductores',           'controller' => 'ConductorController', 'action' => 'index'],
     ['method' => 'GET',  'pattern' => '/conductores/crear',     'controller' => 'ConductorController', 'action' => 'crear'],

@@ -34,6 +34,8 @@ $breadcrumbMap = [
     '/traslados/nuevo' => ['Nuevo traslado', '/traslados'],
     '/traslados/ver' => ['Detalle traslado', '/traslados'],
     '/traslados/historial' => ['Historial', '/traslados'],
+    '/traslados/mapa' => ['Mapa en vivo', '/traslados'],
+    '/traslados/tracking' => ['Tracking', '/traslados'],
     '/conductores' => ['Conductores', '/dashboard'],
     '/conductores/crear' => ['Crear conductor', '/conductores'],
     '/rutas' => ['Rutas', '/dashboard'],
@@ -89,6 +91,7 @@ function renderBreadcrumbs(string $uri, array $map): void {
         <div class="sidebar-section">
             <div class="sidebar-section-title">Ambulancias</div>
             <a href="/traslados" class="sidebar-link <?= $currentUri === '/traslados' ? 'active' : '' ?>"><img src="/img/silk/lorry.png" width="16" height="16" alt=""> Traslados</a>
+            <a href="/traslados/mapa" class="sidebar-link <?= $currentUri === '/traslados/mapa' ? 'active' : '' ?>"><img src="/img/silk/map.png" width="16" height="16" alt=""> Mapa en vivo</a>
             <a href="/traslados/nuevo" class="sidebar-link <?= $currentUri === '/traslados/nuevo' ? 'active' : '' ?>"><img src="/img/silk/add.png" width="16" height="16" alt=""> Nuevo</a>
             <a href="/traslados/historial" class="sidebar-link <?= $currentUri === '/traslados/historial' ? 'active' : '' ?>"><img src="/img/silk/clock.png" width="16" height="16" alt=""> Historial</a>
             <a href="/rutas" class="sidebar-link <?= $currentUri === '/rutas' ? 'active' : '' ?>"><img src="/img/silk/map.png" width="16" height="16" alt=""> Rutas</a>

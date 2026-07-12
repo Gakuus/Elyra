@@ -8,6 +8,7 @@ use Elyra\Domain\Entity\ElementoTraslado;
 use Elyra\Domain\Entity\HistorialEstado;
 use Elyra\Domain\Entity\Traslado;
 use Elyra\Domain\Repository\TrasladoRepositoryInterface;
+use Elyra\Domain\ValueObject\Coordenada;
 use Elyra\Domain\ValueObject\EstadoTraslado;
 use Elyra\Domain\ValueObject\TipoElemento;
 
@@ -307,6 +308,23 @@ class TrasladoRepository implements TrasladoRepositoryInterface
         /** @var string|null $updatedAt */
         $updatedAt = $row['updated_at'];
 
+        $origenCoord = null;
+        /** @var string|null $origenLat */
+        $origenLat = $row['origen_lat'];
+        /** @var string|null $origenLng */
+        $origenLng = $row['origen_lng'];
+        if ($origenLat !== null && $origenLng !== null) {
+            $origenCoord = new Coordenada((float) $origenLat, (float) $origenLng);
+        }
+        $destinoCoord = null;
+        /** @var string|null $destinoLat */
+        $destinoLat = $row['destino_lat'];
+        /** @var string|null $destinoLng */
+        $destinoLng = $row['destino_lng'];
+        if ($destinoLat !== null && $destinoLng !== null) {
+            $destinoCoord = new Coordenada((float) $destinoLat, (float) $destinoLng);
+        }
+
         return new Traslado(
             id: $id,
             codigo: $codigo,
@@ -327,6 +345,8 @@ class TrasladoRepository implements TrasladoRepositoryInterface
             observaciones: $observaciones,
             createdAt: $createdAt,
             updatedAt: $updatedAt,
+            origenCoordenada: $origenCoord,
+            destinoCoordenada: $destinoCoord,
         );
     }
 
