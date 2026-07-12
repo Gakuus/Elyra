@@ -70,7 +70,7 @@ $router->addMiddleware(function () {
 // CSP Headers
 $router->addMiddleware(function () {
     $nonce = \Elyra\Infrastructure\Service\SessionManager::getNonce();
-    $csp = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'nonce-{$nonce}' 'strict-dynamic'; script-src-attr 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; img-src 'self' data:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'";
+    $csp = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com 'nonce-{$nonce}' 'strict-dynamic'; script-src-attr 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com 'unsafe-inline'; img-src 'self' data: https://*.tile.openstreetmap.org; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'";
     header("Content-Security-Policy: {$csp}");
     header('X-Content-Type-Options: nosniff');
     header('X-Frame-Options: SAMEORIGIN');
