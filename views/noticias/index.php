@@ -34,17 +34,25 @@
                         <?php endif; ?>
                     </td>
                     <td>
-                        <a href="/noticias/toggle?id=<?= $n['id'] ?>" class="text-decoration-none">
+                        <form method="post" action="/noticias/toggle" class="d-inline">
+                            <input type="hidden" name="id" value="<?= $n['id'] ?>">
+                            <input type="hidden" name="_csrf_token" value="<?= \Elyra\Infrastructure\Service\SessionManager::getCsrfToken() ?>">
+                            <button type="submit" class="btn btn-sm p-0 border-0 bg-transparent text-decoration-none">
                             <?php if ($n['activo']): ?>
-                                <span class="badge bg-success">Sí</span>
+                                <span class="badge bg-success">S&iacute;</span>
                             <?php else: ?>
                                 <span class="badge bg-secondary">No</span>
                             <?php endif; ?>
-                        </a>
+                            </button>
+                        </form>
                     </td>
                     <td>
                         <a href="/noticias/editar?id=<?= $n['id'] ?>" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></a>
-                        <a href="/noticias/eliminar?id=<?= $n['id'] ?>" class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="return confirm('¿Eliminar esta noticia?')"><i class="bi bi-trash"></i></a>
+                        <form method="post" action="/noticias/eliminar" class="d-inline" onsubmit="return confirm('¿Eliminar esta noticia?')">
+                            <input type="hidden" name="id" value="<?= $n['id'] ?>">
+                            <input type="hidden" name="_csrf_token" value="<?= \Elyra\Infrastructure\Service\SessionManager::getCsrfToken() ?>">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar"><i class="bi bi-trash"></i></button>
+                        </form>
                     </td>
                 </tr>
             <?php endforeach; ?>

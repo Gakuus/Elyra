@@ -85,6 +85,11 @@ final class RolUsuarioTest extends TestCase
 
     public function testValores(): void
     {
-        $this->assertSame(['admin', 'superadmin', 'conductor', 'copiloto'], RolUsuario::valores());
+        $expected = [
+            'superadmin', 'admin', 'medico', 'enfermero',
+            'tecnico', 'recepcionista', 'farmaceutico',
+            'conductor', 'copiloto',
+        ];
+        $this->assertSame($expected, RolUsuario::valores());
     }
 }

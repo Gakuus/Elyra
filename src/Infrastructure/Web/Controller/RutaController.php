@@ -96,6 +96,7 @@ class RutaController extends BaseController
             return;
         }
 
+        \Elyra\Infrastructure\Service\AuditLogger::logCreate('ruta', null, ['nombre' => $nombre]);
         $this->redirect('/rutas?creada=1');
     }
 

@@ -27,7 +27,6 @@ final class TrasladoRepositoryTest extends TestCase
         $this->repository = $repoClass->newInstanceWithoutConstructor();
 
         $pdoProp = $repoClass->getProperty('pdo');
-        $pdoProp->setAccessible(true);
         $pdoProp->setValue($this->repository, $this->pdo);
     }
 
@@ -49,7 +48,7 @@ final class TrasladoRepositoryTest extends TestCase
 
     public function testNextCodigoReturnsString(): void
     {
-        $this->pdo->method('query')->willReturn($this->stmt);
+        $this->pdo->method('prepare')->willReturn($this->stmt);
         $this->stmt->method('fetchColumn')->willReturn('5');
 
         $codigo = $this->repository->nextCodigo();

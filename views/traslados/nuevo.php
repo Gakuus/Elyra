@@ -135,6 +135,13 @@
                         </div>
                     </div>
 
+                    <h6 class="text-muted mb-3"><i class="bi bi-chat-left-text me-1"></i> Observaciones</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <textarea name="observaciones" class="form-input" rows="2" placeholder="Notas adicionales sobre el traslado (opcional)" maxlength="500"><?= htmlspecialchars($_POST['observaciones'] ?? '') ?></textarea>
+                        </div>
+                    </div>
+
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i> Registrar traslado</button>
                         <a href="/traslados" class="btn">Cancelar</a>

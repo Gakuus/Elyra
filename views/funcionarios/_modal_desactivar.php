@@ -21,7 +21,7 @@
     </div>
 </div>
 
-<script>
+<script nonce="<?= $nonce ?>">
 function abrirModalDesactivar(id, nombre) {
     document.getElementById('idFuncionario').value = id;
     document.getElementById('nombreFuncionario').textContent = nombre;

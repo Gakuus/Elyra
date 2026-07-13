@@ -27,6 +27,7 @@ class EncuestaController extends BaseController
     public function index(): void
     {
         $this->requireAuth();
+        $this->requireRole('admin', 'superadmin');
 
         $encuestas = $this->encuestaRepo->findAll();
         $lista = [];
@@ -113,12 +114,14 @@ class EncuestaController extends BaseController
             return;
         }
 
+        \Elyra\Infrastructure\Service\AuditLogger::logCreate('encuesta', null, ['titulo' => $titulo]);
         $this->redirect('/encuestas?creada=1');
     }
 
     public function resultados(): void
     {
         $this->requireAuth();
+        $this->requireRole('admin', 'superadmin');
 
         /** @var string $idStr */
         $idStr = $_GET['id'] ?? '0';

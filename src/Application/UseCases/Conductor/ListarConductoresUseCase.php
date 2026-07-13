@@ -15,15 +15,16 @@ final class ListarConductoresUseCase
     }
 
     /**
-     * @param array{activo?: bool|null} $input
+     * @param array{activo?: bool|null, buscar?: string} $input
      *
      * @return array{conductores: list<Funcionario>, total: int, activos: int}
      */
     public function execute(array $input): array
     {
         $activo = $input['activo'] ?? null;
+        $buscar = trim($input['buscar'] ?? '');
         /** @var list<\Elyra\Domain\Entity\Funcionario> $conductores */
-        $conductores = array_values($this->conductorRepo->findAll($activo));
+        $conductores = array_values($this->conductorRepo->findAll($activo, $buscar));
         $total = $this->conductorRepo->countTotal();
         $activos = $this->conductorRepo->countActivos();
 

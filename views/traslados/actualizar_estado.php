@@ -17,7 +17,7 @@ $eActual = $estados[$t['estado']];
                     <span class="text-muted">Traslado</span>
                     <span class="fw-semibold"><?= htmlspecialchars($t['codigo']) ?></span>
                     &middot;
-                    <?= htmlspecialchars($t['paciente'] ?? $t['elemento'] ?? '-') ?>
+                    <?= htmlspecialchars($t['elemento_descripcion'] ?? '-') ?>
                     &middot;
                     <span class="badge badge-<?= htmlspecialchars($t['estado']) ?>"><?= $eActual['label'] ?></span>
                 </div>
@@ -37,11 +37,29 @@ $eActual = $estados[$t['estado']];
                             <div class="d-flex flex-wrap gap-2">
                                 <?php foreach ($allowed as $est): ?>
                                     <?php $info = $estados[$est]; ?>
-                                    <button type="submit" name="estado" value="<?= $est ?>" class="btn px-4 py-2" onclick="return confirm('¿Estás seguro de cambiar a «<?= htmlspecialchars($info['label'], ENT_QUOTES) ?>»?')">
+                                    <button type="submit" name="estado" value="<?= $est ?>" class="btn px-4 py-2"
+                                        data-estado="<?= htmlspecialchars($est) ?>"
+                                        onclick="return confirmarCambioEstado(this)">
                                         <i class="bi bi-arrow-right-circle me-1"></i> <?= $info['label'] ?>
                                     </button>
                                 <?php endforeach; ?>
                             </div>
+                        </div>
+
+                        <div class="col-12 d-none" id="campo-motivo">
+                            <label for="motivo" class="form-label fw-semibold">Motivo de cancelación <span class="text-danger">*</span></label>
+                            <textarea name="motivo" id="motivo" class="form-input" rows="3" placeholder="Motivo requerido para cancelar..." maxlength="500"></textarea>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="observacion" class="form-label fw-semibold">Observaciones (opcional)</label>
+                            <textarea name="observacion" id="observacion" class="form-input" rows="2" placeholder="Nota sobre este cambio de estado..." maxlength="500"></textarea>
+                        </div>
+
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary" id="btn-confirmar">
+                                <i class="bi bi-check-lg me-1"></i> Confirmar cambio
+                            </button>
                         </div>
                     </form>
                 <?php endif; ?>
@@ -52,4 +70,21 @@ $eActual = $estados[$t['estado']];
 </div>
 
 <?php $contenido = ob_get_clean(); ?>
+<?php ob_start(); ?>
+<script nonce="<?= $nonce ?>">
+function confirmarCambioEstado(btn) {
+    var estado = btn.getAttribute('data-estado');
+    var campoMotivo = document.getElementById('campo-motivo');
+    var motivoInput = document.getElementById('motivo');
+    if (estado === 'cancelado') {
+        campoMotivo.classList.remove('d-none');
+        motivoInput.required = true;
+        motivoInput.focus();
+        return false;
+    }
+    motivoInput.required = false;
+    return confirm('¿Estás seguro de cambiar a «' + btn.textContent.trim() + '»?');
+}
+</script>
+<?php $scripts = ob_get_clean(); ?>
 <?php require __DIR__ . '/../layout/base.php'; ?>

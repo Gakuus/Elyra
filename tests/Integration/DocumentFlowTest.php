@@ -55,7 +55,6 @@ final class DocumentFlowTest extends TestCase
 
         $reflection = new \ReflectionClass($doc);
         $tituloProp = $reflection->getProperty('titulo');
-        $tituloProp->setAccessible(true);
         $tituloProp->setValue($doc, 'Título Modificado');
 
         $this->assertSame('Título Modificado', $doc->getTitulo());

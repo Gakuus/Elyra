@@ -132,11 +132,11 @@ final class AuthServiceTest extends TestCase
         );
 
         $this->usuarioRepo->method('findFuncionarioByUsername')
-            ->with('jperez') // @phpstan-ignore method.notFound
+            ->with('paciente1') // @phpstan-ignore method.notFound
             ->willReturn(null);
 
         $this->usuarioRepo->method('findPacienteByUsername')
-            ->with('jperez') // @phpstan-ignore method.notFound
+            ->with('paciente1') // @phpstan-ignore method.notFound
             ->willReturn($paciente);
 
         $result = $this->authService->login('paciente1', 'pass');

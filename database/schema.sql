@@ -41,7 +41,7 @@ CREATE TABLE funcionario (
     licencia_conducir VARCHAR(50),
     telefono VARCHAR(20),
     activo BOOLEAN DEFAULT TRUE,
-    rol ENUM('admin', 'superadmin', 'conductor', 'copiloto'),
+    rol ENUM('superadmin', 'admin', 'medico', 'enfermero', 'tecnico', 'recepcionista', 'farmaceutico', 'conductor', 'copiloto'),
     FOREIGN KEY (id) REFERENCES usuario(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= $titulo ?? 'Elyra' ?> — Hospital de Clínicas</title>
+    <title><?= htmlspecialchars($titulo ?? 'Elyra') ?> — Hospital de Clínicas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="/css/web20.css" rel="stylesheet">
     <meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['_csrf_token'] ?? '') ?>">
@@ -67,7 +67,10 @@ function renderBreadcrumbs(string $uri, array $map): void {
     </div>
     <div class="web20-header-user">
         <a href="/perfil"><i class="bi bi-person-circle"></i> <?= htmlspecialchars($_SESSION['user_nombre'] ?? 'Usuario') ?></a>
-        <a href="/logout"><i class="bi bi-box-arrow-right"></i> Salir</a>
+        <form method="post" action="/logout" style="display:inline">
+            <input type="hidden" name="_csrf_token" value="<?= \Elyra\Infrastructure\Service\SessionManager::getCsrfToken() ?>">
+            <button type="submit" class="btn btn-sm btn-link" style="text-decoration:none"><i class="bi bi-box-arrow-right"></i> Salir</button>
+        </form>
     </div>
 </div>
 
@@ -142,7 +145,18 @@ function renderBreadcrumbs(string $uri, array $map): void {
     var timer;
     function resetTimer() {
         clearTimeout(timer);
-        timer = setTimeout(function() { window.location.href = '/logout?timeout=1'; }, timeout);
+        timer = setTimeout(function () {
+            var f = document.createElement('form');
+            f.method = 'POST';
+            f.action = '/logout';
+            var inp = document.createElement('input');
+            inp.type = 'hidden';
+            inp.name = '_csrf_token';
+            inp.value = '<?= \Elyra\Infrastructure\Service\SessionManager::getCsrfToken() ?>';
+            f.appendChild(inp);
+            document.body.appendChild(f);
+            f.submit();
+        }, timeout);
     }
     document.addEventListener('mousemove', resetTimer);
     document.addEventListener('keydown', resetTimer);

@@ -10,7 +10,11 @@
         </div>
         <div class="modal-footer">
             <button type="button" class="btn" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancelar</button>
-            <a href="#" class="btn btn-danger" id="eliminarConfirmar"><i class="bi bi-trash me-1"></i>Eliminar</a>
+            <form method="post" action="/documentos/eliminar" id="eliminarForm" class="d-inline">
+                <input type="hidden" name="id" id="eliminarId" value="">
+                <input type="hidden" name="_csrf_token" value="<?= \Elyra\Infrastructure\Service\SessionManager::getCsrfToken() ?>">
+                <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-1"></i>Eliminar</button>
+            </form>
         </div>
     </div>
 </div>

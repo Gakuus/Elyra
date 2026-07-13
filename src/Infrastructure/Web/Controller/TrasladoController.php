@@ -56,6 +56,7 @@ class TrasladoController extends BaseController
     public function index(): void
     {
         $this->requireAuth();
+        $this->requireRole('admin', 'superadmin', 'conductor', 'copiloto');
 
         if (SessionManager::isPaciente()) {
             $this->render('traslados/index', [
@@ -69,30 +70,24 @@ class TrasladoController extends BaseController
             return;
         }
 
-        $activos = $this->listarTraslados->execute(['estado' => '']);
+        $trasladoRepo = new TrasladoRepository();
+        $pendientes = $trasladoRepo->countByEstado('pendiente');
+        $enCurso = $trasladoRepo->countByEstado('en_curso')
+            + $trasladoRepo->countByEstado('en_destino')
+            + $trasladoRepo->countByEstado('en_retorno');
         $hoy = date('Y-m-d');
-        $completadosHoy = $this->listarTraslados->execute(['estado' => 'completado', 'fechaDesde' => $hoy, 'fechaHasta' => $hoy]);
+        $completadosHoyResult = $this->listarTraslados->execute(['estado' => 'completado', 'fechaDesde' => $hoy, 'fechaHasta' => $hoy]);
+        $totalResult = $this->listarTraslados->execute(['estado' => '']);
 
-        $pendientes = 0;
-        $enCurso = 0;
-        foreach ($activos['traslados'] as $t) {
-            $e = $t->getEstado()->value();
-            if ($e === 'pendiente') {
-                $pendientes++;
-            } elseif (in_array($e, ['en_curso', 'en_destino', 'en_retorno'], true)) {
-                $enCurso++;
-            }
-        }
-
-        $trasladosMapped = array_map(fn(Traslado $t) => $this->mapTraslado($t), $activos['traslados']);
+        $trasladosMapped = array_map(fn(Traslado $t) => $this->mapTraslado($t), $totalResult['traslados']);
 
         $this->render('traslados/index', [
             'isPaciente' => false,
             'traslados' => $trasladosMapped,
             'pendientes' => $pendientes,
             'enCurso' => $enCurso,
-            'completadosHoy' => count($completadosHoy['traslados']),
-            'totalHoy' => $activos['total'],
+            'completadosHoy' => count($completadosHoyResult['traslados']),
+            'totalHoy' => $totalResult['total'],
         ]);
     }
 
@@ -271,6 +266,9 @@ class TrasladoController extends BaseController
 
         $userId = SessionManager::getUserId() ?? 0;
         $horaSalida = $fecha . ' ' . $hora;
+        /** @var string $observacionesRaw */
+        $observacionesRaw = $_POST['observaciones'] ?? '';
+        $observaciones = trim($observacionesRaw);
 
         /** @var array{tipo: string, descripcion: string, cantidad: int} $elementoBase */
         $elementoBase = [
@@ -285,7 +283,7 @@ class TrasladoController extends BaseController
         /** @var list<array{tipo: string, descripcion: string, cantidad: int, pacienteId?: int}> $elementos */
         $elementos = [$elemento];
 
-        /** @var array{conductorId: int, origen: string, destino: string, registradoPor: int, horaSalidaEstimada: string, elementos: list<array{tipo: string, descripcion: string, cantidad: int, pacienteId?: int}>} $input */
+        /** @var array{conductorId: int, origen: string, destino: string, registradoPor: int, horaSalidaEstimada: string, elementos: list<array{tipo: string, descripcion: string, cantidad: int, pacienteId?: int}>, observaciones?: string} $input */
         $input = [
             'conductorId' => $conductorId,
             'origen' => $origen,
@@ -294,6 +292,9 @@ class TrasladoController extends BaseController
             'horaSalidaEstimada' => $horaSalida,
             'elementos' => $elementos,
         ];
+        if ($observaciones !== '') {
+            $input['observaciones'] = $observaciones;
+        }
         if ($copilotoId !== null) {
             $input['copilotoId'] = $copilotoId;
         }
@@ -308,6 +309,12 @@ class TrasladoController extends BaseController
             return;
         }
 
+        \Elyra\Infrastructure\Service\AuditLogger::logCreate('traslado', null, [
+            'tipo' => $tipo,
+            'conductor_id' => $conductorId,
+            'origen' => $origen,
+            'destino' => $destino,
+        ]);
         $this->redirect('/traslados?creado=1');
     }
 
@@ -315,6 +322,7 @@ class TrasladoController extends BaseController
     {
         $this->requireAuth();
         $this->denyPaciente();
+        $this->requireRole('admin', 'superadmin', 'conductor', 'copiloto');
 
         /** @var string $idRaw */
         $idRaw = $_GET['id'] ?? '0';
@@ -327,16 +335,22 @@ class TrasladoController extends BaseController
         }
 
         $traslado = $result['traslado'];
-        $t = $this->mapTrasladoDetalle($traslado);
-        $timeline = $this->buildTimeline($traslado);
+        $t = $this->mapTrasladoDetalle($traslado, $result['elementos']);
+        $timeline = $this->buildTimeline($traslado, $result['historial']);
 
-        $this->render('traslados/ver', ['t' => $t, 'timeline' => $timeline]);
+        $this->render('traslados/ver', [
+            't' => $t,
+            'timeline' => $timeline,
+            'elementos' => $result['elementos'],
+            'historial' => $result['historial'],
+        ]);
     }
 
     public function actualizarEstado(): void
     {
         $this->requireAuth();
         $this->denyPaciente();
+        $this->requireRole('admin', 'superadmin', 'conductor', 'copiloto');
 
         /** @var string $idRaw */
         $idRaw = $_GET['id'] ?? $_POST['id'] ?? '0';
@@ -357,14 +371,34 @@ class TrasladoController extends BaseController
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             /** @var string $nuevoEstado */
             $nuevoEstado = $_POST['estado'] ?? '';
+            /** @var string $motivoRaw */
+            $motivoRaw = $_POST['motivo'] ?? '';
+            $motivo = trim($motivoRaw);
+            /** @var string $observacionRaw */
+            $observacionRaw = $_POST['observacion'] ?? '';
+            $observacion = trim($observacionRaw);
             $userId = SessionManager::getUserId() ?? 0;
 
             try {
-                $this->actualizarEstado->execute([
+                $params = [
                     'id' => $id,
                     'nuevoEstado' => $nuevoEstado,
                     'actualizadoPor' => $userId,
-                ]);
+                    'actualizadoPorRol' => SessionManager::getUserRole() ?? '',
+                ];
+                if ($motivo !== '') {
+                    $params['motivo'] = $motivo;
+                }
+                if ($observacion !== '') {
+                    $params['observacion'] = $observacion;
+                }
+                $this->actualizarEstado->execute($params);
+                \Elyra\Infrastructure\Service\AuditLogger::logStateChange(
+                    'traslado',
+                    (string) $id,
+                    $traslado->getEstado()->value(),
+                    $nuevoEstado,
+                );
                 $_SESSION['flash_success'] = 'Estado actualizado a ' . $this->estadoLabel($nuevoEstado);
             } catch (\DomainException | \InvalidArgumentException $e) {
                 $_SESSION['flash_error'] = $e->getMessage();
@@ -414,14 +448,38 @@ class TrasladoController extends BaseController
         $estado = $_GET['estado'] ?? '';
         /** @var string $buscar */
         $buscar = $_GET['buscar'] ?? '';
-        /** @var string $conductor */
-        $conductor = $_GET['conductor'] ?? '';
+        /** @var string $conductorFilter */
+        $conductorFilter = $_GET['conductor'] ?? '';
         /** @var string $fecha */
         $fecha = $_GET['fecha'] ?? '';
 
-        $result = $this->historialTraslados->execute([
+        $inputParams = [
             'estado' => $estado !== '' ? $estado : null,
-        ]);
+        ];
+
+        if ($conductorFilter !== '') {
+            $conductorRepo = new ConductorRepository();
+            $allConductores = $conductorRepo->findAll();
+            foreach ($allConductores as $c) {
+                $cName = $c->getApellido() . ', ' . $c->getNombre();
+                if ($cName === $conductorFilter) {
+                    $inputParams['conductorId'] = $c->getId();
+                    break;
+                }
+            }
+        }
+
+        if ($fecha !== '') {
+            /** @var int|false $ts */
+            $ts = strtotime($fecha);
+            if ($ts !== false) {
+                $fechaParsed = date('Y-m-d', $ts);
+                $inputParams['fechaDesde'] = $fechaParsed;
+                $inputParams['fechaHasta'] = $fechaParsed;
+            }
+        }
+
+        $result = $this->historialTraslados->execute($inputParams);
 
         $conductoresResult = $this->listarConductores->execute([]);
         $conductoresNames = array_map(
@@ -444,8 +502,33 @@ class TrasladoController extends BaseController
             'traslados' => $trasladosMapped,
             'estadosList' => $estadosList,
             'conductores' => $conductoresNames,
-            'filtros' => compact('estado', 'buscar', 'conductor', 'fecha'),
+            'filtros' => compact('estado', 'buscar', 'conductorFilter', 'fecha'),
         ]);
+    }
+
+    private function resolveConductorName(int $conductorId): string
+    {
+        $conductorRepo = new ConductorRepository();
+        $conductor = $conductorRepo->findById($conductorId);
+        if ($conductor !== null) {
+            return $conductor->getApellido() . ', ' . $conductor->getNombre();
+        }
+        return 'Conductor #' . $conductorId;
+    }
+
+    /** @return array{descripcion: string, tipo: string} */
+    private function resolveElementoInfo(Traslado $t): array
+    {
+        $repo = new TrasladoRepository();
+        $elementos = $repo->findElementosByTrasladoId($t->getId() ?? 0);
+        if (empty($elementos)) {
+            return ['descripcion' => '-', 'tipo' => 'paciente'];
+        }
+        $el = $elementos[0];
+        return [
+            'descripcion' => $el->getDescripcion() ?? '-',
+            'tipo' => $el->getTipo()->value(),
+        ];
     }
 
     /** @return array{id: int|null, codigo: string, conductor: string, origen: string, destino: string, estado: string, estado_texto: string, salida: string} */
@@ -454,7 +537,7 @@ class TrasladoController extends BaseController
         return [
             'id' => $t->getId(),
             'codigo' => $t->getCodigo(),
-            'conductor' => 'Conductor #' . $t->getConductorId(),
+            'conductor' => $this->resolveConductorName($t->getConductorId()),
             'origen' => $t->getOrigen(),
             'destino' => $t->getDestino(),
             'estado' => $t->getEstado()->value(),
@@ -463,8 +546,12 @@ class TrasladoController extends BaseController
         ];
     }
 
-    /** @return array{id: int|null, codigo: string, conductor: string, copiloto: string, origen: string, destino: string, estado: string, fecha: string, hora: string, hora_llegada: string} */
-    private function mapTrasladoDetalle(Traslado $t): array
+    /** @return array{id: int|null, codigo: string, conductor: string, copiloto: string, origen: string, destino: string, estado: string, fecha: string, hora: string, hora_llegada: string, elemento_descripcion: string, elemento_tipo: string, observaciones: string|null, motivo_cancelacion: string|null} */
+    /**
+     * @param list<\Elyra\Domain\Entity\ElementoTraslado>|null $elementos
+     * @return array{id: int|null, codigo: string, conductor: string, copiloto: string, origen: string, destino: string, estado: string, fecha: string, hora: string, hora_llegada: string, elemento_descripcion: string, elemento_tipo: string, observaciones: string|null, motivo_cancelacion: string|null}
+     */
+    private function mapTrasladoDetalle(Traslado $t, ?array $elementos = null): array
     {
         $salida = $t->getHoraSalidaEstimada() ?? '';
         $fecha = '';
@@ -473,30 +560,45 @@ class TrasladoController extends BaseController
             [$fecha, $hora] = explode(' ', $salida, 2);
         }
 
+        if ($elementos !== null && count($elementos) > 0) {
+            $elDesc = $elementos[0]->getDescripcion() ?? '-';
+            $elTipo = $elementos[0]->getTipo()->value();
+        } else {
+            $info = $this->resolveElementoInfo($t);
+            $elDesc = $info['descripcion'];
+            $elTipo = $info['tipo'];
+        }
+
         return [
             'id' => $t->getId(),
             'codigo' => $t->getCodigo(),
-            'conductor' => 'Conductor #' . $t->getConductorId(),
-            'copiloto' => $t->getCopilotoId() !== null ? 'Copiloto #' . $t->getCopilotoId() : '-',
+            'conductor' => $this->resolveConductorName($t->getConductorId()),
+            'copiloto' => $t->getCopilotoId() !== null ? $this->resolveConductorName($t->getCopilotoId()) : '-',
             'origen' => $t->getOrigen(),
             'destino' => $t->getDestino(),
             'estado' => $t->getEstado()->value(),
             'fecha' => $fecha,
             'hora' => $hora,
             'hora_llegada' => $t->getHoraLlegadaDestino() ?? '-',
+            'elemento_descripcion' => $elDesc,
+            'elemento_tipo' => $elTipo,
+            'observaciones' => $t->getObservaciones(),
+            'motivo_cancelacion' => $t->getMotivoCancelacion(),
         ];
     }
 
-    /** @return array{id: int|null, codigo: string, conductor: string, origen: string, destino: string, estado: string, fecha: string} */
+    /** @return array{id: int|null, codigo: string, conductor: string, elemento_descripcion: string, origen: string, destino: string, estado: string, fecha: string} */
     private function mapTrasladoHistorial(Traslado $t): array
     {
         $salida = $t->getHoraSalidaEstimada() ?? '';
         $fecha = $salida;
+        $info = $this->resolveElementoInfo($t);
 
         return [
             'id' => $t->getId(),
             'codigo' => $t->getCodigo(),
-            'conductor' => 'Conductor #' . $t->getConductorId(),
+            'conductor' => $this->resolveConductorName($t->getConductorId()),
+            'elemento_descripcion' => $info['descripcion'],
             'origen' => $t->getOrigen(),
             'destino' => $t->getDestino(),
             'estado' => $t->getEstado()->value(),
@@ -504,13 +606,32 @@ class TrasladoController extends BaseController
         ];
     }
 
-    /** @return list<array{estado: string, completado: bool, activo: bool, fecha: string}> */
-    private function buildTimeline(Traslado $traslado): array
+    /**
+     * @param list<\Elyra\Domain\Entity\HistorialEstado>|null $historial
+     * @return list<array{estado: string, completado: bool, activo: bool, fecha: string}>
+     */
+    private function buildTimeline(Traslado $traslado, ?array $historial = null): array
     {
         $estados = ['pendiente', 'en_curso', 'en_destino', 'en_retorno', 'completado'];
         $timeline = [];
         $actual = $traslado->getEstado()->value();
-        $fechaHora = $traslado->getHoraSalidaEstimada() ?? '';
+
+        $fechasReales = [];
+        if ($historial !== null) {
+            foreach ($historial as $h) {
+                $fechasReales[$h->getEstadoNuevo()] = $h->getCreatedAt() ?? '';
+            }
+        }
+
+        $fechaEstimada = $traslado->getHoraSalidaEstimada() ?? '';
+
+        $fechaMap = [
+            'pendiente' => $fechaEstimada,
+            'en_curso' => $traslado->getHoraSalidaEfectiva() ?? $fechaEstimada,
+            'en_destino' => $traslado->getHoraLlegadaDestino() ?? '',
+            'en_retorno' => $traslado->getHoraInicioRetorno() ?? '',
+            'completado' => $traslado->getHoraLlegadaHospital() ?? '',
+        ];
 
         foreach ($estados as $e) {
             $completado = false;
@@ -527,20 +648,23 @@ class TrasladoController extends BaseController
                 }
             }
 
+            $fecha = $fechasReales[$e] ?? $fechaMap[$e];
+
             $timeline[] = [
                 'estado' => $e,
                 'completado' => $completado,
                 'activo' => $activo,
-                'fecha' => $completado ? $fechaHora : '',
+                'fecha' => $completado ? $fecha : '',
             ];
         }
 
         if ($actual === 'cancelado') {
+            $fechaCancel = $fechasReales['cancelado'] ?? $fechaEstimada;
             $timeline[] = [
                 'estado' => 'cancelado',
                 'completado' => true,
                 'activo' => true,
-                'fecha' => $fechaHora,
+                'fecha' => $fechaCancel,
             ];
         }
 

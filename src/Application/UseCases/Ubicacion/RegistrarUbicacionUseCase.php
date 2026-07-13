@@ -39,6 +39,8 @@ final class RegistrarUbicacionUseCase
             if ($traslado === null) {
                 throw new \InvalidArgumentException('Traslado no encontrado');
             }
+        } else {
+            $trasladoId = $this->findTrasladoActivo($conductorId);
         }
 
         $ubicacion = new UbicacionConductor(
@@ -66,5 +68,24 @@ final class RegistrarUbicacionUseCase
         ]);
 
         return ['success' => true];
+    }
+
+    private function findTrasladoActivo(int $conductorId): ?int
+    {
+        $estados = ['en_curso', 'en_destino', 'en_retorno'];
+        $traslados = $this->trasladoRepo->findAll(null, $conductorId);
+
+        foreach ($traslados as $t) {
+            if (in_array($t->getEstado()->value(), $estados, true)) {
+                return $t->getId();
+            }
+        }
+
+        $pendientes = $this->trasladoRepo->findAll('pendiente', $conductorId);
+        if (count($pendientes) > 0) {
+            return $pendientes[0]->getId();
+        }
+
+        return null;
     }
 }

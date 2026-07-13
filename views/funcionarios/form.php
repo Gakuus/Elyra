@@ -49,8 +49,11 @@ $f['documento_identidad'] = $f['documento_identidad'] ?? ($form['documento_ident
         </div>
         <div class="col-md-6 mb-3">
             <div class="form-group">
-                <label for="password" class="form-label"><?= $modo === 'crear' ? 'Contraseña *' : 'Nueva contraseña (dejar vacío para mantener)' ?></label>
-                <input type="password" id="password" name="password" class="form-input w-100" <?= $modo === 'crear' ? 'required' : '' ?> minlength="6" <?= $modo === 'crear' ? 'placeholder="Mínimo 6 caracteres"' : 'placeholder="Dejar vacío para mantener actual"' ?>>
+                <label for="password" class="form-label"><?= $modo === 'crear' ? 'Contraseña' : 'Nueva contraseña (dejar vacío para mantener)' ?></label>
+                <input type="password" id="password" name="password" class="form-input w-100" <?= $modo === 'crear' ? '' : '' ?> minlength="6" <?= $modo === 'crear' ? 'placeholder="Cédula por defecto (si no es admin)"' : 'placeholder="Dejar vacío para mantener actual"' ?>>
+                <?php if ($modo === 'crear'): ?>
+                    <small class="text-muted">Obligatoria para admin/superadmin. Para otros roles se usa la cédula por defecto.</small>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -60,8 +63,18 @@ $f['documento_identidad'] = $f['documento_identidad'] ?? ($form['documento_ident
             <div class="form-group">
                 <label for="rol" class="form-label">Rol *</label>
                 <select id="rol" name="rol" class="form-select w-100" required>
-                    <?php foreach ($roles as $r): ?>
-                        <option value="<?= $r ?>"<?= $f['rol'] === $r ? ' selected' : '' ?>><?= ucfirst($r) ?></option>
+                    <?php
+                    $rolLabels = [
+                        'superadmin' => 'Super Administrador',
+                        'admin' => 'Administrador',
+                        'medico' => 'Médico',
+                        'enfermero' => 'Enfermero/a',
+                        'tecnico' => 'Técnico',
+                        'recepcionista' => 'Recepcionista',
+                        'farmaceutico' => 'Farmacéutico',
+                    ];
+                    foreach ($roles as $r): ?>
+                        <option value="<?= $r ?>"<?= $f['rol'] === $r ? ' selected' : '' ?>><?= $rolLabels[$r] ?? ucfirst($r) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>

@@ -101,6 +101,12 @@ class Traslado
 
     public function setId(int $id): void { $this->id = $id; }
 
+    public function setHoraSalidaEfectiva(?string $value): void { $this->horaSalidaEfectiva = $value; }
+    public function setHoraLlegadaDestino(?string $value): void { $this->horaLlegadaDestino = $value; }
+    public function setHoraInicioRetorno(?string $value): void { $this->horaInicioRetorno = $value; }
+    public function setHoraLlegadaHospital(?string $value): void { $this->horaLlegadaHospital = $value; }
+    public function setObservaciones(?string $value): void { $this->observaciones = $value; }
+
     public function actualizarEstado(EstadoTraslado $nuevoEstado, ?string $motivo = null): void
     {
         if (!$this->estado->puedeTransicionarA($nuevoEstado)) {

@@ -48,47 +48,56 @@ final class RegistrarTrasladoUseCase
             throw new \InvalidArgumentException('Origen y destino deben ser distintos.');
         }
 
-        $codigo = $this->trasladoRepo->nextCodigo();
+        try {
+            $this->trasladoRepo->beginTransaction();
 
-        $traslado = new Traslado(
-            id: null,
-            codigo: $codigo,
-            conductorId: $input['conductorId'],
-            origen: $origen,
-            destino: $destino,
-            registradoPor: $input['registradoPor'],
-            copilotoId: $input['copilotoId'] ?? null,
-            vehiculoId: $input['vehiculoId'] ?? null,
-            rutaId: $input['rutaId'] ?? null,
-            horaSalidaEstimada: $input['horaSalidaEstimada'] ?? null,
-            observaciones: $input['observaciones'] ?? null,
-        );
+            $codigo = $this->trasladoRepo->nextCodigo();
 
-        $saved = $this->trasladoRepo->save($traslado);
-        $trasladoId = $saved->getId();
-
-        if ($trasladoId !== null) {
-            $historial = new HistorialEstado(
+            $traslado = new Traslado(
                 id: null,
-                trasladoId: $trasladoId,
-                estadoNuevo: 'pendiente',
-                actualizadoPor: $input['registradoPor'],
-                estadoAnterior: null,
-                observacion: 'Traslado registrado',
+                codigo: $codigo,
+                conductorId: $input['conductorId'],
+                origen: $origen,
+                destino: $destino,
+                registradoPor: $input['registradoPor'],
+                copilotoId: $input['copilotoId'] ?? null,
+                vehiculoId: $input['vehiculoId'] ?? null,
+                rutaId: $input['rutaId'] ?? null,
+                horaSalidaEstimada: $input['horaSalidaEstimada'] ?? null,
+                observaciones: $input['observaciones'] ?? null,
             );
-            $this->trasladoRepo->saveHistorial($historial);
 
-            foreach ($input['elementos'] ?? [] as $el) {
-                $elemento = new ElementoTraslado(
+            $saved = $this->trasladoRepo->save($traslado);
+            $trasladoId = $saved->getId();
+
+            if ($trasladoId !== null) {
+                $historial = new HistorialEstado(
                     id: null,
                     trasladoId: $trasladoId,
-                    tipo: new TipoElemento($el['tipo']),
-                    cantidad: $el['cantidad'] ?? 1,
-                    pacienteId: $el['pacienteId'] ?? null,
-                    descripcion: $el['descripcion'] ?? null,
+                    estadoNuevo: 'pendiente',
+                    actualizadoPor: $input['registradoPor'],
+                    estadoAnterior: null,
+                    observacion: 'Traslado registrado',
                 );
-                $this->trasladoRepo->saveElemento($elemento);
+                $this->trasladoRepo->saveHistorial($historial);
+
+                foreach ($input['elementos'] ?? [] as $el) {
+                    $elemento = new ElementoTraslado(
+                        id: null,
+                        trasladoId: $trasladoId,
+                        tipo: new TipoElemento($el['tipo']),
+                        cantidad: $el['cantidad'] ?? 1,
+                        pacienteId: $el['pacienteId'] ?? null,
+                        descripcion: $el['descripcion'] ?? null,
+                    );
+                    $this->trasladoRepo->saveElemento($elemento);
+                }
             }
+
+            $this->trasladoRepo->commit();
+        } catch (\Exception $e) {
+            $this->trasladoRepo->rollback();
+            throw $e;
         }
 
         return ['success' => true, 'trasladoId' => $trasladoId ?? 0, 'codigo' => $codigo];

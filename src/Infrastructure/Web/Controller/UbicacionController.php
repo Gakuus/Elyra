@@ -9,7 +9,9 @@ use Elyra\Application\UseCases\Ubicacion\ObtenerUbicacionesActivasUseCase;
 use Elyra\Application\UseCases\Ubicacion\RegistrarUbicacionUseCase;
 use Elyra\Infrastructure\Persistence\MySQL\TrasladoRepository;
 use Elyra\Infrastructure\Persistence\MySQL\UbicacionConductorRepository;
+use Elyra\Infrastructure\Persistence\MySQL\UsuarioRepository;
 use Elyra\Infrastructure\Service\LocationBroadcaster;
+use Elyra\Infrastructure\Service\RouteCacheService;
 use Elyra\Infrastructure\Service\SessionManager;
 
 class UbicacionController extends BaseController
@@ -64,6 +66,18 @@ class UbicacionController extends BaseController
             return;
         }
 
+        $userRole = SessionManager::getUserRole();
+        if ($userRole !== 'conductor' && $userRole !== 'admin' && $userRole !== 'superadmin') {
+            $this->json(['error' => 'Sin permisos para registrar ubicación'], 403);
+            return;
+        }
+
+        $gpsKey = 'gps:' . $userId;
+        if (!\Elyra\Infrastructure\Service\RateLimiter::checkGeneral($gpsKey, 60, 60)) {
+            $this->json(['error' => 'Demasiadas solicitudes. Intentá de nuevo en un minuto.'], 429);
+            return;
+        }
+
         $input = json_decode((string) file_get_contents('php://input'), true);
         if (!is_array($input)) {
             $this->json(['error' => 'Invalid JSON'], 400);
@@ -102,6 +116,7 @@ class UbicacionController extends BaseController
             ]);
 
             $this->json(['success' => true]);
+            \Elyra\Infrastructure\Service\RateLimiter::incrementGeneral($gpsKey, 60);
         } catch (\InvalidArgumentException $e) {
             $this->json(['error' => $e->getMessage()], 400);
         }
@@ -138,6 +153,7 @@ class UbicacionController extends BaseController
     public function historial(): void
     {
         $this->requireAuth();
+        $this->requireRole('admin', 'superadmin');
 
         /** @var mixed $rawConductorId */
         $rawConductorId = $_GET['conductor_id'] ?? '0';
@@ -207,5 +223,137 @@ class UbicacionController extends BaseController
         } finally {
             $broadcaster->removeListener($listenerPath);
         }
+    }
+
+    public function trasladosActivos(): void
+    {
+        $this->requireAuth();
+
+        $trasladoRepo = new TrasladoRepository();
+        $conductorRepo = new \Elyra\Infrastructure\Persistence\MySQL\ConductorRepository();
+        $usuarioRepo = new UsuarioRepository();
+        $ubicacionRepo = new UbicacionConductorRepository();
+
+        $estadosActivos = ['pendiente', 'en_curso', 'en_destino', 'en_retorno'];
+        $traslados = $trasladoRepo->findAllByEstados($estadosActivos);
+
+        $coordsMap = $this->getLocationCoords();
+
+        $copilotoCache = [];
+        $funcionarios = $usuarioRepo->findAllFuncionarios(true);
+        foreach ($funcionarios as $func) {
+            $funcId = $func->getId();
+            if ($funcId !== null) {
+                $copilotoCache[$funcId] = $func->getApellido() . ', ' . $func->getNombre();
+            }
+        }
+
+        $result = [];
+
+        foreach ($traslados as $t) {
+            $origenCoords = $coordsMap[$t->getOrigen()] ?? null;
+            $destinoCoords = $coordsMap[$t->getDestino()] ?? null;
+
+            if ($origenCoords === null && $t->getOrigenCoordenada() !== null) {
+                $origenCoords = [$t->getOrigenCoordenada()->latitud(), $t->getOrigenCoordenada()->longitud()];
+            }
+            if ($destinoCoords === null && $t->getDestinoCoordenada() !== null) {
+                $destinoCoords = [$t->getDestinoCoordenada()->latitud(), $t->getDestinoCoordenada()->longitud()];
+            }
+
+            $conductor = $conductorRepo->findById($t->getConductorId());
+            $conductorNombre = $conductor !== null
+                ? $conductor->getApellido() . ', ' . $conductor->getNombre()
+                : 'Conductor #' . $t->getConductorId();
+
+            $copilotoNombre = null;
+            $copilotoId = $t->getCopilotoId();
+            if ($copilotoId !== null) {
+                $copilotoNombre = $copilotoCache[$copilotoId] ?? null;
+            }
+
+            $ubicacion = $ubicacionRepo->findByConductorId($t->getConductorId());
+            $conductorLat = null;
+            $conductorLng = null;
+            if ($ubicacion !== null) {
+                $conductorLat = $ubicacion->getCoordenada()->latitud();
+                $conductorLng = $ubicacion->getCoordenada()->longitud();
+            }
+
+            $result[] = [
+                'id' => $t->getId(),
+                'codigo' => $t->getCodigo(),
+                'conductor_id' => $t->getConductorId(),
+                'conductor_nombre' => $conductorNombre,
+                'copiloto_nombre' => $copilotoNombre,
+                'estado' => $t->getEstado()->value(),
+                'origen' => $t->getOrigen(),
+                'destino' => $t->getDestino(),
+                'origen_lat' => $origenCoords !== null ? $origenCoords[0] : null,
+                'origen_lng' => $origenCoords !== null ? $origenCoords[1] : null,
+                'destino_lat' => $destinoCoords !== null ? $destinoCoords[0] : null,
+                'destino_lng' => $destinoCoords !== null ? $destinoCoords[1] : null,
+                'conductor_lat' => $conductorLat,
+                'conductor_lng' => $conductorLng,
+                'hora_salida' => $t->getHoraSalidaEstimada(),
+                'hora_llegada' => $t->getHoraLlegadaDestino(),
+            ];
+        }
+
+        $this->json($result);
+    }
+
+    /** @return array<string, array{float, float}> */
+    private function getLocationCoords(): array
+    {
+        return [
+            'Hospital de Clínicas - Emergencias' => [-34.9211, -56.1645],
+            'Hospital de Clínicas - Cardiología' => [-34.9215, -56.1648],
+            'Hospital de Clínicas - Cirugía' => [-34.9213, -56.1642],
+            'Hospital de Clínicas - Terapia Intensiva' => [-34.9208, -56.1640],
+            'Hospital de Clínicas - Nefrología' => [-34.9205, -56.1650],
+            'Hospital de Clínicas - Maternidad' => [-34.9218, -56.1652],
+            'Hospital de Clínicas - Pediatría' => [-34.9202, -56.1646],
+            'Hospital de Clínicas - Diagnóstico por Imágenes' => [-34.9209, -56.1638],
+            'Hospital de Clínicas - Quirófano' => [-34.9216, -56.1636],
+            'Clínica Privada - Centro' => [-34.9012, -56.1900],
+            'Sanatorio Español' => [-34.8950, -56.1720],
+        ];
+    }
+
+    public function rutaReal(): void
+    {
+        $this->requireAuth();
+
+        /** @var float|false|null $origenLat */
+        $origenLat = filter_input(INPUT_GET, 'origen_lat', FILTER_VALIDATE_FLOAT);
+        /** @var float|false|null $origenLng */
+        $origenLng = filter_input(INPUT_GET, 'origen_lng', FILTER_VALIDATE_FLOAT);
+        /** @var float|false|null $destinoLat */
+        $destinoLat = filter_input(INPUT_GET, 'destino_lat', FILTER_VALIDATE_FLOAT);
+        /** @var float|false|null $destinoLng */
+        $destinoLng = filter_input(INPUT_GET, 'destino_lng', FILTER_VALIDATE_FLOAT);
+
+        if ($origenLat === false || $origenLng === false || $destinoLat === false || $destinoLng === false
+            || $origenLat === null || $origenLng === null || $destinoLat === null || $destinoLng === null
+        ) {
+            $this->json(['error' => 'Coordenadas inválidas'], 400);
+            return;
+        }
+
+        $cache = new RouteCacheService();
+        $route = $cache->getRoute($origenLat, $origenLng, $destinoLat, $destinoLng);
+
+        if ($route === null) {
+            $this->json([
+                'coordinates' => [[$origenLat, $origenLng], [$destinoLat, $destinoLng]],
+                'distance_km' => 0,
+                'duration_min' => 0,
+                'fallback' => true,
+            ]);
+            return;
+        }
+
+        $this->json($route);
     }
 }

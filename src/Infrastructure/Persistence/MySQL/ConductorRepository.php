@@ -23,7 +23,7 @@ class ConductorRepository implements ConductorRepositoryInterface
             SELECT u.*, f.*
             FROM usuario u
             JOIN funcionario f ON f.id = u.id
-            WHERE u.id = ? AND f.rol = 'conductor'
+            WHERE u.id = ? AND f.rol IN ('conductor', 'copiloto')
         ");
         /** @var \PDOStatement $stmt */
         $stmt->execute([$id]);
@@ -35,14 +35,28 @@ class ConductorRepository implements ConductorRepositoryInterface
         return $this->hydrate($row);
     }
 
-    public function findAll(?bool $activo = null): array
+    public function findAll(?bool $activo = null, string $buscar = ''): array
     {
-        $sql = "SELECT u.*, f.* FROM usuario u JOIN funcionario f ON f.id = u.id WHERE f.rol = 'conductor'";
+        $sql = "SELECT u.*, f.* FROM usuario u JOIN funcionario f ON f.id = u.id WHERE f.rol IN ('conductor', 'copiloto')";
         $params = [];
 
         if ($activo !== null) {
             $sql .= " AND f.activo = ?";
             $params[] = $activo ? 1 : 0;
+        }
+
+        if ($buscar !== '') {
+            $buscarLower = strtolower($buscar);
+            $escaped = addcslashes($buscarLower, '%_');
+            $sql .= " AND (
+                LOWER(u.nombre) LIKE ? OR LOWER(u.apellido) LIKE ?
+                OR LOWER(f.username) LIKE ? OR u.documento_identidad LIKE ?
+            )";
+            $like = '%' . $escaped . '%';
+            $params[] = $like;
+            $params[] = $like;
+            $params[] = $like;
+            $params[] = $like;
         }
 
         $sql .= " ORDER BY u.apellido, u.nombre";
@@ -59,14 +73,14 @@ class ConductorRepository implements ConductorRepositoryInterface
     public function countTotal(): int
     {
         /** @var \PDOStatement $stmt */
-        $stmt = $this->pdo->query("SELECT COUNT(*) FROM funcionario WHERE rol = 'conductor'");
+        $stmt = $this->pdo->query("SELECT COUNT(*) FROM funcionario WHERE rol IN ('conductor', 'copiloto')");
         return (int) $stmt->fetchColumn();
     }
 
     public function countActivos(): int
     {
         /** @var \PDOStatement $stmt */
-        $stmt = $this->pdo->query("SELECT COUNT(*) FROM funcionario WHERE rol = 'conductor' AND activo = 1");
+        $stmt = $this->pdo->query("SELECT COUNT(*) FROM funcionario WHERE rol IN ('conductor', 'copiloto') AND activo = 1");
         return (int) $stmt->fetchColumn();
     }
 
@@ -77,7 +91,7 @@ class ConductorRepository implements ConductorRepositoryInterface
             SELECT u.*, f.*
             FROM usuario u
             JOIN funcionario f ON f.id = u.id
-            WHERE f.rol = 'conductor' AND f.activo = 1
+            WHERE f.rol IN ('conductor', 'copiloto') AND f.activo = 1
             ORDER BY u.apellido, u.nombre
         ");
         /** @var array<int, array<string, mixed>> $rows */
@@ -144,7 +158,7 @@ class ConductorRepository implements ConductorRepositoryInterface
 
         $stmt = $this->pdo->prepare("
             UPDATE funcionario SET username = ?, licencia = ?, telefono = ?, activo = ?
-            WHERE id = ? AND rol = 'conductor'
+            WHERE id = ? AND rol IN ('conductor', 'copiloto')
         ");
         /** @var \PDOStatement $stmt */
         $stmt->execute([
@@ -160,7 +174,7 @@ class ConductorRepository implements ConductorRepositoryInterface
     {
         $this->pdo->beginTransaction();
         try {
-            $this->pdo->prepare("DELETE FROM funcionario WHERE id = ? AND rol = 'conductor'")->execute([$id]);
+            $this->pdo->prepare("DELETE FROM funcionario WHERE id = ? AND rol IN ('conductor', 'copiloto')")->execute([$id]);
             $this->pdo->prepare("DELETE FROM usuario WHERE id = ?")->execute([$id]);
             $this->pdo->commit();
         } catch (\Exception $e) {

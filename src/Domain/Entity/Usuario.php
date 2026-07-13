@@ -107,6 +107,16 @@ class Usuario
         $this->email = $email;
     }
 
+    public function setNombre(string $nombre): void
+    {
+        $this->nombre = $nombre;
+    }
+
+    public function setApellido(string $apellido): void
+    {
+        $this->apellido = $apellido;
+    }
+
     public function setDocumentoIdentidad(?string $documentoIdentidad): void
     {
         $this->documentoIdentidad = $documentoIdentidad;

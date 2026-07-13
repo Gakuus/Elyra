@@ -100,7 +100,7 @@ $controllerClass = "Elyra\\Infrastructure\\Web\\Controller\\{$route['controller'
 if (!class_exists($controllerClass)) {
     http_response_code(500);
     if ($debug) {
-        echo "Controller {$controllerClass} no encontrado.";
+        echo htmlspecialchars("Controller {$controllerClass} no encontrado.", ENT_QUOTES, 'UTF-8');
     } else {
         $nonce = \Elyra\Infrastructure\Service\SessionManager::getNonce();
         require __DIR__ . '/../views/errors/500.php';
@@ -113,7 +113,7 @@ $controller = new $controllerClass();
 if (!method_exists($controller, $route['action'])) {
     http_response_code(500);
     if ($debug) {
-        echo "Método {$route['action']} no encontrado en {$route['controller']}.";
+        echo htmlspecialchars("Método {$route['action']} no encontrado en {$route['controller']}.", ENT_QUOTES, 'UTF-8');
     } else {
         $nonce = \Elyra\Infrastructure\Service\SessionManager::getNonce();
         require __DIR__ . '/../views/errors/500.php';

@@ -42,6 +42,12 @@ abstract class BaseController
         $this->requireAuth();
         $userRole = SessionManager::getUserRole();
         if (!in_array($userRole, $roles, true)) {
+            \Elyra\Infrastructure\Service\AuditLogger::log(
+                'access_denied',
+                'auth',
+                SessionManager::getUserId() !== null ? (string) SessionManager::getUserId() : null,
+                ['required_roles' => $roles, 'actual_role' => $userRole, 'uri' => $_SERVER['REQUEST_URI'] ?? ''],
+            );
             $this->redirect('/dashboard');
         }
     }

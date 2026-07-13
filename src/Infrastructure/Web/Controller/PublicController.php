@@ -102,9 +102,10 @@ class PublicController extends BaseController
         }
 
         $disposition = !empty($_GET['descargar']) ? 'attachment' : 'inline';
+        $safeFilename = preg_replace('/[\r\n"\\\\]/', '', $doc->getArchivoNombre());
 
         header('Content-Type: application/pdf');
-        header('Content-Disposition: ' . $disposition . '; filename="' . $doc->getArchivoNombre() . '"');
+        header('Content-Disposition: ' . $disposition . '; filename="' . $safeFilename . '"');
         header('Content-Length: ' . strlen($contenido));
         header('Cache-Control: public, max-age=3600');
         echo $contenido; // nosemgrep

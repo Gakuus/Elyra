@@ -79,7 +79,13 @@ final class ActualizarFuncionarioUseCase
             }
         }
 
+        $funcionario->setNombre($nombre);
+        $funcionario->setApellido($apellido);
         $funcionario->setUsername($username);
+        $funcionario->setEmail($input['email'] ?? null);
+        $funcionario->setDocumentoIdentidad($input['documentoIdentidad'] ?? null);
+        $funcionario->setLicencia($input['licencia'] ?? null);
+        $funcionario->setLicenciaConducir($input['licenciaConducir'] ?? null);
         $funcionario->setTelefono($input['telefono'] ?? null);
 
         $this->usuarioRepo->updateFuncionario($funcionario);

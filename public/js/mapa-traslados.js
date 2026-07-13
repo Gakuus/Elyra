@@ -2,28 +2,28 @@
     'use strict';
 
     var MONTEVIDEO = [-34.9011, -56.1645];
-    var HOSPITAL_CENTER = [-34.9211, -56.1645];
 
-    var hospitals = [
-        { nombre: 'Hospital de Clinicas - Emergencias', lat: -34.9211, lng: -56.1645 },
-        { nombre: 'Hospital de Clinicas - Cardiologia', lat: -34.9215, lng: -56.1648 },
-        { nombre: 'Hospital de Clinicas - Cirugia', lat: -34.9213, lng: -56.1642 },
-        { nombre: 'Hospital de Clinicas - Terapia Intensiva', lat: -34.9208, lng: -56.1640 },
-        { nombre: 'Hospital de Clinicas - Nefrologia', lat: -34.9205, lng: -56.1650 },
-        { nombre: 'Hospital de Clinicas - Maternidad', lat: -34.9218, lng: -56.1652 },
-        { nombre: 'Hospital de Clinicas - Pediatria', lat: -34.9202, lng: -56.1646 },
-        { nombre: 'Hospital de Clinicas - Diagnostico por Imagenes', lat: -34.9209, lng: -56.1638 },
-        { nombre: 'Hospital de Clinicas - Quirofano', lat: -34.9216, lng: -56.1636 },
-        { nombre: 'Clinica Privada - Centro', lat: -34.9012, lng: -56.1900 },
-        { nombre: 'Sanatorio Espanol', lat: -34.8950, lng: -56.1720 }
-    ];
+    function escapeHtml(str) {
+        if (!str) return '';
+        var div = document.createElement('div');
+        div.appendChild(document.createTextNode(String(str)));
+        return div.innerHTML;
+    }
 
     var estadoColores = {
+        pendiente: '#9E9E9E',
         en_curso: '#4CAF50',
-        en_retorno: '#2196F3',
         en_destino: '#FF9800',
-        pendiente: '#9E9E9E'
+        en_retorno: '#2196F3',
+        completado: '#4CAF50',
+        cancelado: '#f44336'
     };
+
+    var hospitals = [
+        { name: 'Hospital de Clínicas', lat: -34.9211, lng: -56.1645 },
+        { name: 'Clínica Privada - Centro', lat: -34.9012, lng: -56.1900 },
+        { name: 'Sanatorio Español', lat: -34.8950, lng: -56.1720 }
+    ];
 
     var map = L.map('map', {
         center: MONTEVIDEO,
@@ -36,25 +36,9 @@
         maxZoom: 19
     }).addTo(map);
 
-    var hospitalIcon = L.divIcon({
-        className: '',
-        html: '<div style="background:#E91E63;width:12px;height:12px;border-radius:2px;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,.3);"></div>',
-        iconSize: [12, 12],
-        iconAnchor: [6, 6]
-    });
-
-    var hospitalMarkers = [];
-    hospitals.forEach(function (h) {
-        var marker = L.marker([h.lat, h.lng], { icon: hospitalIcon }).addTo(map);
-        marker.bindPopup('<strong>' + h.nombre + '</strong>');
-        hospitalMarkers.push(marker);
-    });
-
-    var conductorMarkers = {};
-    var routeLines = {};
-    var polylineLayer = L.layerGroup().addTo(map);
-    var selectedConductor = null;
-
+    var hospitalsLayer = L.layerGroup().addTo(map);
+    var trasladosLayer = L.layerGroup().addTo(map);
+    var conductoresLayer = L.layerGroup().addTo(map);
     var sidebar = document.getElementById('sidebar');
     var sidebarToggle = document.getElementById('sidebarToggle');
     var listaTraslados = document.getElementById('listaTraslados');
@@ -63,6 +47,19 @@
 
     sidebarToggle.addEventListener('click', function () {
         sidebar.classList.toggle('collapsed');
+    });
+
+    hospitals.forEach(function (h) {
+        var icon = L.divIcon({
+            className: '',
+            html: '<div style="width:18px;height:18px;background:#E91E63;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;">' +
+                '<i class="bi bi-hospital" style="color:white;font-size:10px;"></i></div>',
+            iconSize: [18, 18],
+            iconAnchor: [9, 9]
+        });
+        L.marker([h.lat, h.lng], { icon: icon })
+            .bindPopup('<strong>' + escapeHtml(h.name) + '</strong>')
+            .addTo(hospitalsLayer);
     });
 
     function createConductorIcon(estado) {
@@ -76,58 +73,79 @@
         });
     }
 
-    function updateMarker(conductor) {
-        var id = conductor.conductor_id;
-        var latlng = [conductor.latitud, conductor.longitud];
-        var estado = conductor.traslado_estado || 'pendiente';
-
-        if (conductorMarkers[id]) {
-            conductorMarkers[id].setLatLng(latlng);
-            conductorMarkers[id].setIcon(createConductorIcon(estado));
-        } else {
-            var marker = L.marker(latlng, { icon: createConductorIcon(estado) }).addTo(map);
-            marker.bindPopup('', { maxWidth: 250 });
-            conductorMarkers[id] = marker;
-        }
-
-        var popupContent =
-            '<div class="popup-codigo">' + (conductor.traslado_codigo || 'Sin traslado') + '</div>' +
-            '<div class="popup-conductor">' + conductor.conductor_nombre + '</div>' +
-            '<div class="popup-route">' +
-            '<i class="bi bi-circle-fill" style="font-size:6px;color:#4CAF50;"></i> ' + (conductor.traslado_origen || '-') +
-            ' <i class="bi bi-arrow-right" style="font-size:10px;"></i> ' +
-            '<i class="bi bi-circle-fill" style="font-size:6px;color:#f44336;"></i> ' + (conductor.traslado_destino || '-') +
-            '</div>' +
-            (conductor.velocidad ? '<div style="font-size:0.8rem;color:#666;margin-top:4px;">' + conductor.velocidad.toFixed(1) + ' km/h</div>' : '');
-
-        conductorMarkers[id].setPopupContent(popupContent);
+    function createOrigenIcon() {
+        return L.divIcon({
+            className: '',
+            html: '<div style="width:14px;height:14px;background:#4CAF50;border-radius:50%;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.3);"></div>',
+            iconSize: [14, 14],
+            iconAnchor: [7, 7]
+        });
     }
 
-    function updateSidebar(ubicaciones) {
-        if (ubicaciones.length === 0) {
+    function createDestinoIcon() {
+        return L.divIcon({
+            className: '',
+            html: '<div style="width:14px;height:14px;background:#f44336;border-radius:50%;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.3);"></div>',
+            iconSize: [14, 14],
+            iconAnchor: [7, 7]
+        });
+    }
+
+    var conductorMarkers = {};
+    var allTraslados = [];
+    var routeCache = {};
+
+    function routeKey(oLat, oLng, dLat, dLng) {
+        return oLat.toFixed(5) + '_' + oLng.toFixed(5) + '_' + dLat.toFixed(5) + '_' + dLng.toFixed(5);
+    }
+
+    function fetchRoute(oLat, oLng, dLat, dLng) {
+        var key = routeKey(oLat, oLng, dLat, dLng);
+        if (routeCache[key]) {
+            return Promise.resolve(routeCache[key]);
+        }
+        var url = '/api/ruta/real?origen_lat=' + oLat + '&origen_lng=' + oLng +
+                  '&destino_lat=' + dLat + '&destino_lng=' + dLng;
+        return fetch(url)
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                routeCache[key] = data;
+                return data;
+            });
+    }
+
+    function updateSidebar(traslados) {
+        if (traslados.length === 0) {
             listaTraslados.innerHTML =
-                '<div class="mapa-empty"><i class="bi bi-geo-alt"></i>Sin conductores activos</div>';
-            countActivos.textContent = '0 conductores';
+                '<div class="mapa-empty"><i class="bi bi-geo-alt"></i>Sin traslados activos</div>';
+            countActivos.textContent = '0 traslados';
             return;
         }
 
-        countActivos.textContent = ubicaciones.length + ' conductor' + (ubicaciones.length !== 1 ? 'es' : '');
+        var enCurso = traslados.filter(function (t) {
+            return t.conductor_lat !== null;
+        }).length;
+
+        countActivos.textContent = traslados.length + ' traslado' + (traslados.length !== 1 ? 's' : '') +
+            (enCurso > 0 ? ' (' + enCurso + ' con GPS)' : '');
 
         var html = '';
-        ubicaciones.forEach(function (u) {
-            var isActive = selectedConductor === u.conductor_id;
-            var estadoBadge = u.traslado_estado
-                ? '<span class="badge badge-' + u.traslado_estado.replace('_', '-') + '">' + u.traslado_estado.replace('_', ' ') + '</span>'
+        traslados.forEach(function (t) {
+            var estadoBadge = '<span class="badge badge-' + t.estado.replace('_', '-') + '">' +
+                t.estado.replace('_', ' ') + '</span>';
+            var gpsIndicator = t.conductor_lat !== null
+                ? '<i class="bi bi-broadcast" style="color:#4CAF50;font-size:0.7rem;" title="GPS activo"></i> '
                 : '';
 
             html +=
-                '<div class="traslado-card' + (isActive ? ' active' : '') + '" data-conductor="' + u.conductor_id + '">' +
-                '<div class="codigo">' + (u.traslado_codigo || 'Sin asignar') + ' ' + estadoBadge + '</div>' +
-                '<div class="conductor">' + u.conductor_nombre + '</div>' +
+                '<div class="traslado-card" data-traslado="' + t.id + '">' +
+                '<div class="codigo">' + gpsIndicator + escapeHtml(t.codigo) + ' ' + estadoBadge + '</div>' +
+                '<div class="conductor">' + escapeHtml(t.conductor_nombre) +
+                (t.copiloto_nombre ? ' / ' + escapeHtml(t.copiloto_nombre) : '') + '</div>' +
                 '<div class="route">' +
-                '<i class="bi bi-circle-fill" style="font-size:5px;color:#4CAF50;"></i> ' + (u.traslado_origen || '-') +
+                '<i class="bi bi-circle-fill" style="font-size:5px;color:#4CAF50;"></i> ' + escapeHtml(t.origen) +
                 ' <i class="bi bi-arrow-right" style="font-size:9px;"></i> ' +
-                '<i class="bi bi-circle-fill" style="font-size:5px;color:#f44336;"></i> ' + (u.traslado_destino || '-') +
+                '<i class="bi bi-circle-fill" style="font-size:5px;color:#f44336;"></i> ' + escapeHtml(t.destino) +
                 '</div>' +
                 '</div>';
         });
@@ -137,107 +155,149 @@
         var cards = listaTraslados.querySelectorAll('.traslado-card');
         cards.forEach(function (card) {
             card.addEventListener('click', function () {
-                var cid = parseInt(this.getAttribute('data-conductor'), 10);
-                selectConductor(cid, ubicaciones);
+                var tid = parseInt(this.getAttribute('data-traslado'), 10);
+                selectTraslado(tid);
             });
         });
     }
 
-    function selectConductor(conductorId, ubicaciones) {
-        selectedConductor = conductorId;
-        updateSidebar(ubicaciones);
-
-        if (conductorMarkers[conductorId]) {
-            var marker = conductorMarkers[conductorId];
-            map.setView(marker.getLatLng(), 15, { animate: true });
-            marker.openPopup();
+    function selectTraslado(trasladoId) {
+        var markers = trasladosLayer.getLayers();
+        for (var i = 0; i < markers.length; i++) {
+            if (markers[i]._trasladoId === trasladoId) {
+                map.setView(markers[i].getLatLng(), 15, { animate: true });
+                markers[i].openPopup();
+                break;
+            }
         }
+
+        var cards = listaTraslados.querySelectorAll('.traslado-card');
+        cards.forEach(function (c) {
+            c.classList.toggle('active', parseInt(c.getAttribute('data-traslado'), 10) === trasladoId);
+        });
     }
 
-    function loadHistorial(conductorId, trasladoId) {
-        polylineLayer.clearLayers();
+    function renderTraslados(traslados) {
+        trasladosLayer.clearLayers();
 
-        var url = '/api/ubicaciones/historial?conductor_id=' + conductorId;
-        if (trasladoId) {
-            url += '&traslado_id=' + trasladoId;
-        }
+        traslados.forEach(function (t) {
+            if (t.origen_lat === null || t.origen_lng === null) return;
 
-        fetch(url)
+            var origenLatLng = [t.origen_lat, t.origen_lng];
+
+            var marker = L.marker(origenLatLng, { icon: createOrigenIcon() }).addTo(trasladosLayer);
+            marker._trasladoId = t.id;
+
+            var popupContent =
+                '<div class="popup-codigo">' + escapeHtml(t.codigo) + '</div>' +
+                '<div class="popup-conductor">' + escapeHtml(t.conductor_nombre) +
+                (t.copiloto_nombre ? ' / ' + escapeHtml(t.copiloto_nombre) : '') + '</div>' +
+                '<div class="popup-route">' +
+                '<i class="bi bi-circle-fill" style="font-size:6px;color:#4CAF50;"></i> ' + escapeHtml(t.origen) +
+                ' <i class="bi bi-arrow-right" style="font-size:10px;"></i> ' +
+                '<i class="bi bi-circle-fill" style="font-size:6px;color:#f44336;"></i> ' + escapeHtml(t.destino) +
+                '</div>' +
+                (t.hora_salida ? '<div style="font-size:0.8rem;color:#666;margin-top:4px;"><i class="bi bi-clock me-1"></i>' + escapeHtml(t.hora_salida) + '</div>' : '');
+
+            marker.bindPopup(popupContent, { maxWidth: 280 });
+
+            if (t.destino_lat !== null && t.destino_lng !== null) {
+                var destinoLatLng = [t.destino_lat, t.destino_lng];
+
+                L.marker(destinoLatLng, { icon: createDestinoIcon() })
+                    .bindPopup('<strong>Destino:</strong> ' + escapeHtml(t.destino))
+                    .addTo(trasladosLayer);
+
+                var color = estadoColores[t.estado] || '#9E9E9E';
+                (function (c, oLat, oLng, dLat, dLng) {
+                    fetchRoute(oLat, oLng, dLat, dLng)
+                        .then(function (result) {
+                            var coords = result.coordinates || [];
+                            if (coords.length < 2) return;
+                            L.polyline(coords, {
+                                color: c,
+                                weight: 4,
+                                opacity: 0.75
+                            }).addTo(trasladosLayer);
+                        });
+                })(color, t.origen_lat, t.origen_lng, t.destino_lat, t.destino_lng);
+            }
+        });
+    }
+
+    function renderConductores(ubicaciones) {
+        var existingIds = {};
+        ubicaciones.forEach(function (u) {
+            existingIds[u.conductor_id] = true;
+            var latlng = [u.latitud, u.longitud];
+            var estado = u.traslado_estado || 'pendiente';
+
+            if (conductorMarkers[u.conductor_id]) {
+                conductorMarkers[u.conductor_id].setLatLng(latlng);
+                conductorMarkers[u.conductor_id].setIcon(createConductorIcon(estado));
+            } else {
+                var m = L.marker(latlng, { icon: createConductorIcon(estado) }).addTo(conductoresLayer);
+                conductorMarkers[u.conductor_id] = m;
+            }
+
+            var popupContent =
+                '<div class="popup-codigo">' + escapeHtml(u.traslado_codigo || 'Sin traslado') + '</div>' +
+                '<div class="popup-conductor">' + escapeHtml(u.conductor_nombre) + '</div>' +
+                '<div class="popup-route">' +
+                '<i class="bi bi-circle-fill" style="font-size:6px;color:#4CAF50;"></i> ' + escapeHtml(u.traslado_origen || '-') +
+                ' <i class="bi bi-arrow-right" style="font-size:10px;"></i> ' +
+                '<i class="bi bi-circle-fill" style="font-size:6px;color:#f44336;"></i> ' + escapeHtml(u.traslado_destino || '-') +
+                '</div>' +
+                (u.velocidad ? '<div style="font-size:0.8rem;color:#666;margin-top:4px;">' + u.velocidad.toFixed(1) + ' km/h</div>' : '');
+
+            conductorMarkers[u.conductor_id].setPopupContent(popupContent);
+        });
+
+        Object.keys(conductorMarkers).forEach(function (id) {
+            var numId = parseInt(id, 10);
+            if (!existingIds[numId]) {
+                conductoresLayer.removeLayer(conductorMarkers[numId]);
+                delete conductorMarkers[numId];
+            }
+        });
+    }
+
+    function fetchTraslados() {
+        fetch('/api/traslados/activos')
             .then(function (r) { return r.json(); })
-            .then(function (puntos) {
-                if (puntos.length < 2) return;
-
-                var latlngs = puntos.map(function (p) { return [p.latitud, p.longitud]; });
-
-                var polyline = L.polyline(latlngs, {
-                    color: '#4CAF50',
-                    weight: 3,
-                    opacity: 0.7,
-                    dashArray: '8, 6'
-                }).addTo(polylineLayer);
-
-                if (latlngs.length > 1) {
-                    var startIcon = L.divIcon({
-                        className: '',
-                        html: '<div style="width:10px;height:10px;background:#4CAF50;border-radius:50%;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,.3);"></div>',
-                        iconSize: [10, 10],
-                        iconAnchor: [5, 5]
-                    });
-                    var endIcon = L.divIcon({
-                        className: '',
-                        html: '<div style="width:10px;height:10px;background:#f44336;border-radius:50%;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,.3);"></div>',
-                        iconSize: [10, 10],
-                        iconAnchor: [5, 5]
-                    });
-
-                    L.marker(latlngs[0], { icon: startIcon }).addTo(polylineLayer);
-                    L.marker(latlngs[latlngs.length - 1], { icon: endIcon }).addTo(polylineLayer);
-                }
+            .then(function (traslados) {
+                allTraslados = traslados;
+                renderTraslados(traslados);
+                updateSidebar(traslados);
+            })
+            .catch(function (err) {
+                console.error('Error fetching traslados:', err);
             });
     }
-
-    var ubicacionesCache = [];
 
     function fetchUbicaciones() {
         fetch('/api/ubicaciones/activas')
             .then(function (r) { return r.json(); })
             .then(function (ubicaciones) {
-                ubicacionesCache = ubicaciones;
-
-                var existingIds = {};
-                ubicaciones.forEach(function (u) {
-                    existingIds[u.conductor_id] = true;
-                    updateMarker(u);
-                });
-
-                Object.keys(conductorMarkers).forEach(function (id) {
-                    var numId = parseInt(id, 10);
-                    if (!existingIds[numId]) {
-                        map.removeLayer(conductorMarkers[numId]);
-                        delete conductorMarkers[numId];
-                    }
-                });
-
-                updateSidebar(ubicaciones);
+                renderConductores(ubicaciones);
             })
             .catch(function (err) {
                 console.error('Error fetching ubicaciones:', err);
             });
     }
 
-    function connectSSE() {
-        var statusText = 'Actualizando cada 5s';
-        statusEl.innerHTML = '<div class="pulse-dot"></div><span>' + statusText + '</span>';
+    var statusText = 'Actualizando cada 5s';
+    statusEl.innerHTML = '<div class="pulse-dot"></div><span>' + statusText + '</span>';
 
-        setInterval(function () {
-            statusEl.innerHTML = '<div class="pulse-dot"></div><span>Actualizando...</span>';
-            fetchUbicaciones();
-            setTimeout(function () {
-                statusEl.innerHTML = '<div class="pulse-dot"></div><span>' + statusText + '</span>';
-            }, 1000);
-        }, 5000);
-    }
-
+    fetchTraslados();
     fetchUbicaciones();
-    connectSSE();
+
+    setInterval(function () {
+        statusEl.innerHTML = '<div class="pulse-dot"></div><span>Actualizando...</span>';
+        fetchTraslados();
+        fetchUbicaciones();
+        setTimeout(function () {
+            statusEl.innerHTML = '<div class="pulse-dot"></div><span>' + statusText + '</span>';
+        }, 1000);
+    }, 5000);
 })();

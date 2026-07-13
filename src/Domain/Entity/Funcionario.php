@@ -83,6 +83,11 @@ class Funcionario extends Usuario
         $this->telefono = $telefono;
     }
 
+    public function setLicencia(?string $licencia): void
+    {
+        $this->licencia = $licencia;
+    }
+
     public function isActivo(): bool
     {
         return $this->activo;

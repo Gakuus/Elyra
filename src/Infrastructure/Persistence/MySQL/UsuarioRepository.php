@@ -361,10 +361,11 @@ class UsuarioRepository implements UsuarioRepositoryInterface
             SELECT u.*, f.*
             FROM usuario u
             JOIN funcionario f ON f.id = u.id
+            WHERE f.rol NOT IN ('conductor', 'copiloto')
         ";
         $params = [];
         if ($activo !== null) {
-            $sql .= " WHERE f.activo = ?";
+            $sql .= " AND f.activo = ?";
             $params[] = $activo ? 1 : 0;
         }
         $sql .= " ORDER BY u.apellido, u.nombre";

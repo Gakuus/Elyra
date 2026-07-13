@@ -8,12 +8,13 @@ final class LocationBroadcaster
 {
     private static ?self $instance = null;
     private string $eventDir;
+    private const MAX_LISTENERS = 50;
 
     private function __construct()
     {
         $this->eventDir = sys_get_temp_dir() . '/elyra_sse';
         if (!is_dir($this->eventDir)) {
-            @mkdir($this->eventDir, 0777, true);
+            @mkdir($this->eventDir, 0700, true);
         }
     }
 
@@ -53,6 +54,12 @@ final class LocationBroadcaster
 
     public function registerListener(): string
     {
+        $this->cleanStaleListeners();
+        $listeners = glob($this->eventDir . '/listener_*');
+        if ($listeners !== false && count($listeners) >= self::MAX_LISTENERS) {
+            throw new \RuntimeException('Demasiadas conexiones SSE activas.');
+        }
+
         $id = 'listener_' . getmypid() . '_' . mt_rand(10000, 99999);
         $path = $this->eventDir . '/' . $id;
         touch($path);

@@ -104,6 +104,27 @@ class TrasladoRepository implements TrasladoRepositoryInterface
         return array_map(fn (array $row) => $this->hydrate($row), $rows);
     }
 
+    /**
+     * @param list<string> $estados
+     * @return list<Traslado>
+     */
+    public function findAllByEstados(array $estados): array
+    {
+        if ($estados === []) {
+            return [];
+        }
+
+        $placeholders = implode(', ', array_fill(0, count($estados), '?'));
+        $sql = "SELECT * FROM traslado WHERE estado IN ({$placeholders}) ORDER BY created_at DESC";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($estados);
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $stmt->fetchAll();
+
+        /** @var list<Traslado> */
+        return array_map(fn (array $row) => $this->hydrate($row), $rows);
+    }
+
     public function count(?string $estado = null, ?int $conductorId = null): int
     {
         $sql = "SELECT COUNT(*) FROM traslado WHERE 1=1";
@@ -238,12 +259,24 @@ class TrasladoRepository implements TrasladoRepositoryInterface
 
     public function nextCodigo(): string
     {
-        /** @var \PDOStatement $stmt */
-        $stmt = $this->pdo->query("SELECT MAX(id) FROM traslado");
-        $maxId = (int) $stmt->fetchColumn();
         $year = date('y');
-        $secuencial = str_pad((string)($maxId + 1), 3, '0', STR_PAD_LEFT);
-        return "TR-{$year}{$secuencial}";
+        $prefix = "TR-{$year}";
+
+        /** @var \PDOStatement $stmt */
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM traslado WHERE codigo LIKE ?");
+        $stmt->execute([$prefix . '%']);
+        $count = (int) $stmt->fetchColumn();
+
+        $secuencial = str_pad((string)($count + 1), 3, '0', STR_PAD_LEFT);
+        $codigo = "{$prefix}{$secuencial}";
+
+        $check = $this->findByCodigo($codigo);
+        if ($check !== null) {
+            $secuencial = str_pad((string)($count + 2), 3, '0', STR_PAD_LEFT);
+            $codigo = "{$prefix}{$secuencial}";
+        }
+
+        return $codigo;
     }
 
     public function delete(int $id): void
@@ -251,13 +284,28 @@ class TrasladoRepository implements TrasladoRepositoryInterface
         $this->pdo->beginTransaction();
         try {
             $this->pdo->prepare("DELETE FROM elemento_traslado WHERE traslado_id = ?")->execute([$id]);
-            $this->pdo->prepare("DELETE FROM historial_estado WHERE traslado_id = ?")->execute([$id]);
+            $this->pdo->prepare("UPDATE historial_estado SET traslado_id = NULL WHERE traslado_id = ?")->execute([$id]);
             $this->pdo->prepare("DELETE FROM traslado WHERE id = ?")->execute([$id]);
             $this->pdo->commit();
         } catch (\Exception $e) {
             $this->pdo->rollBack();
             throw $e;
         }
+    }
+
+    public function beginTransaction(): void
+    {
+        $this->pdo->beginTransaction();
+    }
+
+    public function commit(): void
+    {
+        $this->pdo->commit();
+    }
+
+    public function rollback(): void
+    {
+        $this->pdo->rollBack();
     }
 
     /** @param array<string, mixed> $row */

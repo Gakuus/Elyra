@@ -45,7 +45,6 @@ final class ResponderEncuestaUseCase
         }
 
         $respondidas = [];
-        $guardadas = 0;
 
         foreach ($input['respuestas'] as $r) {
             $preguntaId = $r['preguntaId'];
@@ -55,6 +54,19 @@ final class ResponderEncuestaUseCase
 
             unset($requeridas[$preguntaId]);
             $respondidas[$preguntaId] = true;
+        }
+
+        if (!empty($requeridas)) {
+            throw new \InvalidArgumentException('Faltan preguntas requeridas por responder.');
+        }
+
+        $guardadas = 0;
+
+        foreach ($input['respuestas'] as $r) {
+            $preguntaId = $r['preguntaId'];
+            if (!in_array($preguntaId, $preguntaIds, true)) {
+                continue;
+            }
 
             $respuesta = new Respuesta(
                 id: null,
@@ -69,10 +81,6 @@ final class ResponderEncuestaUseCase
 
             $this->encuestaRepo->saveRespuesta($respuesta);
             $guardadas++;
-        }
-
-        if (!empty($requeridas)) {
-            throw new \InvalidArgumentException('Faltan preguntas requeridas por responder.');
         }
 
         return ['success' => true, 'guardadas' => $guardadas];

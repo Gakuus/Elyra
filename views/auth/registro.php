@@ -61,16 +61,17 @@
                     <div class="form-group w-100">
                         <label for="password" class="form-label">Contraseña <span class="text-danger">*</span></label>
                         <div class="d-flex align-items-center gap-1">
-                            <input type="password" id="password" name="password" class="form-input w-100" required minlength="6" placeholder="Mín. 6 caracteres">
+                            <input type="password" id="password" name="password" class="form-input w-100" required minlength="8" placeholder="Mín. 8 caracteres">
                             <button type="button" class="btn btn-sm btn-toggle-pw" tabindex="-1" onclick="togglePw('password', 'pwIcon')" style="flex-shrink:0;">
                                 <i class="bi bi-eye-slash" id="pwIcon"></i>
                             </button>
                         </div>
+                        <small class="text-muted">Recomendá usar mayúsculas, números y símbolos para mayor seguridad.</small>
                     </div>
                     <div class="form-group w-100">
                         <label for="password2" class="form-label">Repetir contraseña <span class="text-danger">*</span></label>
                         <div class="d-flex align-items-center gap-1">
-                            <input type="password" id="password2" name="password2" class="form-input w-100" required minlength="6" placeholder="Repetir contraseña">
+                            <input type="password" id="password2" name="password2" class="form-input w-100" required minlength="8" placeholder="Repetir contraseña">
                             <button type="button" class="btn btn-sm btn-toggle-pw" tabindex="-1" onclick="togglePw('password2', 'pwIcon2')" style="flex-shrink:0;">
                                 <i class="bi bi-eye-slash" id="pwIcon2"></i>
                             </button>

@@ -6,6 +6,7 @@ namespace Elyra\Infrastructure\Web\Controller;
 
 use Elyra\Application\UseCases\Auth\EjecutarResetPasswordUseCase;
 use Elyra\Application\UseCases\Auth\SolicitarResetPasswordUseCase;
+use Elyra\Domain\Entity\Funcionario;
 use Elyra\Domain\Entity\Paciente;
 use Elyra\Infrastructure\Persistence\MySQL\UsuarioRepository;
 use Elyra\Infrastructure\Service\AuthService;
@@ -55,9 +56,17 @@ class AuthController extends BaseController
         $result = $this->authService->login($username, $password);
 
         if ($result['success']) {
+            $user = $result['user'] ?? null;
+            $rol = $user instanceof \Elyra\Domain\Entity\Funcionario ? $user->getRol()->value() : 'paciente';
+            \Elyra\Infrastructure\Service\AuditLogger::logLogin(
+                SessionManager::getUserId() ?? 0,
+                $rol,
+                $username,
+            );
             $this->redirect('/dashboard');
         }
 
+        \Elyra\Infrastructure\Service\AuditLogger::log('login_failed', 'auth', null, ['username' => $username, 'reason' => $result['error'] ?? '']);
         $this->render('auth/login', ['error' => $result['error'] ?? '']);
     }
 
@@ -129,7 +138,7 @@ class AuthController extends BaseController
           ->maxLength('username', $username, 50, 'Usuario')
            ->maxLength('telefono', $telefono, 9, 'Teléfono')
            ->required('password', $password, 'Contraseña')
-           ->minLength('password', $password, 6, 'Contraseña');
+           ->minLength('password', $password, 8, 'Contraseña');
 
         if ($password !== $password2) {
             $v->required('password2', null, 'Repetir contraseña');
@@ -175,6 +184,11 @@ class AuthController extends BaseController
             $this->usuarioRepo->savePaciente($paciente);
             $userId = $paciente->getId();
             ErrorHandler::log('INFO', "Registro exitoso: username '{$username}', IP: {$ip}");
+            \Elyra\Infrastructure\Service\AuditLogger::logCreate(
+                'paciente',
+                $userId !== null ? (string) $userId : null,
+                ['username' => $username],
+            );
             SessionManager::login($userId !== null ? $userId : 0, 'paciente', $paciente->getNombreCompleto());
             $this->redirect('/dashboard');
         } catch (\Exception $e) {
@@ -185,6 +199,7 @@ class AuthController extends BaseController
 
     public function logout(): void
     {
+        \Elyra\Infrastructure\Service\AuditLogger::logLogout();
         $this->authService->logout();
         $this->redirect('/');
     }

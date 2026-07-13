@@ -16,7 +16,7 @@
     <?php if (isset($error)): ?>
         <div class="msg msg-error d-flex align-items-center gap-2">
             <i class="bi bi-exclamation-triangle-fill"></i>
-            <span><?= $error ?></span>
+            <span><?= htmlspecialchars($error) ?></span>
         </div>
     <?php endif; ?>
 

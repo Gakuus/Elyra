@@ -189,7 +189,7 @@ var TRACKING_CONFIG = {
     conductorId: <?= (int) $conductor_id ?>,
     csrfToken: '<?= htmlspecialchars(\Elyra\Infrastructure\Service\SessionManager::getCsrfToken()) ?>',
     intervalMs: 5000,
-    ubicacionActual: <?= json_encode($ubicacion_actual, JSON_UNESCAPED_UNICODE) ?>
+    ubicacionActual: <?= json_encode($ubicacion_actual, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
 };
 </script>
 <script nonce="<?= $nonce ?>" src="/js/tracking-conductor.js?v=1"></script>

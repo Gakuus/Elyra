@@ -88,6 +88,7 @@ class DocumentoController extends BaseController
     {
         $this->requireAuth();
         $this->denyPaciente();
+        $this->requireRole('admin', 'superadmin');
 
         /** @var string $searchRaw */
         $searchRaw = $_GET['q'] ?? '';
@@ -120,6 +121,7 @@ class DocumentoController extends BaseController
     {
         $this->requireAuth();
         $this->denyPaciente();
+        $this->requireRole('admin', 'superadmin');
 
         /** @var string $ciRaw */
         $ciRaw = $_GET['ci'] ?? '';
@@ -175,6 +177,7 @@ class DocumentoController extends BaseController
     {
         $this->requireAuth();
         $this->denyPaciente();
+        $this->requireRole('admin', 'superadmin');
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->handleUpload();
@@ -248,6 +251,7 @@ class DocumentoController extends BaseController
             return;
         }
 
+        \Elyra\Infrastructure\Service\AuditLogger::logCreate('documento', null, ['titulo' => $tituloPost]);
         if ($isJson) {
             $this->json(['success' => true, 'redirect' => '/documentos/generales']);
         } else {
@@ -259,6 +263,7 @@ class DocumentoController extends BaseController
     {
         $this->requireAuth();
         $this->denyPaciente();
+        $this->requireRole('admin', 'superadmin');
 
         /** @var string $idRaw */
         $idRaw = $_GET['id'] ?? $_POST['id'] ?? '0';
@@ -340,9 +345,10 @@ class DocumentoController extends BaseController
     {
         $this->requireAuth();
         $this->denyPaciente();
+        $this->requireRole('admin', 'superadmin');
 
         /** @var string $idRaw */
-        $idRaw = $_GET['id'] ?? '0';
+        $idRaw = $_POST['id'] ?? $_GET['id'] ?? '0';
         $id = (int) $idRaw;
         if ($id <= 0) {
             $this->redirect('/documentos/generales');
@@ -355,6 +361,7 @@ class DocumentoController extends BaseController
             // silently ignore
         }
 
+        \Elyra\Infrastructure\Service\AuditLogger::logDelete('documento', (string) $id);
         $this->redirect('/documentos/generales?eliminado=1');
     }
 
@@ -423,9 +430,10 @@ class DocumentoController extends BaseController
         }
 
         $disposition = !empty($_GET['descargar']) ? 'attachment' : 'inline';
+        $safeFilename = preg_replace('/[\r\n"\\\\]/', '', $doc->getArchivoNombre());
 
         header('Content-Type: application/pdf');
-        header('Content-Disposition: ' . $disposition . '; filename="' . $doc->getArchivoNombre() . '"');
+        header('Content-Disposition: ' . $disposition . '; filename="' . $safeFilename . '"');
         header('Content-Length: ' . strlen($contenido));
         header('Cache-Control: private, max-age=3600');
         echo $contenido; // nosemgrep

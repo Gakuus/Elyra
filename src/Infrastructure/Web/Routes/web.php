@@ -8,7 +8,7 @@ return [
     ['method' => 'POST', 'pattern' => '/login',               'controller' => 'AuthController',      'action' => 'doLogin'],
     ['method' => 'GET',  'pattern' => '/registro',            'controller' => 'AuthController',      'action' => 'registro'],
     ['method' => 'POST', 'pattern' => '/registro',            'controller' => 'AuthController',      'action' => 'doRegistro'],
-    ['method' => 'GET',  'pattern' => '/logout',              'controller' => 'AuthController',      'action' => 'logout'],
+    ['method' => 'POST', 'pattern' => '/logout',              'controller' => 'AuthController',      'action' => 'logout'],
     ['method' => 'GET',  'pattern' => '/recuperar-contrasena', 'controller' => 'AuthController',      'action' => 'solicitarResetPassword'],
     ['method' => 'POST', 'pattern' => '/recuperar-contrasena', 'controller' => 'AuthController',      'action' => 'solicitarResetPassword'],
     ['method' => 'GET',  'pattern' => '/restablecer-contrasena', 'controller' => 'AuthController',    'action' => 'resetPassword'],
@@ -53,6 +53,8 @@ return [
     ['method' => 'GET',  'pattern' => '/api/ubicaciones/activas',   'controller' => 'UbicacionController', 'action' => 'activas'],
     ['method' => 'GET',  'pattern' => '/api/ubicaciones/historial', 'controller' => 'UbicacionController', 'action' => 'historial'],
     ['method' => 'GET',  'pattern' => '/api/ubicaciones/stream',    'controller' => 'UbicacionController', 'action' => 'eventStream'],
+    ['method' => 'GET',  'pattern' => '/api/traslados/activos',     'controller' => 'UbicacionController', 'action' => 'trasladosActivos'],
+    ['method' => 'GET',  'pattern' => '/api/ruta/real',              'controller' => 'UbicacionController', 'action' => 'rutaReal'],
 
     ['method' => 'GET',  'pattern' => '/api/catalogo',              'controller' => 'TrasladoController',  'action' => 'apiCatalogo'],
     ['method' => 'GET',  'pattern' => '/api/pacientes',             'controller' => 'TrasladoController',  'action' => 'apiPacientes'],
@@ -62,6 +64,10 @@ return [
     ['method' => 'GET',  'pattern' => '/conductores',           'controller' => 'ConductorController', 'action' => 'index'],
     ['method' => 'GET',  'pattern' => '/conductores/crear',     'controller' => 'ConductorController', 'action' => 'crear'],
     ['method' => 'POST', 'pattern' => '/conductores/crear',     'controller' => 'ConductorController', 'action' => 'guardar'],
+    ['method' => 'GET',  'pattern' => '/conductores/editar',    'controller' => 'ConductorController', 'action' => 'editar'],
+    ['method' => 'POST', 'pattern' => '/conductores/editar',    'controller' => 'ConductorController', 'action' => 'editar'],
+    ['method' => 'POST', 'pattern' => '/conductores/desactivar', 'controller' => 'ConductorController', 'action' => 'desactivar'],
+    ['method' => 'POST', 'pattern' => '/conductores/reactivar',  'controller' => 'ConductorController', 'action' => 'reactivar'],
 
     ['method' => 'GET',  'pattern' => '/rutas',                'controller' => 'RutaController', 'action' => 'index'],
     ['method' => 'GET',  'pattern' => '/rutas/crear',          'controller' => 'RutaController', 'action' => 'crear'],
@@ -73,6 +79,10 @@ return [
     ['method' => 'GET',  'pattern' => '/funcionarios/editar',       'controller' => 'FuncionarioController', 'action' => 'editar'],
     ['method' => 'POST', 'pattern' => '/funcionarios/editar',       'controller' => 'FuncionarioController', 'action' => 'editar'],
     ['method' => 'POST', 'pattern' => '/funcionarios/desactivar',   'controller' => 'FuncionarioController', 'action' => 'desactivar'],
+    ['method' => 'POST', 'pattern' => '/funcionarios/reactivar',    'controller' => 'FuncionarioController', 'action' => 'reactivar'],
+
+    ['method' => 'GET',  'pattern' => '/pacientes/editar',     'controller' => 'PacienteController', 'action' => 'editar'],
+    ['method' => 'POST', 'pattern' => '/pacientes/editar',     'controller' => 'PacienteController', 'action' => 'editar'],
 
     ['method' => 'GET',  'pattern' => '/noticias',             'controller' => 'NoticiaController', 'action' => 'index'],
     ['method' => 'GET',  'pattern' => '/noticias/crear',       'controller' => 'NoticiaController', 'action' => 'crear'],

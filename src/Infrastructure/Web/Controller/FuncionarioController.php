@@ -7,8 +7,10 @@ namespace Elyra\Infrastructure\Web\Controller;
 use Elyra\Application\UseCases\Auth\ActualizarFuncionarioUseCase;
 use Elyra\Application\UseCases\Auth\CrearFuncionarioUseCase;
 use Elyra\Application\UseCases\Auth\DesactivarFuncionarioUseCase;
+use Elyra\Application\UseCases\Auth\ReactivarFuncionarioUseCase;
 use Elyra\Application\UseCases\Auth\ListarFuncionariosUseCase;
 use Elyra\Domain\Entity\Funcionario;
+use Elyra\Domain\Entity\Paciente;
 use Elyra\Domain\ValueObject\CategoriaLicenciaConducir;
 use Elyra\Domain\ValueObject\LicenciaProfesional;
 use Elyra\Infrastructure\Persistence\MySQL\UsuarioRepository;
@@ -20,14 +22,17 @@ class FuncionarioController extends BaseController
     private CrearFuncionarioUseCase $crearFuncionario;
     private ActualizarFuncionarioUseCase $actualizarFuncionario;
     private DesactivarFuncionarioUseCase $desactivarFuncionario;
+    private ReactivarFuncionarioUseCase $reactivarFuncionario;
+    private UsuarioRepository $usuarioRepo;
 
     public function __construct()
     {
-        $repo = new UsuarioRepository();
-        $this->listarFuncionarios = new ListarFuncionariosUseCase($repo);
-        $this->crearFuncionario = new CrearFuncionarioUseCase($repo);
-        $this->actualizarFuncionario = new ActualizarFuncionarioUseCase($repo);
-        $this->desactivarFuncionario = new DesactivarFuncionarioUseCase($repo);
+        $this->usuarioRepo = new UsuarioRepository();
+        $this->listarFuncionarios = new ListarFuncionariosUseCase($this->usuarioRepo);
+        $this->crearFuncionario = new CrearFuncionarioUseCase($this->usuarioRepo);
+        $this->actualizarFuncionario = new ActualizarFuncionarioUseCase($this->usuarioRepo);
+        $this->desactivarFuncionario = new DesactivarFuncionarioUseCase($this->usuarioRepo);
+        $this->reactivarFuncionario = new ReactivarFuncionarioUseCase($this->usuarioRepo);
     }
 
     public function index(): void
@@ -45,22 +50,8 @@ class FuncionarioController extends BaseController
             'activo' => $activo,
         ]);
 
-        $funcionarios = array_map(fn(Funcionario $f) => [
-            'id' => $f->getId(),
-            'nombre' => $f->getNombre(),
-            'apellido' => $f->getApellido(),
-            'username' => $f->getUsername() ?? '',
-            'email' => $f->getEmail() ?? '',
-            'rol' => $f->getRol()->value(),
-            'rol_label' => ucfirst($f->getRol()->value()),
-            'licencia' => $f->getLicencia() ?? '',
-            'licencia_conducir' => $f->getLicenciaConducir() ?? '',
-            'telefono' => $f->getTelefono() ?? '',
-            'activo' => $f->isActivo(),
-        ], $result['funcionarios']);
-
         $this->render('funcionarios/index', [
-            'funcionarios' => $funcionarios,
+            'funcionarios' => $result['items'],
             'total' => $result['total'],
             'activos' => $result['activos'],
             'inactivos' => $result['inactivos'],
@@ -80,7 +71,7 @@ class FuncionarioController extends BaseController
 
         $this->render('funcionarios/form', [
             'modo' => 'crear',
-            'roles' => \Elyra\Domain\ValueObject\RolUsuario::valores(),
+            'roles' => \Elyra\Domain\ValueObject\RolUsuario::valoresFuncionarios(),
             'licencias' => LicenciaProfesional::obtenerTodas(),
             'categoriasLicenciaConducir' => CategoriaLicenciaConducir::todas(),
         ]);
@@ -96,7 +87,7 @@ class FuncionarioController extends BaseController
         if ($csrf !== $csrfSession) {
             $this->render('funcionarios/form', [
                 'modo' => 'crear',
-                'roles' => \Elyra\Domain\ValueObject\RolUsuario::valores(),
+                'roles' => \Elyra\Domain\ValueObject\RolUsuario::valoresFuncionarios(),
                 'licencias' => LicenciaProfesional::obtenerTodas(),
                 'categoriasLicenciaConducir' => CategoriaLicenciaConducir::todas(),
                 'error' => 'Sesi&oacute;n inv&aacute;lida.',
@@ -141,7 +132,7 @@ class FuncionarioController extends BaseController
         } catch (\InvalidArgumentException | \DomainException $e) {
             $this->render('funcionarios/form', [
                 'modo' => 'crear',
-                'roles' => \Elyra\Domain\ValueObject\RolUsuario::valores(),
+                'roles' => \Elyra\Domain\ValueObject\RolUsuario::valoresFuncionarios(),
                 'licencias' => LicenciaProfesional::obtenerTodas(),
                 'categoriasLicenciaConducir' => CategoriaLicenciaConducir::todas(),
                 'error' => $e->getMessage(),
@@ -150,6 +141,7 @@ class FuncionarioController extends BaseController
             return;
         }
 
+        \Elyra\Infrastructure\Service\AuditLogger::logCreate('funcionario', null, ['username' => $username, 'rol' => $rol]);
         $this->redirect('/funcionarios?creado=1');
     }
 
@@ -183,7 +175,7 @@ class FuncionarioController extends BaseController
 
         $this->render('funcionarios/form', [
             'modo' => 'editar',
-            'roles' => \Elyra\Domain\ValueObject\RolUsuario::valores(),
+            'roles' => \Elyra\Domain\ValueObject\RolUsuario::valoresFuncionarios(),
             'licencias' => LicenciaProfesional::obtenerTodas(),
             'categoriasLicenciaConducir' => CategoriaLicenciaConducir::todas(),
             'funcionario' => [
@@ -257,6 +249,7 @@ class FuncionarioController extends BaseController
             return;
         }
 
+        \Elyra\Infrastructure\Service\AuditLogger::logUpdate('funcionario', (string) $id, ['username' => $username]);
         $this->redirect('/funcionarios?actualizado=1');
     }
 
@@ -289,12 +282,76 @@ class FuncionarioController extends BaseController
         }
 
         try {
-            $this->desactivarFuncionario->execute(['id' => $id]);
+            $usuario = $this->usuarioRepo->findById($id);
+            if ($usuario === null) {
+                $this->redirect('/funcionarios');
+                return;
+            }
+            if ($usuario->getTipo() === 'paciente') {
+                /** @var \Elyra\Domain\Entity\Paciente $paciente */
+                $paciente = $usuario;
+                $paciente->setActivo(false);
+                $this->usuarioRepo->updatePaciente($paciente);
+            } else {
+                $this->desactivarFuncionario->execute(['id' => $id]);
+            }
         } catch (\InvalidArgumentException $e) {
             $this->redirect('/funcionarios?error=' . urlencode($e->getMessage()));
             return;
         }
 
+        \Elyra\Infrastructure\Service\AuditLogger::logUpdate('funcionario', (string) $id, ['accion' => 'desactivar']);
         $this->redirect('/funcionarios?desactivado=1');
+    }
+
+    public function reactivar(): void
+    {
+        $this->requireRole('admin', 'superadmin');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('/funcionarios');
+            return;
+        }
+
+        /** @var string $csrfTokenRaw */
+        $csrfTokenRaw = $_POST['_csrf_token'] ?? '';
+        $csrf = trim($csrfTokenRaw);
+        /** @var string $csrfSession */
+        $csrfSession = $_SESSION['_csrf_token'] ?? '';
+        if ($csrf !== $csrfSession) {
+            $this->redirect('/funcionarios?error=csrf');
+            return;
+        }
+
+        /** @var string $idRaw */
+        $idRaw = $_POST['id'] ?? '0';
+        $id = (int) $idRaw;
+
+        if ($id <= 0) {
+            $this->redirect('/funcionarios');
+            return;
+        }
+
+        try {
+            $usuario = $this->usuarioRepo->findById($id);
+            if ($usuario === null) {
+                $this->redirect('/funcionarios');
+                return;
+            }
+            if ($usuario->getTipo() === 'paciente') {
+                /** @var \Elyra\Domain\Entity\Paciente $paciente */
+                $paciente = $usuario;
+                $paciente->setActivo(true);
+                $this->usuarioRepo->updatePaciente($paciente);
+            } else {
+                $this->reactivarFuncionario->execute(['id' => $id]);
+            }
+        } catch (\InvalidArgumentException $e) {
+            $this->redirect('/funcionarios?error=' . urlencode($e->getMessage()));
+            return;
+        }
+
+        \Elyra\Infrastructure\Service\AuditLogger::logUpdate('funcionario', (string) $id, ['accion' => 'reactivar']);
+        $this->redirect('/funcionarios?reactivado=1');
     }
 }

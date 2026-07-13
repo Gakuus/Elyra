@@ -20,7 +20,7 @@ final class CrearFuncionarioUseCase
      *     nombre: string,
      *     apellido: string,
      *     username: string,
-     *     password: string,
+     *     password?: string,
      *     rol: string,
      *     email?: string,
      *     documentoIdentidad?: string,
@@ -36,7 +36,7 @@ final class CrearFuncionarioUseCase
         $nombre = trim($input['nombre']);
         $apellido = trim($input['apellido']);
         $username = trim($input['username']);
-        $password = $input['password'];
+        $password = trim($input['password'] ?? '');
         $rol = trim($input['rol']);
 
         if (strlen($nombre) < 2) {
@@ -48,11 +48,28 @@ final class CrearFuncionarioUseCase
         if (strlen($username) < 3) {
             throw new \InvalidArgumentException('El usuario debe tener al menos 3 caracteres.');
         }
-        if (strlen($password) < 6) {
-            throw new \InvalidArgumentException('La contraseña debe tener al menos 6 caracteres.');
-        }
 
         $rolVo = new RolUsuario($rol);
+        $esAdmin = in_array($rol, ['admin', 'superadmin'], true);
+
+        if ($esAdmin) {
+            if ($password === '') {
+                throw new \InvalidArgumentException('La contraseña es obligatoria para admins y superadmins.');
+            }
+            if (strlen($password) < 6) {
+                throw new \InvalidArgumentException('La contraseña debe tener al menos 6 caracteres.');
+            }
+        } else {
+            $documento = $input['documentoIdentidad'] ?? '';
+            if ($password === '') {
+                if ($documento === '' || preg_match('/^\d{8}$/', $documento) !== 1) {
+                    throw new \InvalidArgumentException('La cédula es obligatoria (8 dígitos) para usar como contraseña por defecto.');
+                }
+                $password = $documento;
+            } elseif (strlen($password) < 6) {
+                throw new \InvalidArgumentException('La contraseña debe tener al menos 6 caracteres.');
+            }
+        }
 
         if (!empty($input['email']) && !filter_var($input['email'], FILTER_VALIDATE_EMAIL)) {
             throw new \InvalidArgumentException('El email no es válido.');

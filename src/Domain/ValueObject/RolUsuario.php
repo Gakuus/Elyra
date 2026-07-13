@@ -6,7 +6,17 @@ namespace Elyra\Domain\ValueObject;
 
 class RolUsuario
 {
-    private const VALIDOS = ['admin', 'superadmin', 'conductor', 'copiloto'];
+    private const VALIDOS = [
+        'superadmin',
+        'admin',
+        'medico',
+        'enfermero',
+        'tecnico',
+        'recepcionista',
+        'farmaceutico',
+        'conductor',
+        'copiloto',
+    ];
 
     private string $value;
 
@@ -62,5 +72,15 @@ class RolUsuario
     public static function valores(): array
     {
         return self::VALIDOS;
+    }
+
+    /** Roles que se crean desde la sección funcionarios (sin conductor/copiloto) */
+    /** @return list<string> */
+    public static function valoresFuncionarios(): array
+    {
+        return array_values(array_filter(
+            self::VALIDOS,
+            fn(string $r) => !in_array($r, ['conductor', 'copiloto'], true)
+        ));
     }
 }
