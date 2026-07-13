@@ -92,7 +92,6 @@
     }
 
     var conductorMarkers = {};
-    var allTraslados = [];
     var routeCache = {};
 
     function routeKey(oLat, oLng, dLat, dLng) {
@@ -266,7 +265,6 @@
         fetch('/api/traslados/activos')
             .then(function (r) { return r.json(); })
             .then(function (traslados) {
-                allTraslados = traslados;
                 renderTraslados(traslados);
                 updateSidebar(traslados);
             })

@@ -9,6 +9,7 @@ export default [
       globals: {
         ...globals.browser,
         bootstrap: "readonly",
+        L: "readonly",
       },
     },
     rules: {
