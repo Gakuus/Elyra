@@ -6,6 +6,12 @@
     <title><?= htmlspecialchars($titulo ?? 'Elyra') ?> — Hospital de Clínicas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="/css/web20.css" rel="stylesheet">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#3B5998">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Elyra">
+    <link rel="apple-touch-icon" href="/img/icon-192.png">
     <meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['_csrf_token'] ?? '') ?>">
 </head>
 <?php
@@ -60,6 +66,7 @@ function renderBreadcrumbs(string $uri, array $map): void {
 
 <div class="web20-header">
     <div class="web20-header-brand">
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Abrir menú" type="button">&#9776;</button>
         <a href="/" class="web20-header-logo">
             <img src="/img/elyralogo.png" alt="Elyra">
             <span>Elyra</span>
@@ -74,8 +81,10 @@ function renderBreadcrumbs(string $uri, array $map): void {
     </div>
 </div>
 
+<div class="web20-sidebar-overlay" id="sidebarOverlay"></div>
+
 <div class="web20-wrapper">
-    <div class="web20-sidebar">
+    <div class="web20-sidebar" id="mainSidebar">
         <?php if (!$isPaciente): ?>
         <div class="sidebar-section">
             <div class="sidebar-section-title">Gestión</div>
@@ -163,6 +172,110 @@ function renderBreadcrumbs(string $uri, array $map): void {
     document.addEventListener('click', resetTimer);
     document.addEventListener('scroll', resetTimer);
     resetTimer();
+})();
+</script>
+<script nonce="<?= $nonce ?>">
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/sw.js');
+    });
+}
+</script>
+<script nonce="<?= $nonce ?>">
+(function () {
+    var startX = 0, startY = 0;
+    document.addEventListener('touchstart', function (e) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+    }, { passive: true });
+    document.addEventListener('touchend', function (e) {
+        var dx = e.changedTouches[0].clientX - startX;
+        var dy = e.changedTouches[0].clientY - startY;
+        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 60) {
+            var ev = new CustomEvent('swipeleft', { detail: { dx: dx } });
+            document.dispatchEvent(ev);
+        }
+    }, { passive: true });
+})();
+</script>
+<script nonce="<?= $nonce ?>">
+(function () {
+    var btn = document.getElementById('hamburgerBtn');
+    var sidebar = document.getElementById('mainSidebar');
+    var overlay = document.getElementById('sidebarOverlay');
+    if (!btn || !sidebar || !overlay) return;
+
+    function open() {
+        sidebar.classList.add('open');
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function close() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (sidebar.classList.contains('open')) { close(); } else { open(); }
+    });
+
+    overlay.addEventListener('click', close);
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && sidebar.classList.contains('open')) close();
+    });
+
+    document.addEventListener('swipeleft', close);
+})();
+</script>
+<div id="pwa-install-prompt" class="pwa-install-prompt">
+    <div class="pwa-install-content">
+        <div class="pwa-install-info">
+            <i class="bi bi-download"></i>
+            <span>Instalá Elyra en tu dispositivo</span>
+        </div>
+        <div class="pwa-install-actions">
+            <button id="pwa-install-btn" class="btn btn-sm btn-success">Instalar</button>
+            <button id="pwa-dismiss-btn" class="btn btn-sm btn-link" style="text-decoration:none">Ahora no</button>
+        </div>
+    </div>
+</div>
+<script nonce="<?= $nonce ?>">
+(function () {
+    var promptEl = document.getElementById('pwa-install-prompt');
+    var installBtn = document.getElementById('pwa-install-btn');
+    var dismissBtn = document.getElementById('pwa-dismiss-btn');
+    var deferredPrompt = null;
+
+    if (!promptEl) return;
+
+    window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault();
+        deferredPrompt = e;
+        promptEl.classList.add('show');
+    });
+
+    installBtn.addEventListener('click', function () {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(function (choice) {
+            promptEl.classList.remove('show');
+            deferredPrompt = null;
+        });
+    });
+
+    dismissBtn.addEventListener('click', function () {
+        promptEl.classList.remove('show');
+        deferredPrompt = null;
+    });
+
+    window.addEventListener('appinstalled', function () {
+        promptEl.classList.remove('show');
+        deferredPrompt = null;
+    });
 })();
 </script>
 <?= $scripts ?? '' ?>

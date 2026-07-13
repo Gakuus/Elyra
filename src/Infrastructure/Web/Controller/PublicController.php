@@ -277,4 +277,10 @@ class PublicController extends BaseController
 
         $this->redirect('/publico/encuesta?ok=1&id=' . $id);
     }
+
+    public function offline(): void
+    {
+        http_response_code(200);
+        require __DIR__ . '/../../../../views/offline.php';
+    }
 }

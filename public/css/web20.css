@@ -1298,12 +1298,176 @@ img {
 }
 
 /* ============================================================
+   PWA INSTALL PROMPT
+   ============================================================ */
+
+.pwa-install-prompt {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 4000;
+    background: #FFF;
+    border-top: 2px solid var(--blue-dark);
+    box-shadow: 0 -4px 20px rgb(0 0 0 / 15%);
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.pwa-install-prompt.show {
+    transform: translateY(0);
+}
+
+.pwa-install-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    max-width: var(--layout-max-width);
+    margin: 0 auto;
+}
+
+.pwa-install-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--font-size-sm);
+    color: var(--text);
+}
+
+.pwa-install-info i {
+    font-size: 20px;
+    color: var(--blue-dark);
+}
+
+.pwa-install-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   HAMBURGER MENU
+   ============================================================ */
+
+.hamburger-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: #FFF;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 4px 8px;
+    line-height: 1;
+}
+
+.web20-sidebar-overlay {
+    display: none;
+}
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 
-@media (width <= 767px) {
-    .web20-sidebar {
+@media (width <= 575.98px) {
+    .table-responsive {
         display: none;
+    }
+
+    .card-list-view {
+        display: block;
+    }
+
+    .web20-header {
+        padding: 12px 12px;
+    }
+
+    .web20-header-brand span {
+        font-size: 18px;
+    }
+
+    .web20-header-user {
+        font-size: 14px;
+    }
+
+    .web20-header-user a {
+        padding: 4px 6px;
+    }
+
+    .web20-content {
+        padding: 12px;
+        max-width: 100%;
+    }
+
+    .panel-heading {
+        font-size: var(--font-size-sm);
+        padding: 6px 10px;
+    }
+
+    .panel-body {
+        padding: 10px;
+    }
+
+    .stat-box {
+        padding: 12px 8px;
+    }
+
+    .stat-box-number {
+        font-size: 22px;
+    }
+
+    .form-input {
+        height: 34px;
+        font-size: var(--font-size-md);
+    }
+
+    .form-select {
+        height: 34px;
+        font-size: var(--font-size-md);
+    }
+
+    .pwa-install-content {
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px 12px;
+    }
+
+    .pwa-install-info {
+        font-size: var(--font-size-xs);
+    }
+
+    .hamburger-btn {
+        display: block;
+    }
+
+    .web20-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 260px;
+        z-index: 5000;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        display: block;
+        overflow-y: auto;
+    }
+
+    .web20-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .web20-sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgb(0 0 0 / 45%);
+        z-index: 4999;
+    }
+
+    .web20-sidebar-overlay.open {
+        display: block;
     }
 
     .web20-content {
@@ -1312,5 +1476,113 @@ img {
 
     .row > [class*="col-"] {
         width: 100%;
+    }
+
+    :root {
+        --font-size-xs: 11px;
+        --font-size-sm: 12px;
+        --font-size-md: 12px;
+    }
+
+    .btn {
+        padding: 6px 12px;
+        font-size: var(--font-size-md);
+        min-height: 34px;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .btn-sm {
+        padding: 4px 8px;
+        font-size: var(--font-size-sm);
+        min-height: 28px;
+    }
+
+    .escala-label span {
+        width: 44px;
+        height: 44px;
+    }
+
+    .modal-box {
+        min-width: auto;
+        max-width: 95%;
+        margin: 12px;
+    }
+
+    input, select, textarea, button {
+        font-size: 16px;
+    }
+}
+
+@media (min-width: 576px) and (max-width: 767px) {
+    .hamburger-btn {
+        display: block;
+    }
+
+    .web20-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 260px;
+        z-index: 5000;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        display: block;
+        overflow-y: auto;
+    }
+
+    .web20-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .web20-sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgb(0 0 0 / 45%);
+        z-index: 4999;
+    }
+
+    .web20-sidebar-overlay.open {
+        display: block;
+    }
+
+    .web20-content {
+        max-width: 100%;
+    }
+
+    .col-md-1 { width: 8.333%; }
+    .col-md-2 { width: 16.666%; }
+    .col-md-3 { width: 25%; }
+    .col-md-4 { width: 33.333%; }
+    .col-md-5 { width: 41.666%; }
+    .col-md-6 { width: 50%; }
+    .col-md-7 { width: 58.333%; }
+    .col-md-8 { width: 66.666%; }
+    .col-md-9 { width: 75%; }
+    .col-md-10 { width: 83.333%; }
+    .col-md-11 { width: 91.666%; }
+    .col-md-12 { width: 100%; }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .web20-sidebar {
+        width: 200px;
+        min-width: 200px;
+    }
+
+    .web20-content {
+        max-width: calc(100% - 200px);
+    }
+
+    .sidebar-link {
+        padding: 8px 12px 8px 16px;
+        font-size: 13px;
+    }
+
+    .sidebar-section-title {
+        padding: 8px 12px 4px;
+        font-size: 11px;
     }
 }
