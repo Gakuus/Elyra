@@ -70,14 +70,14 @@ $router->addMiddleware(function () {
 // CSP Headers
 $router->addMiddleware(function () {
     $nonce = \Elyra\Infrastructure\Service\SessionManager::getNonce();
-    $csp = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com 'nonce-{$nonce}' 'strict-dynamic'; script-src-attr 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com 'unsafe-inline'; img-src 'self' data: https://*.tile.openstreetmap.org; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'";
+    $csp = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com 'nonce-{$nonce}' 'strict-dynamic'; script-src-attr 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com 'unsafe-inline'; img-src 'self' data: https://*.tile.openstreetmap.org; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self'";
     header("Content-Security-Policy: {$csp}");
     header('X-Content-Type-Options: nosniff');
     header('X-Frame-Options: SAMEORIGIN');
     header('X-XSS-Protection: 0');
     header('Referrer-Policy: strict-origin-when-cross-origin');
     header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
-    header('Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()');
+    header('Permissions-Policy: camera=(), microphone=(), geolocation=(self), interest-cohort=()');
 });
 
 // Run middleware

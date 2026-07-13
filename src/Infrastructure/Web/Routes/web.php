@@ -84,6 +84,8 @@ return [
     ['method' => 'GET',  'pattern' => '/pacientes/editar',     'controller' => 'PacienteController', 'action' => 'editar'],
     ['method' => 'POST', 'pattern' => '/pacientes/editar',     'controller' => 'PacienteController', 'action' => 'editar'],
 
+    ['method' => 'GET',  'pattern' => '/offline',              'controller' => 'PublicController',  'action' => 'offline'],
+
     ['method' => 'GET',  'pattern' => '/noticias',             'controller' => 'NoticiaController', 'action' => 'index'],
     ['method' => 'GET',  'pattern' => '/noticias/crear',       'controller' => 'NoticiaController', 'action' => 'crear'],
     ['method' => 'POST', 'pattern' => '/noticias/crear',       'controller' => 'NoticiaController', 'action' => 'crear'],
