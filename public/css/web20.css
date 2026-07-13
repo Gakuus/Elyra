@@ -1380,7 +1380,7 @@ img {
     }
 
     .web20-header {
-        padding: 12px 12px;
+        padding: 12px;
     }
 
     .web20-header-brand span {
@@ -1398,6 +1398,10 @@ img {
     .web20-content {
         padding: 12px;
         max-width: 100%;
+    }
+
+    .web20-sidebar-overlay.open {
+        display: block;
     }
 
     .panel-heading {
@@ -1464,14 +1468,6 @@ img {
         inset: 0;
         background: rgb(0 0 0 / 45%);
         z-index: 4999;
-    }
-
-    .web20-sidebar-overlay.open {
-        display: block;
-    }
-
-    .web20-content {
-        max-width: 100%;
     }
 
     .row > [class*="col-"] {
