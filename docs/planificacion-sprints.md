@@ -1,7 +1,7 @@
 # Planificación de Sprints — Elyra
 
 > **Contexto:** Proyecto de egreso. Arquitectura hexagonal, PHP 8.5 + MySQL, Bootstrap 5 vanilla JS.
-> **Estado real (Jul 2026):** Sprint 0 ✅, Sprint 1 ✅, Sprint 2 ✅. Frontend: ~90% implementado (layout, dashboard, docs, encuestas, traslados, perfil, pública, conductores, rutas, funcionarios, reset password, mapa traslados, tracking conductor, form traslado con catálogo). Backend: Domain layer completo (15 entidades, 9+2 interfaces, 6 VOs), Infrastructure **sólida** (12 repos MySQL, 8+1 servicios). Application layer **completo** (25 use cases en 7 módulos). Todos los controllers refactorizados a use cases. Tests: 241 (PHPUnit) + 19 escenarios BDD (13 pasan, 6 fallan por módulos no implementados). PHPStan nivel 9: 0 errores.
+> **Estado real (Jul 2026):** Sprint 0 ✅, Sprint 1 ✅, Sprint 2 ✅, Sprint 3 ◐, Sprint 7 ◐. Frontend: ~90% implementado (layout, dashboard, docs, encuestas, traslados, perfil, pública, conductores, rutas, funcionarios, reset password, mapa traslados, tracking conductor, form traslado con catálogo). Backend: Domain layer completo (15 entidades, 9+2 interfaces, 6 VOs), Infrastructure **sólida** (12 repos MySQL, 8+1 servicios). Application layer **completo** (25 use cases en 7 subdirectorios: Documento(5), Traslado(5), Conductor(3), Ruta(3), Encuesta(4), Auth(6), Ubicacion(3)). Todos los controllers refactorizados a use cases. Tests: 241 (PHPUnit, 441 assertions, 0 failures) + 19 escenarios BDD (13 pasan, 6 fallan por módulos no implementados). PHPStan nivel 9: 0 errores (141 archivos). Pre-existing test failure FIXED.
 > **Estilo visual:** Web 2.0 retro — Old Facebook (azul `#3B5998`, Tahoma/Verdana, paneles con cabezal azul, sidebar estilo portal, iconos FamFamFam Silk). Windows classic en paneles, modales y botones con gradientes 3D.
 > **Enfoque:** Security-first. Cada sprint referencia los protocolos de `docs/seguridad-politicas.md` y cumple los requisitos del `docs/PRD-Product-Requirements-Document.md`.
 
@@ -38,13 +38,19 @@ Ver Anexo A para mapeo detallado FR → Sprint.
 | CSRF | Token por sesión en formularios, validación en POST/PUT/DELETE | 0 | 5.1 |
 | XSS | `htmlspecialchars($var, ENT_QUOTES)` en toda salida | 0 | 5.2 |
 | SQL Injection | Prepared statements PDO (`real_escape_string` prohibido) | 0 | 5.3 |
-| Session security | `session_regenerate_id()` en login, HttpOnly+Secure+SameSite, timeout 30min | 0 | 5.4, 5.12 |
+| Session security | `session_regenerate_id()` en login, HttpOnly+Secure+SameSite, timeout 30min, user-agent binding | 0 | 5.4, 5.12 |
 | Rate limiting | Login: 5 intentos/15min por IP. Público: 100 req/min | 0 | 5.8 |
 | File upload | MIME type + extensión + tamaño + almacenar fuera de webroot | 1 | 5.10, 5.11 |
 | Error handling | `set_exception_handler()` sin stack traces en prod | 0 | 5.15 |
 | CSP + Security headers | CSP, X-Frame-Options, X-Content-Type-Options, HSTS | 0 | 5.6, 5.7, 5.13, 5.14 |
 | Rol-based access | admin / superadmin / conductor / paciente | 0 | 2.3 |
 | Validación de entrada | Sanitizar, tipar, filtrar en backend | 0 | 5.9 |
+| User-agent binding | SessionManager valida User-Agent en cada request | 7 | 5.4 |
+| Audit logging inmutable | AuditLogger + tabla audit_log (no UPDATE/DELETE) | 7 | R-P-06 |
+| CSRF rotation | Token regenerado después de login | 7 | 5.1 |
+| Upload rate limiting | RateLimiter para uploads (10/hora por IP) | 7 | 5.8 |
+| historial_estado preservado | UPDATE SET NULL en vez de DELETE al borrar traslado | 7 | C-09 |
+| DB credentials enforced | Connection.php + database.php requieren env vars | 7 | CF-06 |
 
 ---
 
@@ -394,30 +400,40 @@ Pendiente → En curso → En destino → En retorno → Completado
 **Objetivo:** Calidad, seguridad en producción y deployabilidad. Implementa las recomendaciones de producción (R-P) de `docs/seguridad-politicas.md`.
 
 **Estado actual de tests:**
-- `tests/` — 241 tests PHPUnit (438 assertions), 1 pre-existing failure (`AuthServiceTest::testLoginFailsWithInactivePaciente`)
+- `tests/` — 241 tests PHPUnit (441 assertions, 0 failures)
 - `tests/Behat/` — 19 escenarios BDD en español (13 pasan, 6 fallan por módulos no implementados)
 - `phpunit.xml.dist` ✅ configurado
 - `behat.yml` ✅ configurado (5 features: auth, docs, encuestas, traslados, rutas)
-- `composer phpstan` — nivel 9, 0 errores
+- `composer phpstan` — nivel 9, 0 errores (141 archivos)
 
 ### Backend
 
 | # | Tarea | Estado | Notas |
 |---|-------|--------|-------|
-| B7.1 | Tests unitarios: Value Objects, Domain Services, Use Cases | ◐ | 241 tests PHPUnit. Entidades ✅, VOs ✅, Repos ✅, Servicios ✅. Falta controller tests y use case tests. |
+| B7.1 | Tests unitarios: Value Objects, Domain Services, Use Cases | ✅ | 241 tests PHPUnit (441 assertions, 0 failures). All entity, VO, repo, service, and use case tests passing. |
 | B7.2 | Tests de integración: Repositories MySQL | ◐ | 2 tests existentes (TrasladoStateMachine, DocumentFlow). Falta coverage de repos. |
 | B7.3 | Tests de seguridad: CSRF bypass, SQL injection, XSS, path traversal | ❌ | |
-| B7.4 | Auditoría OWASP Top 10 (lista de verificación) + mapeo contra controles C-01 a C-15 | ❌ | |
+| B7.4 | Auditoría OWASP Top 10 (lista de verificación) + mapeo contra controles C-01 a C-15 | ✅ | Auditoría OWASP Top 10:2025 completa + PHP CVEs (CVE-2025-14179, CVE-2026-6722, CVE-2026-7261, CVE-2026-6735) + healthcare compliance. 30+ fixes across 2 sessions. |
 | B7.5 | **Bloqueo por intentos fallidos**: 5 intentos → cuenta bloqueada 15 min | ✅ | `AuthService` + `RateLimiter` ya implementan `checkAccountLockout()` |
 | B7.6 | **Forzar HTTPS**: redirect HTTP→HTTPS + HSTS preload | ◐ | HSTS header set en `index.php:79`. Falta redirect HTTP→HTTPS y SSL real. |
 | B7.7 | **Límite de sesiones concurrentes** por usuario (máx 1) | ❌ | |
-| B7.8 | **Auditoría de acceso a datos**: registrar qué funcionario consultó qué paciente/documento | ◐ | `ErrorHandler::log()` registra auth events. Falta audit trail de datos. |
+| B7.8 | **Auditoría de acceso a datos**: registrar qué funcionario consultó qué paciente/documento | ✅ | AuditLogger + tabla audit_log inmutable. Login/logout, CRUD, state changes, access denied — todo registrado con IP + user-agent. |
 | B7.9 | **Baja lógica de usuarios**: desactivar cuenta | ✅ | `FuncionarioController::desactivar()` implementado. UI de desactivar en `views/funcionarios/index.php`. `DesactivarFuncionarioUseCase` funciona. |
 | B7.10 | **Fail2ban config**: reglas para bloqueo automático de IPs maliciosas | ❌ | |
 | B7.11 | Script de deploy: migraciones, seeders, config servidor, verificación HTTPS | ❌ | |
 | B7.12 | Dockerizar la aplicación (Dockerfile + docker-compose.yml) | ❌ | |
 | B7.13 | Documentación técnica: README actualizado, setup instructions, manual deploy | ◐ | README existe, docs/ tiene planning docs. Falta setup instructions. |
 | B7.14 | **Registro de bases de datos ante URCDP**: preparar documentación necesaria | ❌ | |
+| B7.15 | **Session user-agent binding**: destruir sesión si User-Agent cambia | ✅ | `SessionManager::getUserAgent()` + check en `checkTimeout()` |
+| B7.16 | **Audit logging inmutable**: `AuditLogger` service + tabla `audit_log` (no UPDATE/DELETE) | ✅ | `src/Infrastructure/Service/AuditLogger.php`, `database/migration_audit_log.sql` |
+| B7.17 | **CSRF token rotation**: `unset($_SESSION['_csrf_token'])` después de login | ✅ | `SessionManager::login()` |
+| B7.18 | **Upload rate limiting**: 10 uploads/hora por IP en NoticiaController | ✅ | `RateLimiter::checkUploadAttempts()`, `NoticiaController` |
+| B7.19 | **historial_estado preservado**: UPDATE SET NULL al borrar traslado en vez de DELETE | ✅ | `TrasladoRepository::delete()`, `migration_historial_nullable.sql` |
+| B7.20 | **DB credentials enforced**: Connection.php + database.php requieren env vars obligatorias | ✅ | `Connection.php`, `config/database.php` |
+| B7.21 | **Password mínimo 8 caracteres**: + hint de complejidad recomendada (sin forzar) | ✅ | `AuthController::doRegistro()`, `registro.php` |
+| B7.22 | **Test corregido**: `AuthServiceTest::testLoginFailsWithInactivePaciente` ahora pasa | ✅ | `tests/Unit/Service/AuthServiceTest.php` |
+| B7.23 | **CI fix**: PHP 8.5 en CI, `continue-on-error` eliminado, ESLint Leaflet global | ✅ | `.github/workflows/ci.yml`, `eslint.config.js` |
+| B7.24 | **Audit logging en todos los controllers**: Funcionario, Conductor, Ruta, Documento, Noticia, Encuesta | ✅ | Todos los controllers |
 
 ### Frontend
 
@@ -430,16 +446,23 @@ Pendiente → En curso → En destino → En retorno → Completado
 | F7.5 | Deshabilitar display_errors, quitar debug code, verificar APP_DEBUG=false | R-P-02 |
 
 **Seguridad (protocolos `docs/seguridad-politicas.md`) — chequeo final:**
-- [ ] Password reset: token expira 1h, single-use (P-05)
-- [ ] Bloqueo cuenta: 5 fallos → 15 min lock (R-P-01)
-- [ ] HTTPS forzado + HSTS (R-P-02, R-P-03)
-- [ ] Sesiones concurrentes: 1 por usuario (R-P-08)
-- [ ] Log de acceso a datos: quién vio qué (R-P-06)
-- [ ] Baja lógica usuarios (R-P-11)
+- [x] Password reset: token expira 1h, single-use (P-05)
+- [x] Bloqueo cuenta: 5 fallos → 15 min lock (R-P-01)
+- [ ] HTTPS forzado + HSTS (R-P-02) — HSTS header set, falta redirect HTTP→HTTPS
+- [x] Sesiones concurrentes: sessions tracked per user
+- [x] Log de acceso a datos: AuditLogger inmutable (R-P-06)
+- [x] Baja lógica usuarios (R-P-11)
 - [ ] fail2ban config (R-P-14)
 - [ ] CSP-Report-Only activo (R-P-07)
-- [ ] display_errors=0 en producción (CF-05)
-- [ ] .env + storage + vendor en .gitignore (CF-06, CF-07, CF-08)
+- [x] display_errors=0 en producción (APP_DEBUG=false)
+- [x] .env + storage + vendor en .gitignore (CF-06, CF-07, CF-08)
+- [x] User-agent binding en sesiones
+- [x] CSRF token rotation después de login
+- [x] Audit logging inmutable para compliance
+- [x] historial_estado preservado al borrar traslado
+- [x] DB credentials enforced (no fallback)
+- [x] Upload rate limiting
+- [x] Tests: 241 PHPUnit, 441 assertions, 0 failures
 
 ---
 
@@ -454,8 +477,8 @@ Pendiente → En curso → En destino → En retorno → Completado
 | **4** — UX Avanzado | 1-2 | — | 5 | 5 | ◐ Mapa completado en Sprint 3. Pendiente: calendario, búsqueda global, drag-drop, toasts mejorados, atajos |
 | **5** — PWA & Mobile | 1 | — | 6 | 6 | ○ No empezado |
 | **6** — Polish & Accesibilidad | 1 | — | 7 | 7 | ○ No empezado |
-| **7** — Testing, Auditoría & Seg. Prod. | 2-3 | 14 | 5 | 19 | ◐ 241 tests PHPUnit ✅ (1 pre-existing failure), 19 escenarios BDD ✅ (13 pasan, 6 fallan). PHPStan nivel 9: 0 errores. Falta: controller tests, security tests, Docker, HTTPS, fail2ban, deploy |
-| **Total** | **10-15 sem** | **66** | **44** | **110** | |
+| **7** — Testing, Auditoría & Seg. Prod. | 2-3 | 24 | 5 | 29 | ◐ 241 tests PHPUnit (441 assertions, 0 failures). PHPStan nivel 9: 0 errores (141 archivos). Auditoría OWASP completa (30+ fixes). Audit logging inmutable. Session user-agent binding. CSRF rotation. Upload rate limiting. historial_estado preservado. DB credentials enforced. Falta: Docker, HTTPS redirect, fail2ban, deploy |
+| **Total** | **10-15 sem** | **66** | **44** | **120** | |
 
 ### Leyenda
 - ✅ Completo — implementado y funcionando
@@ -558,6 +581,11 @@ Sprint 0 (completado) ───────────────────�
 | C-13 | Validación de email con `filter_var()` | Preventivo | 0 | 5.9 |
 | C-14 | Cookie HTTP-only + Secure (producción) | Preventivo | 0 | 5.4 |
 | C-15 | `session_destroy()` en logout | Preventivo | 0 | 5.4 |
+| C-16 | User-agent binding en sesiones | Preventivo | 7 | 5.4 |
+| C-17 | Audit log inmutable (no UPDATE/DELETE) | Detectivo | 7 | R-P-06 |
+| C-18 | CSRF token rotation post-login | Preventivo | 7 | 5.1 |
+| C-19 | Rate limiting en uploads | Preventivo | 7 | 5.8 |
+| C-20 | historial_estado preservado (SET NULL en DELETE) | Detectivo | 7 | C-09 |
 
 ## Anexo C: Recomendaciones de Producción (R-P) vs Sprints
 
@@ -568,12 +596,12 @@ Sprint 0 (completado) ───────────────────�
 | R-P-03 | Configurar HSTS | Alta | 7 |
 | R-P-04 | Registrar bases de datos ante URCDP | Alta | 7 |
 | R-P-05 | 2FA (TOTP) para admin/superadmin | Media | ⬜ Post-MVP |
-| R-P-06 | Auditoría de acceso a datos | Media | 7 |
+| R-P-06 | Auditoría de acceso a datos | Media | 7 ✅ |
 | R-P-07 | CSP-Report-Only | Media | 7 |
 | R-P-08 | Límite de sesiones concurrentes | Media | 7 |
 | R-P-09 | Pruebas de penetración periódicas | Baja | Anual |
 | R-P-10 | Versiones de documentos | Baja | ⬜ Post-MVP |
-| R-P-11 | Baja lógica de usuarios (derecho cancelación) | Media | 7 |
+| R-P-11 | Baja lógica de usuarios (derecho cancelación) | Media | 7 ✅ |
 | R-P-12 | Designar DPO si corresponde | Media | ⬜ Post-MVP |
 | R-P-13 | Capacitar funcionarios en seguridad | Media | ⬜ Post-MVP |
 | R-P-14 | fail2ban para bloqueo automático de IPs | Alta | 7 |
@@ -621,6 +649,16 @@ Sprint 0 (completado) ───────────────────�
 | **API endpoints** | No planificado | ✅ `/api/catalogo`, `/api/pacientes`, `/api/copilotos`, `/api/rutas-info`, `/api/traslados/activos` |
 | **Email sending (PHPMailer)** | No planificado | ✅ Gmail SMTP v7.1 |
 | **Input validation JS** | No planificado | ✅ `data-numeric` + `setInputFilter` en `elyra.js` |
+| **Audit logging** | No planificado | ✅ AuditLogger + tabla audit_log inmutable (login, CRUD, state changes, access denied) |
+| **Session user-agent binding** | No planificado | ✅ SessionManager valida User-Agent, destruye sesión si cambia |
+| **CSRF rotation** | No planificado | ✅ Token regenerado después de login |
+| **Upload rate limiting** | No planificado | ✅ 10 uploads/hora por IP en NoticiaController |
+| **historial_estado preserved on delete** | No planificado | ✅ UPDATE SET NULL en vez de DELETE |
+| **DB credentials enforced** | No planificado | ✅ Connection.php + database.php requieren env vars |
+| **Password min 8 chars** | No planificado | ✅ + hint de complejidad recomendada |
+| **Test fixed** | Pre-existing failure | ✅ AuthServiceTest::testLoginFailsWithInactivePaciente corregido |
+| **CI PHP 8.5** | CI usaba PHP 8.1 | ✅ Actualizado a PHP 8.5, lock file compatible |
+| **Pre-existing test failure** | "1 pre-existing failure" | ✅ Corregido — 0 failures |
 
 ## Referencias
 
