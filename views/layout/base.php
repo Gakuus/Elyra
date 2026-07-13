@@ -21,6 +21,8 @@ $currentUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 ?>
 <body>
 
+<a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+
 <?php if ($currentSess::isAuthenticated()): ?>
 
 <?php
@@ -76,7 +78,7 @@ function renderBreadcrumbs(string $uri, array $map): void {
         <a href="/perfil"><i class="bi bi-person-circle"></i> <?= htmlspecialchars($_SESSION['user_nombre'] ?? 'Usuario') ?></a>
         <form method="post" action="/logout" style="display:inline">
             <input type="hidden" name="_csrf_token" value="<?= \Elyra\Infrastructure\Service\SessionManager::getCsrfToken() ?>">
-            <button type="submit" class="btn btn-sm btn-link" style="text-decoration:none"><i class="bi bi-box-arrow-right"></i> Salir</button>
+            <button type="submit" class="btn btn-sm btn-link" style="text-decoration:none" aria-label="Cerrar sesión"><i class="bi bi-box-arrow-right"></i> Salir</button>
         </form>
     </div>
 </div>
@@ -84,7 +86,7 @@ function renderBreadcrumbs(string $uri, array $map): void {
 <div class="web20-sidebar-overlay" id="sidebarOverlay"></div>
 
 <div class="web20-wrapper">
-    <div class="web20-sidebar" id="mainSidebar">
+    <div class="web20-sidebar" id="mainSidebar" role="navigation" aria-label="Menú principal">
         <?php if (!$isPaciente): ?>
         <div class="sidebar-section">
             <div class="sidebar-section-title">Gestión</div>
@@ -122,7 +124,7 @@ function renderBreadcrumbs(string $uri, array $map): void {
         <?php endif; ?>
     </div>
 
-    <div class="web20-content">
+    <div class="web20-content" id="main-content">
         <?php if ($currentUri !== '/dashboard'): ?>
             <?php renderBreadcrumbs($currentUri, $breadcrumbMap); ?>
         <?php endif; ?>
