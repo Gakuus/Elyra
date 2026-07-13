@@ -57,7 +57,7 @@ class NoticiaRepository implements NoticiaRepositoryInterface
             FROM noticias n
             LEFT JOIN usuario u ON u.id = n.autor_id
             WHERE n.activo = 1
-                AND YEARWEEK(n.created_at, 1) = YEARWEEK(CURDATE(), 1)
+                AND n.created_at >= DATE_SUB(CURDATE(), INTERVAL 14 DAY)
             ORDER BY n.created_at DESC
         ");
         /** @var array<int, array<string, mixed>> $rows */
