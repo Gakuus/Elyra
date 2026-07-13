@@ -26,7 +26,6 @@ final class RutaRepositoryTest extends TestCase
         $this->repository = $repoClass->newInstanceWithoutConstructor();
 
         $pdoProp = $repoClass->getProperty('pdo');
-        $pdoProp->setAccessible(true);
         $pdoProp->setValue($this->repository, $this->pdo);
     }
 

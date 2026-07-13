@@ -24,7 +24,7 @@ $e = $estados[$t['estado']] ?? ['label' => $t['estado'], 'class' => 'secondary']
                         <h4 class="fw-semibold mb-1"><?= htmlspecialchars($t['codigo']) ?></h4>
                         <p class="text-muted mb-0"><?= htmlspecialchars($t['fecha'] ?? '') ?> &middot; <?= htmlspecialchars($t['hora'] ?? '') ?></p>
                     </div>
-                    <span class="badge badge-<?= htmlspecialchars($t['estado']) ?> fs-6 px-3 py-2"><?= $e['label'] ?></span>
+                    <span class="badge badge-<?= htmlspecialchars($t['estado']) ?> fs-6 px-3 py-2"><?= htmlspecialchars($e['label']) ?></span>
                 </div>
             </div>
         </div>
@@ -51,12 +51,24 @@ $e = $estados[$t['estado']] ?? ['label' => $t['estado'], 'class' => 'secondary']
                         <h6 class="text-muted mb-3"><i class="bi bi-box me-1"></i> Elemento</h6>
                         <div class="mb-2">
                             <small class="text-muted d-block">Elemento</small>
-                            <span class="fw-semibold"><?= htmlspecialchars($t['paciente'] ?? $t['elemento'] ?? '-') ?></span>
+                            <span class="fw-semibold"><?= htmlspecialchars($t['elemento_descripcion'] ?? '-') ?></span>
                         </div>
                         <div>
                             <small class="text-muted d-block">Tipo</small>
-                            <span class="badge"><?= htmlspecialchars($t['tipo'] ?? 'paciente') ?></span>
+                            <span class="badge"><?= htmlspecialchars($t['elemento_tipo'] ?? 'paciente') ?></span>
                         </div>
+                        <?php if (!empty($t['observaciones'])): ?>
+                            <div class="mt-2">
+                                <small class="text-muted d-block">Observaciones</small>
+                                <span class="small"><?= nl2br(htmlspecialchars($t['observaciones'])) ?></span>
+                            </div>
+                        <?php endif; ?>
+                        <?php if (!empty($t['motivo_cancelacion'])): ?>
+                            <div class="mt-2">
+                                <small class="text-muted d-block">Motivo cancelación</small>
+                                <span class="small text-danger"><?= nl2br(htmlspecialchars($t['motivo_cancelacion'])) ?></span>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -113,7 +125,7 @@ $e = $estados[$t['estado']] ?? ['label' => $t['estado'], 'class' => 'secondary']
                         <div class="timeline-step <?= $step['completado'] ? 'completed' : '' ?> <?= $step['activo'] ? 'active' : '' ?>">
                             <div class="timeline-dot bg-<?= $info['class'] ?>"></div>
                             <div class="timeline-content">
-                                <span class="badge badge-<?= htmlspecialchars($step['estado']) ?>"><?= $info['label'] ?></span>
+                                <span class="badge badge-<?= htmlspecialchars($step['estado']) ?>"><?= htmlspecialchars($info['label']) ?></span>
                                 <?php if ($step['fecha']): ?>
                                     <small class="text-muted d-block mt-1"><?= htmlspecialchars($step['fecha']) ?></small>
                                 <?php endif; ?>

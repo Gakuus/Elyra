@@ -1,9 +1,10 @@
 -- =============================================================
 -- ELYRA — Hospital de Clínicas
 -- Esquema de Base de Datos MySQL
--- Versión: 6.2 (agregado foto LONGBLOB a usuario)
--- Migración desde 6.1:
---   ALTER TABLE usuario ADD COLUMN foto LONGBLOB NULL AFTER documento_identidad;
+-- Versión: 6.3 (agregado reset_token y reset_token_expires_at a usuario)
+-- Migración desde 6.2:
+--   ALTER TABLE usuario ADD COLUMN reset_token VARCHAR(64) NULL AFTER foto;
+--   ALTER TABLE usuario ADD COLUMN reset_token_expires_at DATETIME NULL AFTER reset_token;
 -- =============================================================
 
 CREATE DATABASE IF NOT EXISTS elyra
@@ -27,6 +28,8 @@ CREATE TABLE usuario (
     email VARCHAR(150) UNIQUE,
     documento_identidad VARCHAR(20) UNIQUE,
     foto LONGBLOB NULL,
+    reset_token VARCHAR(64) NULL,
+    reset_token_expires_at DATETIME NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -35,9 +38,10 @@ CREATE TABLE funcionario (
     username VARCHAR(50) UNIQUE,
     password_hash VARCHAR(255),
     licencia VARCHAR(50),
+    licencia_conducir VARCHAR(50),
     telefono VARCHAR(20),
     activo BOOLEAN DEFAULT TRUE,
-    rol ENUM('admin', 'superadmin', 'conductor'),
+    rol ENUM('superadmin', 'admin', 'medico', 'enfermero', 'tecnico', 'recepcionista', 'farmaceutico', 'conductor', 'copiloto'),
     FOREIGN KEY (id) REFERENCES usuario(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -163,7 +167,11 @@ CREATE TABLE traslado (
     vehiculo_id INT NULL,
     ruta_id INT NULL,
     origen VARCHAR(200) NOT NULL,
+    origen_lat DECIMAL(10, 7) NULL,
+    origen_lng DECIMAL(10, 7) NULL,
     destino VARCHAR(200) NOT NULL,
+    destino_lat DECIMAL(10, 7) NULL,
+    destino_lng DECIMAL(10, 7) NULL,
     hora_salida_estimada DATETIME,
     hora_salida_efectiva DATETIME,
     hora_llegada_destino DATETIME,
@@ -207,6 +215,20 @@ CREATE TABLE historial_estado (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================================
+-- CATÁLOGO DE ELEMENTOS PARA TRASLADOS
+-- =============================================================
+
+CREATE TABLE IF NOT EXISTS catalogo_elemento (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tipo ENUM('insumo', 'equipamiento', 'organo') NOT NULL,
+    nombre VARCHAR(150) NOT NULL,
+    descripcion TEXT NULL,
+    activo BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_catalogo_tipo_nombre (tipo, nombre)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================
 -- INDICES
 -- =============================================================
 
@@ -226,6 +248,36 @@ CREATE INDEX idx_encuesta_creada_por ON encuesta(creada_por);
 CREATE INDEX idx_pregunta_encuesta ON pregunta(encuesta_id);
 CREATE INDEX idx_respuesta_sesion ON respuesta(sesion_token);
 CREATE INDEX idx_respuesta_pregunta ON respuesta(pregunta_id);
+
+-- Catálogo
+CREATE INDEX idx_catalogo_tipo ON catalogo_elemento(tipo);
+CREATE INDEX idx_catalogo_activo ON catalogo_elemento(activo);
+
+-- Ambulancias
+CREATE TABLE ubicacion_conductor (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    conductor_id INT NOT NULL,
+    traslado_id INT NULL,
+    latitud DECIMAL(10, 7) NOT NULL,
+    longitud DECIMAL(10, 7) NOT NULL,
+    heading SMALLINT NULL,
+    velocidad DECIMAL(5, 1) NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_conductor (conductor_id),
+    FOREIGN KEY (conductor_id) REFERENCES funcionario(id) ON DELETE CASCADE,
+    FOREIGN KEY (traslado_id) REFERENCES traslado(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE historial_ubicacion (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    conductor_id INT NOT NULL,
+    traslado_id INT NULL,
+    latitud DECIMAL(10, 7) NOT NULL,
+    longitud DECIMAL(10, 7) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_hist_conductor (conductor_id, created_at),
+    INDEX idx_hist_traslado (traslado_id, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Ambulancias
 CREATE INDEX idx_traslado_estado ON traslado(estado);

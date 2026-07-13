@@ -106,7 +106,7 @@ class SessionManager
     public static function isAdmin(): bool
     {
         $role = $_SESSION['user_role'] ?? null;
-        return $role !== null && $role !== 'paciente';
+        return $role !== null && in_array($role, ['admin', 'superadmin'], true);
     }
 
     public static function getCsrfToken(): string
@@ -130,6 +130,12 @@ class SessionManager
 
     private static function checkTimeout(): void
     {
+        if (isset($_SESSION['_user_agent']) && $_SESSION['_user_agent'] !== self::getUserAgent()) {
+            self::destroy();
+            self::start();
+            return;
+        }
+
         if (isset($_SESSION['_created_at'])) {
             /** @var int $createdAt */
             $createdAt = $_SESSION['_created_at'];
@@ -167,6 +173,12 @@ class SessionManager
         }
     }
 
+    private static function getUserAgent(): string
+    {
+        $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        return is_string($ua) ? $ua : '';
+    }
+
     public static function login(int $userId, string $role, string $nombre = ''): void
     {
         self::regenerate();
@@ -175,6 +187,9 @@ class SessionManager
         $_SESSION['user_role'] = $role;
         $_SESSION['user_nombre'] = $nombre;
         $_SESSION['_session_id'] = session_id();
+        $_SESSION['_user_agent'] = self::getUserAgent();
+
+        unset($_SESSION['_csrf_token']);
 
         self::saveActiveSession($userId);
     }
@@ -192,7 +207,7 @@ class SessionManager
     {
         $dir = dirname(__DIR__, 3) . '/storage/sessions';
         if (!is_dir($dir)) {
-            @mkdir($dir, 0775, true);
+            @mkdir($dir, 0640, true);
         }
         return $dir;
     }
@@ -250,6 +265,14 @@ class SessionManager
             @unlink($file);
         } else {
             @file_put_contents($file, json_encode($sessions), LOCK_EX);
+        }
+    }
+
+    public static function destroyAllSessionsForUser(int $userId): void
+    {
+        $file = self::sessionFilePath($userId);
+        if (file_exists($file)) {
+            @unlink($file);
         }
     }
 }

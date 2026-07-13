@@ -57,14 +57,7 @@ class CsrfMiddleware
                 echo json_encode(['error' => 'CSRF token inválido o expirado']);
             } else {
                 $_SESSION['error'] = 'CSRF token inválido o expirado. Intente de nuevo.';
-                /** @var string $referer */
-                $referer = $_SERVER['HTTP_REFERER'] ?? '/dashboard';
-                $allowedHost = $_SERVER['HTTP_HOST'] ?? '';
-                $parsedUrl = parse_url($referer);
-                if ($parsedUrl === false || !isset($parsedUrl['host']) || $parsedUrl['host'] !== $allowedHost) {
-                    $referer = '/dashboard';
-                }
-                header("Location: {$referer}");
+                header('Location: /dashboard');
             }
             exit;
         }

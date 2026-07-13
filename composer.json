@@ -3,7 +3,8 @@
     "description": "Elyra - Hospital de Clínicas: Gestión de documentación para pacientes y trazabilidad de ambulancias",
     "type": "project",
     "require": {
-        "php": ">=8.1"
+        "php": ">=8.1",
+        "phpmailer/phpmailer": "^7.1"
     },
     "autoload": {
         "psr-4": {

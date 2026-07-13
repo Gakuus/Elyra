@@ -25,10 +25,10 @@
             <div class="col-md-2">
                 <label class="form-label small text-muted">Conductor</label>
                 <select name="conductor" class="form-select form-select-sm">
-                    <option value="">Todos</option>
+                        <option value="">Todos</option>
                     <?php foreach ($conductores as $c): ?>
                         <?php if ($c === '') continue; ?>
-                        <option value="<?= htmlspecialchars($c) ?>" <?= $filtros['conductor'] === $c ? 'selected' : '' ?>><?= htmlspecialchars($c) ?></option>
+                        <option value="<?= htmlspecialchars($c) ?>" <?= ($filtros['conductorFilter'] ?? '') === $c ? 'selected' : '' ?>><?= htmlspecialchars($c) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -78,12 +78,12 @@
                             ?>
                             <tr>
                                 <td class="fw-semibold"><?= htmlspecialchars($t['codigo'] ?? '-') ?></td>
-                                <td><?= htmlspecialchars($t['paciente'] ?? $t['elemento'] ?? '-') ?></td>
+                                <td><?= htmlspecialchars($t['elemento_descripcion'] ?? '-') ?></td>
                                 <td><?= htmlspecialchars($t['origen'] ?? '-') ?></td>
                                 <td><?= htmlspecialchars($t['destino'] ?? '-') ?></td>
                                 <td><?= htmlspecialchars($t['conductor'] ?? '-') ?></td>
                                 <td class="text-nowrap"><?= htmlspecialchars($t['fecha'] ?? '') ?></td>
-                                <td><span class="badge badge-<?= htmlspecialchars($t['estado']) ?>"><?= $estadosList[$t['estado']] ?? $t['estado'] ?></span></td>
+                                <td><span class="badge badge-<?= htmlspecialchars($t['estado']) ?>"><?= htmlspecialchars($estadosList[$t['estado']] ?? $t['estado']) ?></span></td>
                                 <td class="text-end"><a href="/traslados/ver?id=<?= $t['id'] ?>" class="btn btn-sm"><i class="bi bi-eye"></i></a></td>
                             </tr>
                         <?php endforeach; ?>

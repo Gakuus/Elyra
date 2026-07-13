@@ -6,6 +6,8 @@ namespace Elyra\Infrastructure\Web\Controller;
 
 use Elyra\Domain\Entity\Noticia;
 use Elyra\Infrastructure\Persistence\MySQL\NoticiaRepository;
+use Elyra\Infrastructure\Service\AuditLogger;
+use Elyra\Infrastructure\Service\RateLimiter;
 use Elyra\Infrastructure\Service\SessionManager;
 use Elyra\Infrastructure\Service\Validator;
 
@@ -13,6 +15,9 @@ class NoticiaController extends BaseController
 {
     private NoticiaRepository $noticiaRepo;
     private string $storageDir;
+
+    /** @var list<string> */
+    private const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
     public function __construct()
     {
@@ -24,6 +29,7 @@ class NoticiaController extends BaseController
     {
         $this->requireAuth();
         $this->denyPaciente();
+        $this->requireRole('admin', 'superadmin');
 
         $noticias = $this->noticiaRepo->findAll();
 
@@ -36,6 +42,7 @@ class NoticiaController extends BaseController
     {
         $this->requireAuth();
         $this->denyPaciente();
+        $this->requireRole('admin', 'superadmin');
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->handleCrear();
@@ -47,6 +54,16 @@ class NoticiaController extends BaseController
 
     private function handleCrear(): void
     {
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        if (!is_string($ip)) {
+            $ip = '127.0.0.1';
+        }
+        if (!RateLimiter::checkUploadAttempts($ip)) {
+            $this->render('noticias/crear', ['error' => 'Demasiadas subidas. Esper&aacute; unos minutos.']);
+            return;
+        }
+        RateLimiter::incrementUploadAttempts($ip);
+
         /** @var string $tituloRaw */
         $tituloRaw = $_POST['titulo'] ?? '';
         $titulo = trim($tituloRaw);
@@ -88,8 +105,12 @@ class NoticiaController extends BaseController
 
             $safeName = preg_replace('/[^a-zA-Z0-9_-]/', '_', pathinfo($archivo['name'], PATHINFO_FILENAME));
             $safeName = is_string($safeName) ? mb_substr($safeName, 0, 80) : 'imagen';
-            $ext = pathinfo($archivo['name'], PATHINFO_EXTENSION);
-            $filename = $safeName . '_' . time() . '.' . $ext;
+            $ext = strtolower(pathinfo($archivo['name'], PATHINFO_EXTENSION));
+            if (!in_array($ext, self::ALLOWED_EXTENSIONS, true)) {
+                $v->required('imagen', null, 'Extensión de archivo no permitida');
+                $uploadOk = false;
+            }
+            $filename = $safeName . '_' . time() . '.' . ($ext ?: 'jpg');
             $destPath = $this->storageDir . '/' . $filename;
 
             if (move_uploaded_file($archivo['tmp_name'], $destPath)) {
@@ -107,6 +128,7 @@ class NoticiaController extends BaseController
         );
 
         $this->noticiaRepo->save($noticia);
+        AuditLogger::logCreate('noticia', $noticia->getId() !== null ? (string) $noticia->getId() : null, ['titulo' => $titulo]);
         $this->redirect('/noticias');
     }
 
@@ -114,6 +136,7 @@ class NoticiaController extends BaseController
     {
         $this->requireAuth();
         $this->denyPaciente();
+        $this->requireRole('admin', 'superadmin');
 
         /** @var string $idGet */
         $idGet = $_GET['id'] ?? '';
@@ -143,6 +166,17 @@ class NoticiaController extends BaseController
 
     private function handleEditar(int $id): void
     {
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        if (!is_string($ip)) {
+            $ip = '127.0.0.1';
+        }
+        if (!RateLimiter::checkUploadAttempts($ip)) {
+            $noticia = $this->noticiaRepo->findById($id);
+            $this->render('noticias/editar', ['error' => 'Demasiadas subidas. Esper&aacute; unos minutos.', 'noticia' => $noticia ? $this->noticiaToArray($noticia) : null]);
+            return;
+        }
+        RateLimiter::incrementUploadAttempts($ip);
+
         $noticia = $this->noticiaRepo->findById($id);
         if (!$noticia) {
             $this->redirect('/noticias');
@@ -190,8 +224,12 @@ class NoticiaController extends BaseController
 
             $safeName = preg_replace('/[^a-zA-Z0-9_-]/', '_', pathinfo($archivo['name'], PATHINFO_FILENAME));
             $safeName = is_string($safeName) ? mb_substr($safeName, 0, 80) : 'imagen';
-            $ext = pathinfo($archivo['name'], PATHINFO_EXTENSION);
-            $filename = $safeName . '_' . time() . '.' . $ext;
+            $ext = strtolower(pathinfo($archivo['name'], PATHINFO_EXTENSION));
+            if (!in_array($ext, self::ALLOWED_EXTENSIONS, true)) {
+                $v->required('imagen', null, 'Extensión de archivo no permitida');
+                $uploadOk = false;
+            }
+            $filename = $safeName . '_' . time() . '.' . ($ext ?: 'jpg');
             $destPath = $this->storageDir . '/' . $filename;
 
             if (move_uploaded_file($archivo['tmp_name'], $destPath)) {
@@ -207,6 +245,7 @@ class NoticiaController extends BaseController
         $noticia->setImagen($imagen);
 
         $this->noticiaRepo->update($noticia);
+        AuditLogger::logUpdate('noticia', (string) $id);
         $this->redirect('/noticias');
     }
 
@@ -214,9 +253,10 @@ class NoticiaController extends BaseController
     {
         $this->requireAuth();
         $this->denyPaciente();
+        $this->requireRole('admin', 'superadmin');
 
         /** @var string $idRaw */
-        $idRaw = $_GET['id'] ?? '0';
+        $idRaw = $_POST['id'] ?? $_GET['id'] ?? '0';
         $id = (int) $idRaw;
 
         if ($id <= 0) {
@@ -233,6 +273,7 @@ class NoticiaController extends BaseController
         }
 
         $this->noticiaRepo->delete($id);
+        AuditLogger::logDelete('noticia', (string) $id);
         $this->redirect('/noticias');
     }
 
@@ -240,9 +281,10 @@ class NoticiaController extends BaseController
     {
         $this->requireAuth();
         $this->denyPaciente();
+        $this->requireRole('admin', 'superadmin');
 
         /** @var string $idRaw */
-        $idRaw = $_GET['id'] ?? '0';
+        $idRaw = $_POST['id'] ?? $_GET['id'] ?? '0';
         $id = (int) $idRaw;
 
         $noticia = $this->noticiaRepo->findById($id);

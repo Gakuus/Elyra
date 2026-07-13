@@ -4,30 +4,39 @@ declare(strict_types=1);
 
 namespace Elyra\Infrastructure\Web\Controller;
 
+use Elyra\Application\UseCases\Encuesta\CrearEncuestaUseCase;
+use Elyra\Application\UseCases\Encuesta\ObtenerResultadosUseCase;
 use Elyra\Domain\Entity\Encuesta;
 use Elyra\Domain\Entity\Pregunta;
-use Elyra\Domain\ValueObject\TipoPregunta;
 use Elyra\Infrastructure\Persistence\MySQL\EncuestaRepository;
+use Elyra\Infrastructure\Service\SessionManager;
 
 class EncuestaController extends BaseController
 {
+    private CrearEncuestaUseCase $crearEncuesta;
+    private ObtenerResultadosUseCase $obtenerResultados;
     private EncuestaRepository $encuestaRepo;
 
     public function __construct()
     {
         $this->encuestaRepo = new EncuestaRepository();
+        $this->crearEncuesta = new CrearEncuestaUseCase($this->encuestaRepo);
+        $this->obtenerResultados = new ObtenerResultadosUseCase($this->encuestaRepo);
     }
 
     public function index(): void
     {
         $this->requireAuth();
+        $this->requireRole('admin', 'superadmin');
 
         $encuestas = $this->encuestaRepo->findAll();
         $lista = [];
 
         foreach ($encuestas as $e) {
             $encuestaId = $e->getId();
-            if ($encuestaId === null) continue;
+            if ($encuestaId === null) {
+                continue;
+            }
             $preguntas = $this->encuestaRepo->findPreguntasByEncuestaId($encuestaId);
             $creada = $e->getCreatedAt();
             $lista[] = [
@@ -68,110 +77,68 @@ class EncuestaController extends BaseController
         $descripcion = trim($descripcionInput);
         $preguntas = (array) ($_POST['preguntas'] ?? []);
 
-        if (strlen($titulo) < 3 || strlen($titulo) > 200) {
-            $this->render('encuestas/crear', ['error' => 'El título debe tener entre 3 y 200 caracteres.']);
-            return;
-        }
-
-        if (count($preguntas) < 1) {
-            $this->render('encuestas/crear', ['error' => 'Agregá al menos una pregunta.']);
-            return;
-        }
-
-        $tiposValidos = ['multiple_choice', 'escala', 'texto'];
+        /** @var list<array{tipo: string, texto: string, opciones?: list<string>}> $preguntasData */
         $preguntasData = [];
-
-        foreach ($preguntas as $i => $p) {
+        foreach ($preguntas as $p) {
             /** @var array{texto?: string, tipo?: string, opciones?: mixed} $p */
-            /** @var string $texto */
-            $texto = trim($p['texto'] ?? '');
-            /** @var string $tipo */
-            $tipo = trim($p['tipo'] ?? '');
-
-            if (strlen($texto) < 3) {
-                $this->render('encuestas/crear', ['error' => "La pregunta " . ($i + 1) . " debe tener al menos 3 caracteres."]);
-                return;
+            $tipoP = $p['tipo'] ?? 'texto_libre';
+            $textoP = $p['texto'] ?? '';
+            if ($tipoP === 'multiple_choice' && isset($p['opciones'])) {
+                /** @var list<string> $opcionesRaw */
+                $opcionesRaw = (array) $p['opciones'];
+                $raw = array_map(fn(string $o) => trim($o), $opcionesRaw);
+                $preguntasData[] = [
+                    'tipo' => $tipoP,
+                    'texto' => $textoP,
+                    'opciones' => array_values(array_filter($raw)),
+                ];
+            } else {
+                $preguntasData[] = [
+                    'tipo' => $tipoP,
+                    'texto' => $textoP,
+                ];
             }
-
-            if (!in_array($tipo, $tiposValidos, true)) {
-                $this->render('encuestas/crear', ['error' => "Tipo inválido en la pregunta " . ($i + 1) . "."]);
-                return;
-            }
-
-            if ($tipo === 'texto') {
-                $tipo = 'texto_libre';
-            }
-
-            $opciones = null;
-            if ($tipo === 'multiple_choice') {
-                /** @var array<int, string> $opcionesRaw */
-                $opcionesRaw = (array) ($p['opciones'] ?? []);
-                $opciones = array_map('trim', $opcionesRaw);
-                $opciones = array_values(array_filter($opciones));
-                if (count($opciones) < 2) {
-                    $this->render('encuestas/crear', ['error' => "La pregunta " . ($i + 1) . " necesita al menos 2 opciones."]);
-                    return;
-                }
-            }
-
-            $preguntasData[] = [
-                'tipo' => $tipo,
-                'texto' => $texto,
-                'opciones' => $opciones,
-            ];
         }
 
-        /** @var int $userId */
-        $userId = $_SESSION['user_id'] ?? 0;
-        $encuesta = new Encuesta(
-            id: null,
-            titulo: $titulo,
-            creadaPor: $userId,
-            descripcion: $descripcion,
-            activa: true,
-        );
+        $userId = SessionManager::getUserId() ?? 0;
 
-        $encuesta = $this->encuestaRepo->save($encuesta);
-
-        foreach ($preguntasData as $orden => $pd) {
-            $tipoVo = new TipoPregunta($pd['tipo']);
-            $encuestaId = $encuesta->getId();
-            $pregunta = new Pregunta(
-                id: null,
-                encuestaId: $encuestaId ?? 0,
-                tipo: $tipoVo,
-                texto: $pd['texto'],
-                orden: $orden,
-                opciones: $pd['opciones'],
-                requerida: true,
-            );
-            $this->encuestaRepo->savePregunta($pregunta);
+        try {
+            $this->crearEncuesta->execute([
+                'titulo' => $titulo,
+                'creadaPor' => $userId,
+                'descripcion' => $descripcion,
+                'preguntas' => $preguntasData,
+            ]);
+        } catch (\InvalidArgumentException | \DomainException $e) {
+            $this->render('encuestas/crear', ['error' => $e->getMessage()]);
+            return;
         }
 
+        \Elyra\Infrastructure\Service\AuditLogger::logCreate('encuesta', null, ['titulo' => $titulo]);
         $this->redirect('/encuestas?creada=1');
     }
 
     public function resultados(): void
     {
         $this->requireAuth();
+        $this->requireRole('admin', 'superadmin');
 
         /** @var string $idStr */
-        $idStr = $_GET['id'] ?? 0;
+        $idStr = $_GET['id'] ?? '0';
         $id = (int) $idStr;
         if ($id <= 0) {
             $this->redirect('/encuestas');
             return;
         }
 
-        $encuesta = $this->encuestaRepo->findById($id);
-        if (!$encuesta) {
+        $result = $this->obtenerResultados->execute(['id' => $id]);
+        if ($result === null) {
             $this->redirect('/encuestas');
             return;
         }
 
-        $preguntas = $this->encuestaRepo->findPreguntasByEncuestaId($id);
-        /** @var array{totalRespuestas: int, stats: list<array{tipo: string, texto: string, datos: mixed}>} $agrupado */
-        $agrupado = $this->encuestaRepo->findRespuestasAgrupadas($id);
+        $encuesta = $result['encuesta'];
+        $creada = $encuesta->getCreatedAt();
 
         $encuestaArr = [
             'id' => $encuesta->getId(),
@@ -184,15 +151,38 @@ class EncuestaController extends BaseController
                     'tipo' => $tipo === 'texto_libre' ? 'texto' : $tipo,
                     'opciones' => $p->getOpciones(),
                 ];
-            }, $preguntas),
+            }, $result['preguntas']),
             'activa' => $encuesta->isActiva(),
-            'creada' => $encuesta->getCreatedAt() ? date('d/m/Y', (int) strtotime($encuesta->getCreatedAt())) : '',
+            'creada' => $creada ? date('d/m/Y', (int) strtotime($creada)) : '',
         ];
+
+        $stats = array_map(function (array $s) {
+            $datos = in_array($s['tipo'], ['texto', 'texto_libre'], true) ? $s['textosLibres'] : $s['conteo'];
+            $promedio = 0;
+            if ($s['tipo'] === 'escala' && $s['conteo'] !== []) {
+                $suma = 0;
+                $total = 0;
+                foreach ($s['conteo'] as $val => $cant) {
+                    $suma += (float) $val * $cant;
+                    $total += $cant;
+                }
+                $promedio = $total > 0 ? round($suma / $total, 1) : 0;
+            }
+            $tipo = $s['tipo'] === 'texto_libre' ? 'texto' : $s['tipo'];
+            return [
+                'preguntaId' => $s['preguntaId'],
+                'texto' => $s['texto'],
+                'tipo' => $tipo,
+                'datos' => $datos,
+                'promedio' => $promedio,
+                'total' => $s['total'],
+            ];
+        }, $result['stats']);
 
         $this->render('encuestas/resultados', [
             'encuesta' => $encuestaArr,
-            'totalRespuestas' => $agrupado['totalRespuestas'],
-            'stats' => $agrupado['stats'],
+            'totalRespuestas' => $result['totalRespuestas'],
+            'stats' => $stats,
         ]);
     }
 }

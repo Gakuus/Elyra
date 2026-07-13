@@ -12,7 +12,7 @@ $titulo = 'Mis Documentos';
         <option value="">Todos los tipos</option>
         <?php foreach ($tiposDocumento as $cat): ?>
             <option value="<?= $cat['id'] ?>"<?= $categoriaFiltro == $cat['id'] ? ' selected' : '' ?>>
-                <?= $cat['nombre'] ?>
+                <?= htmlspecialchars((string) $cat['nombre']) ?>
             </option>
         <?php endforeach; ?>
     </select>

@@ -82,9 +82,9 @@ class DocumentoRepository implements DocumentoRepositoryInterface
 
         if ($busqueda !== null && $busqueda !== '') {
             $sql .= " AND (d.titulo LIKE ? OR d.descripcion LIKE ? OR CONCAT(pu.apellido, ', ', pu.nombre) LIKE ?)";
-            $params[] = "%{$busqueda}%";
-            $params[] = "%{$busqueda}%";
-            $params[] = "%{$busqueda}%";
+            $params[] = '%' . addcslashes($busqueda, '%_') . '%';
+            $params[] = '%' . addcslashes($busqueda, '%_') . '%';
+            $params[] = '%' . addcslashes($busqueda, '%_') . '%';
         }
 
         if ($pacienteId !== null) {
@@ -117,9 +117,9 @@ class DocumentoRepository implements DocumentoRepositoryInterface
 
         if ($busqueda !== null && $busqueda !== '') {
             $sql .= " AND (d.titulo LIKE ? OR d.descripcion LIKE ? OR CONCAT(pu.apellido, ', ', pu.nombre) LIKE ?)";
-            $params[] = "%{$busqueda}%";
-            $params[] = "%{$busqueda}%";
-            $params[] = "%{$busqueda}%";
+            $params[] = '%' . addcslashes($busqueda, '%_') . '%';
+            $params[] = '%' . addcslashes($busqueda, '%_') . '%';
+            $params[] = '%' . addcslashes($busqueda, '%_') . '%';
         }
 
         if ($pacienteId !== null) {
@@ -159,8 +159,8 @@ class DocumentoRepository implements DocumentoRepositoryInterface
 
         if ($busqueda !== null && $busqueda !== '') {
             $sql .= " AND (d.titulo LIKE ? OR d.descripcion LIKE ?)";
-            $params[] = "%{$busqueda}%";
-            $params[] = "%{$busqueda}%";
+            $params[] = '%' . addcslashes($busqueda, '%_') . '%';
+            $params[] = '%' . addcslashes($busqueda, '%_') . '%';
         }
 
         $sql .= " ORDER BY d.created_at DESC LIMIT ? OFFSET ?";
@@ -188,8 +188,8 @@ class DocumentoRepository implements DocumentoRepositoryInterface
 
         if ($busqueda !== null && $busqueda !== '') {
             $sql .= " AND (d.titulo LIKE ? OR d.descripcion LIKE ?)";
-            $params[] = "%{$busqueda}%";
-            $params[] = "%{$busqueda}%";
+            $params[] = '%' . addcslashes($busqueda, '%_') . '%';
+            $params[] = '%' . addcslashes($busqueda, '%_') . '%';
         }
 
         $stmt = $this->pdo->prepare($sql);
@@ -210,9 +210,9 @@ class DocumentoRepository implements DocumentoRepositoryInterface
 
         if ($busqueda !== null && $busqueda !== '') {
             $sql .= " AND (d.titulo LIKE ? OR d.descripcion LIKE ? OR CONCAT(pu.apellido, ', ', pu.nombre) LIKE ?)";
-            $params[] = "%{$busqueda}%";
-            $params[] = "%{$busqueda}%";
-            $params[] = "%{$busqueda}%";
+            $params[] = '%' . addcslashes($busqueda, '%_') . '%';
+            $params[] = '%' . addcslashes($busqueda, '%_') . '%';
+            $params[] = '%' . addcslashes($busqueda, '%_') . '%';
         }
 
         if ($pacienteId !== null) {
@@ -245,9 +245,9 @@ class DocumentoRepository implements DocumentoRepositoryInterface
 
         if ($busqueda !== null && $busqueda !== '') {
             $sql .= " AND (d.titulo LIKE ? OR d.descripcion LIKE ? OR CONCAT(pu.apellido, ', ', pu.nombre) LIKE ?)";
-            $params[] = "%{$busqueda}%";
-            $params[] = "%{$busqueda}%";
-            $params[] = "%{$busqueda}%";
+            $params[] = '%' . addcslashes($busqueda, '%_') . '%';
+            $params[] = '%' . addcslashes($busqueda, '%_') . '%';
+            $params[] = '%' . addcslashes($busqueda, '%_') . '%';
         }
 
         if ($pacienteId !== null) {

@@ -43,7 +43,7 @@
 
                 <div class="form-group">
                     <label for="documento" class="form-label">Cédula <span class="text-danger">*</span></label>
-                    <input type="text" id="documento" name="documento" class="form-input w-100" required maxlength="8" pattern="[0-9]{8}" placeholder="Número de cédula (8 dígitos)" value="<?= htmlspecialchars($_POST['documento'] ?? '') ?>">
+                    <input type="text" id="documento" name="documento" class="form-input w-100" required maxlength="8" data-numeric placeholder="8 dígitos" value="<?= htmlspecialchars($_POST['documento'] ?? '') ?>">
                 </div>
 
                 <div class="d-flex gap-2">
@@ -53,7 +53,7 @@
                     </div>
                     <div class="form-group w-100">
                         <label for="telefono" class="form-label">Teléfono</label>
-                        <input type="tel" id="telefono" name="telefono" class="form-input w-100" maxlength="9" pattern="[0-9]{8,9}" placeholder="098765432" value="<?= htmlspecialchars($_POST['telefono'] ?? '') ?>">
+                        <input type="text" id="telefono" name="telefono" class="form-input w-100" maxlength="9" data-numeric placeholder="8-9 dígitos" value="<?= htmlspecialchars($_POST['telefono'] ?? '') ?>">
                     </div>
                 </div>
 
@@ -61,16 +61,17 @@
                     <div class="form-group w-100">
                         <label for="password" class="form-label">Contraseña <span class="text-danger">*</span></label>
                         <div class="d-flex align-items-center gap-1">
-                            <input type="password" id="password" name="password" class="form-input w-100" required minlength="6" placeholder="Mín. 6 caracteres">
+                            <input type="password" id="password" name="password" class="form-input w-100" required minlength="8" placeholder="Mín. 8 caracteres">
                             <button type="button" class="btn btn-sm btn-toggle-pw" tabindex="-1" onclick="togglePw('password', 'pwIcon')" style="flex-shrink:0;">
                                 <i class="bi bi-eye-slash" id="pwIcon"></i>
                             </button>
                         </div>
+                        <small class="text-muted">Recomendá usar mayúsculas, números y símbolos para mayor seguridad.</small>
                     </div>
                     <div class="form-group w-100">
                         <label for="password2" class="form-label">Repetir contraseña <span class="text-danger">*</span></label>
                         <div class="d-flex align-items-center gap-1">
-                            <input type="password" id="password2" name="password2" class="form-input w-100" required minlength="6" placeholder="Repetir contraseña">
+                            <input type="password" id="password2" name="password2" class="form-input w-100" required minlength="8" placeholder="Repetir contraseña">
                             <button type="button" class="btn btn-sm btn-toggle-pw" tabindex="-1" onclick="togglePw('password2', 'pwIcon2')" style="flex-shrink:0;">
                                 <i class="bi bi-eye-slash" id="pwIcon2"></i>
                             </button>

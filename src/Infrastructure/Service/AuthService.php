@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Elyra\Infrastructure\Service;
 
+use Elyra\Domain\Entity\Funcionario;
+use Elyra\Domain\Entity\Paciente;
 use Elyra\Domain\Repository\UsuarioRepositoryInterface;
 
 class AuthService
@@ -69,10 +71,20 @@ class AuthService
             ];
         }
 
+        $hash = $user->getPasswordHash();
+        if ($hash !== null && password_needs_rehash($hash, PASSWORD_BCRYPT, ['cost' => 12])) {
+            $user->setPasswordHash(password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]));
+            if ($user instanceof Funcionario) {
+                $this->usuarioRepo->updateFuncionario($user);
+            } elseif ($user instanceof Paciente) {
+                $this->usuarioRepo->updatePaciente($user);
+            }
+        }
+
         RateLimiter::resetLoginAttempts($ip);
         RateLimiter::resetAccountAttempts($username);
 
-        $rol = $user instanceof \Elyra\Domain\Entity\Funcionario ? $user->getRol()->value() : 'paciente';
+        $rol = $user instanceof Funcionario ? $user->getRol()->value() : 'paciente';
         $userId = $user->getId();
         if ($userId === null) {
             return ['success' => false, 'error' => 'Error interno'];

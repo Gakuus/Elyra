@@ -68,7 +68,7 @@
                             </div>
                             <div class="col-sm-6">
                                 <label for="telefono" class="form-label mb-1">Teléfono</label>
-                                <input type="tel" id="telefono" name="telefono" class="form-input w-100" maxlength="9" pattern="[0-9]{8,9}" value="<?= htmlspecialchars(method_exists($user, 'getTelefono') ? ($user->getTelefono() ?? '') : '') ?>" placeholder="8 o 9 dígitos">
+                                <input type="text" id="telefono" name="telefono" class="form-input w-100" maxlength="9" data-numeric value="<?= htmlspecialchars(method_exists($user, 'getTelefono') ? ($user->getTelefono() ?? '') : '') ?>" placeholder="8 o 9 dígitos">
                             </div>
                         </div>
 

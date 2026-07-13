@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace Elyra\Infrastructure\Web\Controller;
 
+use Elyra\Application\UseCases\Auth\EjecutarResetPasswordUseCase;
+use Elyra\Application\UseCases\Auth\SolicitarResetPasswordUseCase;
+use Elyra\Domain\Entity\Funcionario;
 use Elyra\Domain\Entity\Paciente;
 use Elyra\Infrastructure\Persistence\MySQL\UsuarioRepository;
 use Elyra\Infrastructure\Service\AuthService;
+use Elyra\Infrastructure\Service\EmailServiceInterface;
 use Elyra\Infrastructure\Service\ErrorHandler;
+use Elyra\Infrastructure\Service\PhpMailEmailService;
 use Elyra\Infrastructure\Service\RateLimiter;
 use Elyra\Infrastructure\Service\SessionManager;
 use Elyra\Infrastructure\Service\Validator;
@@ -51,9 +56,17 @@ class AuthController extends BaseController
         $result = $this->authService->login($username, $password);
 
         if ($result['success']) {
+            $user = $result['user'] ?? null;
+            $rol = $user instanceof \Elyra\Domain\Entity\Funcionario ? $user->getRol()->value() : 'paciente';
+            \Elyra\Infrastructure\Service\AuditLogger::logLogin(
+                SessionManager::getUserId() ?? 0,
+                $rol,
+                $username,
+            );
             $this->redirect('/dashboard');
         }
 
+        \Elyra\Infrastructure\Service\AuditLogger::log('login_failed', 'auth', null, ['username' => $username, 'reason' => $result['error'] ?? '']);
         $this->render('auth/login', ['error' => $result['error'] ?? '']);
     }
 
@@ -125,7 +138,7 @@ class AuthController extends BaseController
           ->maxLength('username', $username, 50, 'Usuario')
            ->maxLength('telefono', $telefono, 9, 'Teléfono')
            ->required('password', $password, 'Contraseña')
-           ->minLength('password', $password, 6, 'Contraseña');
+           ->minLength('password', $password, 8, 'Contraseña');
 
         if ($password !== $password2) {
             $v->required('password2', null, 'Repetir contraseña');
@@ -171,6 +184,11 @@ class AuthController extends BaseController
             $this->usuarioRepo->savePaciente($paciente);
             $userId = $paciente->getId();
             ErrorHandler::log('INFO', "Registro exitoso: username '{$username}', IP: {$ip}");
+            \Elyra\Infrastructure\Service\AuditLogger::logCreate(
+                'paciente',
+                $userId !== null ? (string) $userId : null,
+                ['username' => $username],
+            );
             SessionManager::login($userId !== null ? $userId : 0, 'paciente', $paciente->getNombreCompleto());
             $this->redirect('/dashboard');
         } catch (\Exception $e) {
@@ -181,7 +199,113 @@ class AuthController extends BaseController
 
     public function logout(): void
     {
+        \Elyra\Infrastructure\Service\AuditLogger::logLogout();
         $this->authService->logout();
         $this->redirect('/');
+    }
+
+    public function solicitarResetPassword(): void
+    {
+        if ($this->authService->isAuthenticated()) {
+            $this->redirect('/dashboard');
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->render('auth/solicitar-reset');
+            return;
+        }
+
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        /** @var string $ip */
+        if (!RateLimiter::checkResetAttempts($ip)) {
+            $this->render('auth/solicitar-reset', ['error' => 'Demasiadas solicitudes. Esper&aacute; unos minutos.']);
+            return;
+        }
+        RateLimiter::incrementResetAttempts($ip);
+
+        /** @var string $csrfTokenRaw */
+        $csrfTokenRaw = $_POST['_csrf_token'] ?? '';
+        $csrf = trim($csrfTokenRaw);
+        /** @var string $csrfSession */
+        $csrfSession = $_SESSION['_csrf_token'] ?? '';
+        if (!hash_equals($csrfSession, $csrf)) {
+            $this->render('auth/solicitar-reset', ['error' => 'Sesi&oacute;n inv&aacute;lida.']);
+            return;
+        }
+
+        /** @var string $emailInput */
+        $emailInput = $_POST['email'] ?? '';
+        $email = trim($emailInput);
+
+        $useCase = new SolicitarResetPasswordUseCase($this->usuarioRepo, new PhpMailEmailService());
+
+        try {
+            $result = $useCase->execute(['email' => $email]);
+        } catch (\InvalidArgumentException $e) {
+            $this->render('auth/solicitar-reset', ['error' => $e->getMessage()]);
+            return;
+        }
+
+        if ($result['success']) {
+            $this->render('auth/solicitar-reset', [
+                'exito' => 'Si el email existe en nuestro sistema, se envi&oacute; un enlace de recuperaci&oacute;n. Revis&aacute; tu bandeja de entrada.',
+            ]);
+        }
+    }
+
+    public function resetPassword(): void
+    {
+        if ($this->authService->isAuthenticated()) {
+            $this->redirect('/dashboard');
+        }
+
+        /** @var string $tokenRaw */
+        $tokenRaw = $_GET['token'] ?? $_POST['token'] ?? '';
+        $token = trim($tokenRaw);
+
+        if ($token === '') {
+            $this->render('auth/reset-password', ['error' => 'Token inválido.']);
+            return;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->render('auth/reset-password', ['token' => $token]);
+            return;
+        }
+
+        /** @var string $csrfTokenRaw */
+        $csrfTokenRaw = $_POST['_csrf_token'] ?? '';
+        $csrf = trim($csrfTokenRaw);
+        /** @var string $csrfSession */
+        $csrfSession = $_SESSION['_csrf_token'] ?? '';
+        if (!hash_equals($csrfSession, $csrf)) {
+            $this->render('auth/reset-password', ['token' => $token, 'error' => 'Sesi&oacute;n inv&aacute;lida.']);
+            return;
+        }
+
+        /** @var string $password */
+        $password = $_POST['password'] ?? '';
+        /** @var string $password2 */
+        $password2 = $_POST['password2'] ?? '';
+
+        if (!hash_equals($password, $password2)) {
+            $this->render('auth/reset-password', ['token' => $token, 'error' => 'Las contraseñas no coinciden.']);
+            return;
+        }
+
+        $useCase = new EjecutarResetPasswordUseCase($this->usuarioRepo);
+
+        try {
+            $result = $useCase->execute(['token' => $token, 'password' => $password]);
+        } catch (\InvalidArgumentException $e) {
+            $this->render('auth/reset-password', ['token' => $token, 'error' => $e->getMessage()]);
+            return;
+        }
+
+        if ($result['success']) {
+            $this->render('auth/reset-password', [
+                'exito' => 'Contraseña actualizada correctamente. Ya podés iniciar sesión.',
+            ]);
+        }
     }
 }

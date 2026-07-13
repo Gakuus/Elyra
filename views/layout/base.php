@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= $titulo ?? 'Elyra' ?> — Hospital de Clínicas</title>
+    <title><?= htmlspecialchars($titulo ?? 'Elyra') ?> — Hospital de Clínicas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="/css/web20.css" rel="stylesheet">
     <meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['_csrf_token'] ?? '') ?>">
@@ -34,10 +34,15 @@ $breadcrumbMap = [
     '/traslados/nuevo' => ['Nuevo traslado', '/traslados'],
     '/traslados/ver' => ['Detalle traslado', '/traslados'],
     '/traslados/historial' => ['Historial', '/traslados'],
+    '/traslados/mapa' => ['Mapa en vivo', '/traslados'],
+    '/traslados/tracking' => ['Tracking', '/traslados'],
     '/conductores' => ['Conductores', '/dashboard'],
     '/conductores/crear' => ['Crear conductor', '/conductores'],
     '/rutas' => ['Rutas', '/dashboard'],
     '/rutas/crear' => ['Crear ruta', '/rutas'],
+    '/funcionarios' => ['Funcionarios', '/dashboard'],
+    '/funcionarios/crear' => ['Crear funcionario', '/funcionarios'],
+    '/funcionarios/editar' => ['Editar funcionario', '/funcionarios'],
     '/perfil' => ['Mi Perfil', '/dashboard'],
 ];
 
@@ -62,7 +67,10 @@ function renderBreadcrumbs(string $uri, array $map): void {
     </div>
     <div class="web20-header-user">
         <a href="/perfil"><i class="bi bi-person-circle"></i> <?= htmlspecialchars($_SESSION['user_nombre'] ?? 'Usuario') ?></a>
-        <a href="/logout"><i class="bi bi-box-arrow-right"></i> Salir</a>
+        <form method="post" action="/logout" style="display:inline">
+            <input type="hidden" name="_csrf_token" value="<?= \Elyra\Infrastructure\Service\SessionManager::getCsrfToken() ?>">
+            <button type="submit" class="btn btn-sm btn-link" style="text-decoration:none"><i class="bi bi-box-arrow-right"></i> Salir</button>
+        </form>
     </div>
 </div>
 
@@ -86,10 +94,12 @@ function renderBreadcrumbs(string $uri, array $map): void {
         <div class="sidebar-section">
             <div class="sidebar-section-title">Ambulancias</div>
             <a href="/traslados" class="sidebar-link <?= $currentUri === '/traslados' ? 'active' : '' ?>"><img src="/img/silk/lorry.png" width="16" height="16" alt=""> Traslados</a>
+            <a href="/traslados/mapa" class="sidebar-link <?= $currentUri === '/traslados/mapa' ? 'active' : '' ?>"><img src="/img/silk/map.png" width="16" height="16" alt=""> Mapa en vivo</a>
             <a href="/traslados/nuevo" class="sidebar-link <?= $currentUri === '/traslados/nuevo' ? 'active' : '' ?>"><img src="/img/silk/add.png" width="16" height="16" alt=""> Nuevo</a>
             <a href="/traslados/historial" class="sidebar-link <?= $currentUri === '/traslados/historial' ? 'active' : '' ?>"><img src="/img/silk/clock.png" width="16" height="16" alt=""> Historial</a>
             <a href="/rutas" class="sidebar-link <?= $currentUri === '/rutas' ? 'active' : '' ?>"><img src="/img/silk/map.png" width="16" height="16" alt=""> Rutas</a>
             <a href="/conductores" class="sidebar-link <?= $currentUri === '/conductores' ? 'active' : '' ?>"><img src="/img/silk/group.png" width="16" height="16" alt=""> Conductores</a>
+            <a href="/funcionarios" class="sidebar-link <?= str_starts_with($currentUri, '/funcionarios') ? 'active' : '' ?>"><img src="/img/silk/user_edit.png" width="16" height="16" alt=""> Funcionarios</a>
         </div>
         <?php else: ?>
         <div class="sidebar-section">
@@ -127,7 +137,7 @@ function renderBreadcrumbs(string $uri, array $map): void {
 
 <?php endif; ?>
 
-<script nonce="<?= $nonce ?>" src="/js/elyra.js?v=5" defer></script>
+<script nonce="<?= $nonce ?>" src="/js/elyra.js?v=6" defer></script>
 <script nonce="<?= $nonce ?>" src="/js/components/ui.js?v=5" defer></script>
 <script nonce="<?= $nonce ?>">
 (function() {
@@ -135,7 +145,18 @@ function renderBreadcrumbs(string $uri, array $map): void {
     var timer;
     function resetTimer() {
         clearTimeout(timer);
-        timer = setTimeout(function() { window.location.href = '/logout?timeout=1'; }, timeout);
+        timer = setTimeout(function () {
+            var f = document.createElement('form');
+            f.method = 'POST';
+            f.action = '/logout';
+            var inp = document.createElement('input');
+            inp.type = 'hidden';
+            inp.name = '_csrf_token';
+            inp.value = '<?= \Elyra\Infrastructure\Service\SessionManager::getCsrfToken() ?>';
+            f.appendChild(inp);
+            document.body.appendChild(f);
+            f.submit();
+        }, timeout);
     }
     document.addEventListener('mousemove', resetTimer);
     document.addEventListener('keydown', resetTimer);

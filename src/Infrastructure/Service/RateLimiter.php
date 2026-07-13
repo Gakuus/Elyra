@@ -12,7 +12,7 @@ class RateLimiter
     {
         self::$storageDir = $dir;
         if (!is_dir($dir)) {
-            @mkdir($dir, 0775, true);
+            @mkdir($dir, 0640, true);
         }
     }
 
@@ -76,11 +76,41 @@ class RateLimiter
         self::reset("account:{$username}");
     }
 
+    public static function checkResetAttempts(string $ip): bool
+    {
+        return self::check("reset:{$ip}", 3, 3600);
+    }
+
+    public static function incrementResetAttempts(string $ip): int
+    {
+        return self::increment("reset:{$ip}", 3600);
+    }
+
+    public static function checkUploadAttempts(string $ip): bool
+    {
+        return self::check("upload:{$ip}", 10, 3600);
+    }
+
+    public static function incrementUploadAttempts(string $ip): int
+    {
+        return self::increment("upload:{$ip}", 3600);
+    }
+
+    public static function checkGeneral(string $key, int $maxAttempts, int $windowSeconds): bool
+    {
+        return self::check($key, $maxAttempts, $windowSeconds);
+    }
+
+    public static function incrementGeneral(string $key, int $windowSeconds): int
+    {
+        return self::increment($key, $windowSeconds);
+    }
+
     private static function storagePath(string $key): string
     {
         $dir = self::$storageDir ?: sys_get_temp_dir() . '/elyra_rate_limit';
         if (!is_dir($dir)) {
-            @mkdir($dir, 0775, true);
+            @mkdir($dir, 0640, true);
         }
         $safe = preg_replace('/[^a-zA-Z0-9:]/', '_', $key);
         return $dir . '/' . $safe . '.lock';
@@ -93,12 +123,20 @@ class RateLimiter
             return true;
         }
 
-        $data = @file_get_contents($file);
-        if ($data === false) {
+        $fp = @fopen($file, 'r');
+        if ($fp === false) {
+            return true;
+        }
+        flock($fp, LOCK_SH);
+        $data = @stream_get_contents($fp);
+        flock($fp, LOCK_UN);
+        fclose($fp);
+
+        if ($data === false || $data === '') {
             return true;
         }
 
-        $parsed = explode(':', $data);
+        $parsed = explode(':', trim($data));
         $count = (int) $parsed[0];
         $windowStart = (int) ($parsed[1] ?? 0);
 
@@ -116,10 +154,15 @@ class RateLimiter
         $count = 1;
         $windowStart = time();
 
-        if (file_exists($file)) {
-            $data = @file_get_contents($file);
-            if ($data !== false) {
-                $parsed = explode(':', $data);
+        $fp = @fopen($file, 'c+');
+        if ($fp !== false) {
+            flock($fp, LOCK_EX);
+            ftruncate($fp, 0);
+            rewind($fp);
+
+            $data = @stream_get_contents($fp);
+            if ($data !== false && $data !== '') {
+                $parsed = explode(':', trim($data));
                 $existingCount = (int) $parsed[0];
                 $existingStart = (int) ($parsed[1] ?? 0);
 
@@ -128,9 +171,12 @@ class RateLimiter
                     $windowStart = $existingStart;
                 }
             }
+
+            fwrite($fp, "{$count}:{$windowStart}");
+            flock($fp, LOCK_UN);
+            fclose($fp);
         }
 
-        @file_put_contents($file, "{$count}:{$windowStart}", LOCK_EX);
         return $count;
     }
 

@@ -25,4 +25,11 @@ interface UsuarioRepositoryInterface
     /** @return Paciente[] */
     public function findAllPacientes(): array;
     public function delete(int $id): void;
+    public function findUserByEmail(string $email): ?Usuario;
+    public function saveResetToken(int $userId, ?string $token, ?string $expiresAt): void;
+    public function findUserByResetToken(string $token): ?Usuario;
+    public function updatePasswordHash(int $userId, string $passwordHash): void;
+    public function beginTransaction(): void;
+    public function commit(): void;
+    public function rollback(): void;
 }

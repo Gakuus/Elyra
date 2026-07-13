@@ -70,7 +70,7 @@ $router->addMiddleware(function () {
 // CSP Headers
 $router->addMiddleware(function () {
     $nonce = \Elyra\Infrastructure\Service\SessionManager::getNonce();
-    $csp = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'nonce-{$nonce}' 'strict-dynamic'; script-src-attr 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; img-src 'self' data:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'";
+    $csp = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com 'nonce-{$nonce}' 'strict-dynamic'; script-src-attr 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com 'unsafe-inline'; img-src 'self' data: https://*.tile.openstreetmap.org; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'";
     header("Content-Security-Policy: {$csp}");
     header('X-Content-Type-Options: nosniff');
     header('X-Frame-Options: SAMEORIGIN');
@@ -90,6 +90,7 @@ $route = $router->dispatch($method, $uri);
 
 if ($route === null) {
     http_response_code(404);
+    $nonce = \Elyra\Infrastructure\Service\SessionManager::getNonce();
     require __DIR__ . '/../views/errors/404.php';
     exit;
 }
@@ -99,8 +100,9 @@ $controllerClass = "Elyra\\Infrastructure\\Web\\Controller\\{$route['controller'
 if (!class_exists($controllerClass)) {
     http_response_code(500);
     if ($debug) {
-        echo "Controller {$controllerClass} no encontrado.";
+        echo htmlspecialchars("Controller {$controllerClass} no encontrado.", ENT_QUOTES, 'UTF-8');
     } else {
+        $nonce = \Elyra\Infrastructure\Service\SessionManager::getNonce();
         require __DIR__ . '/../views/errors/500.php';
     }
     exit;
@@ -111,15 +113,16 @@ $controller = new $controllerClass();
 if (!method_exists($controller, $route['action'])) {
     http_response_code(500);
     if ($debug) {
-        echo "Método {$route['action']} no encontrado en {$route['controller']}.";
+        echo htmlspecialchars("Método {$route['action']} no encontrado en {$route['controller']}.", ENT_QUOTES, 'UTF-8');
     } else {
+        $nonce = \Elyra\Infrastructure\Service\SessionManager::getNonce();
         require __DIR__ . '/../views/errors/500.php';
     }
     exit;
 }
 
 // Auth check
-$noAuthRoutes = ['/', '/login', '/registro'];
+$noAuthRoutes = ['/', '/login', '/registro', '/recuperar-contrasena', '/restablecer-contrasena'];
 $publicPrefixes = ['/publico'];
 
 $isPublic = false;

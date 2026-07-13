@@ -8,6 +8,7 @@ use Elyra\Domain\Entity\ElementoTraslado;
 use Elyra\Domain\Entity\HistorialEstado;
 use Elyra\Domain\Entity\Traslado;
 use Elyra\Domain\Repository\TrasladoRepositoryInterface;
+use Elyra\Domain\ValueObject\Coordenada;
 use Elyra\Domain\ValueObject\EstadoTraslado;
 use Elyra\Domain\ValueObject\TipoElemento;
 
@@ -100,6 +101,27 @@ class TrasladoRepository implements TrasladoRepositoryInterface
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll();
 
+        return array_map(fn (array $row) => $this->hydrate($row), $rows);
+    }
+
+    /**
+     * @param list<string> $estados
+     * @return list<Traslado>
+     */
+    public function findAllByEstados(array $estados): array
+    {
+        if ($estados === []) {
+            return [];
+        }
+
+        $placeholders = implode(', ', array_fill(0, count($estados), '?'));
+        $sql = "SELECT * FROM traslado WHERE estado IN ({$placeholders}) ORDER BY created_at DESC";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($estados);
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $stmt->fetchAll();
+
+        /** @var list<Traslado> */
         return array_map(fn (array $row) => $this->hydrate($row), $rows);
     }
 
@@ -237,12 +259,24 @@ class TrasladoRepository implements TrasladoRepositoryInterface
 
     public function nextCodigo(): string
     {
-        /** @var \PDOStatement $stmt */
-        $stmt = $this->pdo->query("SELECT MAX(id) FROM traslado");
-        $maxId = (int) $stmt->fetchColumn();
         $year = date('y');
-        $secuencial = str_pad((string)($maxId + 1), 3, '0', STR_PAD_LEFT);
-        return "TR-{$year}{$secuencial}";
+        $prefix = "TR-{$year}";
+
+        /** @var \PDOStatement $stmt */
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM traslado WHERE codigo LIKE ?");
+        $stmt->execute([$prefix . '%']);
+        $count = (int) $stmt->fetchColumn();
+
+        $secuencial = str_pad((string)($count + 1), 3, '0', STR_PAD_LEFT);
+        $codigo = "{$prefix}{$secuencial}";
+
+        $check = $this->findByCodigo($codigo);
+        if ($check !== null) {
+            $secuencial = str_pad((string)($count + 2), 3, '0', STR_PAD_LEFT);
+            $codigo = "{$prefix}{$secuencial}";
+        }
+
+        return $codigo;
     }
 
     public function delete(int $id): void
@@ -250,13 +284,28 @@ class TrasladoRepository implements TrasladoRepositoryInterface
         $this->pdo->beginTransaction();
         try {
             $this->pdo->prepare("DELETE FROM elemento_traslado WHERE traslado_id = ?")->execute([$id]);
-            $this->pdo->prepare("DELETE FROM historial_estado WHERE traslado_id = ?")->execute([$id]);
+            $this->pdo->prepare("UPDATE historial_estado SET traslado_id = NULL WHERE traslado_id = ?")->execute([$id]);
             $this->pdo->prepare("DELETE FROM traslado WHERE id = ?")->execute([$id]);
             $this->pdo->commit();
         } catch (\Exception $e) {
             $this->pdo->rollBack();
             throw $e;
         }
+    }
+
+    public function beginTransaction(): void
+    {
+        $this->pdo->beginTransaction();
+    }
+
+    public function commit(): void
+    {
+        $this->pdo->commit();
+    }
+
+    public function rollback(): void
+    {
+        $this->pdo->rollBack();
     }
 
     /** @param array<string, mixed> $row */
@@ -307,6 +356,23 @@ class TrasladoRepository implements TrasladoRepositoryInterface
         /** @var string|null $updatedAt */
         $updatedAt = $row['updated_at'];
 
+        $origenCoord = null;
+        /** @var string|null $origenLat */
+        $origenLat = $row['origen_lat'];
+        /** @var string|null $origenLng */
+        $origenLng = $row['origen_lng'];
+        if ($origenLat !== null && $origenLng !== null) {
+            $origenCoord = new Coordenada((float) $origenLat, (float) $origenLng);
+        }
+        $destinoCoord = null;
+        /** @var string|null $destinoLat */
+        $destinoLat = $row['destino_lat'];
+        /** @var string|null $destinoLng */
+        $destinoLng = $row['destino_lng'];
+        if ($destinoLat !== null && $destinoLng !== null) {
+            $destinoCoord = new Coordenada((float) $destinoLat, (float) $destinoLng);
+        }
+
         return new Traslado(
             id: $id,
             codigo: $codigo,
@@ -327,6 +393,8 @@ class TrasladoRepository implements TrasladoRepositoryInterface
             observaciones: $observaciones,
             createdAt: $createdAt,
             updatedAt: $updatedAt,
+            origenCoordenada: $origenCoord,
+            destinoCoordenada: $destinoCoord,
         );
     }
 

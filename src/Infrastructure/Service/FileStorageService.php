@@ -84,6 +84,12 @@ class FileStorageService
         }
 
         $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+        $allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'doc', 'docx', 'xls', 'xlsx', 'txt'];
+
+        if (!in_array($extension, $allowedExtensions, true)) {
+            throw new \RuntimeException("Extensión no permitida: {$extension}");
+        }
+
         $filename = bin2hex(random_bytes(16)) . '.' . $extension;
         $filePath = $targetDir . '/' . $filename;
 

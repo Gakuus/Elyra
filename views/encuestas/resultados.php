@@ -76,7 +76,7 @@
     <script nonce="<?= $nonce ?>">
     document.addEventListener('DOMContentLoaded', function () {
         var colors = ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#6f42c1', '#20c997', '#fd7e14', '#0dcaf0', '#6610f2', '#d63384'];
-        var stats = <?= json_encode($stats, JSON_UNESCAPED_UNICODE) ?>;
+        var stats = <?= json_encode($stats, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 
         stats.forEach(function (s, i) {
             var canvas = document.getElementById('chart-' + i);

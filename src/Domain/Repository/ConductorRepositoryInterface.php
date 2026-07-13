@@ -10,7 +10,7 @@ interface ConductorRepositoryInterface
 {
     public function findById(int $id): ?Funcionario;
     /** @return Funcionario[] */
-    public function findAll(?bool $activo = null): array;
+    public function findAll(?bool $activo = null, string $buscar = ''): array;
     public function countTotal(): int;
     public function countActivos(): int;
     /** @return Funcionario[] */

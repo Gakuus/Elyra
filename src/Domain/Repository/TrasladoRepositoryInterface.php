@@ -18,6 +18,11 @@ interface TrasladoRepositoryInterface
     public function findHistorialByTrasladoId(int $trasladoId): array;
     /** @return Traslado[] */
     public function findAll(?string $estado = null, ?int $conductorId = null, ?string $fechaDesde = null, ?string $fechaHasta = null, int $page = 1, int $perPage = 20): array;
+    /**
+     * @param list<string> $estados
+     * @return list<Traslado>
+     */
+    public function findAllByEstados(array $estados): array;
     public function count(?string $estado = null, ?int $conductorId = null): int;
     public function countTotal(): int;
     public function countByEstado(string $estado): int;
@@ -27,4 +32,7 @@ interface TrasladoRepositoryInterface
     public function update(Traslado $traslado): void;
     public function nextCodigo(): string;
     public function delete(int $id): void;
+    public function beginTransaction(): void;
+    public function commit(): void;
+    public function rollback(): void;
 }

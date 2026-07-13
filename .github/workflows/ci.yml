@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 env:
-  PHP_VERSION: '8.1'
+  PHP_VERSION: '8.5'
   NODE_VERSION: '24'
 
 jobs:
@@ -45,7 +45,6 @@ jobs:
 
       - name: Instalar dependencias PHP
         run: composer install --no-interaction --prefer-dist
-        continue-on-error: true
 
       - name: Validar sintaxis PHP
         run: find . -name "*.php" -not -path "./vendor/*" -not -path "./node_modules/*" -exec php -l {} \;

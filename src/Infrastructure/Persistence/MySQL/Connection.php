@@ -12,17 +12,21 @@ class Connection
     {
         if (self::$instance === null) {
             /** @var string $host */
-            $host = $_ENV['DB_HOST'] ?? '127.0.0.1';
+            $host = $_ENV['DB_HOST'] ?? '';
             /** @var string $port */
             $port = $_ENV['DB_PORT'] ?? '3306';
             /** @var string $database */
-            $database = $_ENV['DB_DATABASE'] ?? 'elyra';
+            $database = $_ENV['DB_DATABASE'] ?? '';
             /** @var string $username */
-            $username = $_ENV['DB_USERNAME'] ?? 'root';
+            $username = $_ENV['DB_USERNAME'] ?? '';
             /** @var string $password */
             $password = $_ENV['DB_PASSWORD'] ?? '';
             /** @var string|null $unixSocket */
             $unixSocket = $_ENV['DB_SOCKET'] ?? null;
+
+            if ($host === '' || $database === '' || $username === '') {
+                throw new \RuntimeException('Faltan variables de entorno de base de datos: DB_HOST, DB_DATABASE, DB_USERNAME son obligatorias');
+            }
 
             if ($unixSocket) {
                 $dsn = "mysql:unix_socket={$unixSocket};dbname={$database};charset=utf8mb4";

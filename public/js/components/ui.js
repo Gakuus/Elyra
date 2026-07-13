@@ -40,7 +40,11 @@
         el.style.background = colors[type] || colors.info;
         el.style.borderColor = borderColors[type] || borderColors.info;
         el.style.color = textColors[type] || textColors.info;
-        el.innerHTML = '<i class="bi ' + (icons[type] || icons.info) + ' me-2"></i>' + message;
+        var iconHtml = '<i class="bi ' + (icons[type] || icons.info) + ' me-2"></i>';
+        var textSpan = document.createElement('span');
+        textSpan.textContent = message;
+        el.appendChild(document.createRange().createContextualFragment(iconHtml));
+        el.appendChild(textSpan);
         container.appendChild(el);
         setTimeout(function () {
             el.style.opacity = '0';
@@ -53,7 +57,8 @@
         var modal = document.getElementById('eliminarModal');
         if (!modal) return;
         document.getElementById('eliminarMensaje').textContent = 'Eliminar "' + titulo + '"?';
-        document.getElementById('eliminarConfirmar').href = '/documentos/eliminar?id=' + id;
+        var idField = document.getElementById('eliminarId');
+        if (idField) idField.value = id;
         modal.classList.add('open');
     };
 
