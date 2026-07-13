@@ -1510,7 +1510,7 @@ img {
     }
 }
 
-@media (min-width: 576px) and (max-width: 767px) {
+@media (576px <= width <= 767px) {
     .hamburger-btn {
         display: block;
     }
@@ -1562,7 +1562,7 @@ img {
     .col-md-12 { width: 100%; }
 }
 
-@media (min-width: 768px) and (max-width: 991px) {
+@media (768px <= width <= 991px) {
     .web20-sidebar {
         width: 200px;
         min-width: 200px;
