@@ -185,4 +185,39 @@ class EncuestaController extends BaseController
             'stats' => $stats,
         ]);
     }
+
+    public function exportar(): void
+    {
+        $this->requireAuth();
+        $this->requireRole('admin', 'superadmin');
+
+        $encuestas = $this->encuestaRepo->findAll();
+
+        header('Content-Type: text/csv; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="encuestas_' . date('Y-m-d') . '.csv"');
+
+        $output = fopen('php://output', 'w');
+        if ($output === false) {
+            return;
+        }
+        fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+        fputcsv($output, ['ID', 'Título', 'Descripción', 'Preguntas', 'Estado', 'Fecha creación'], ';');
+
+        foreach ($encuestas as $e) {
+            $encuestaId = $e->getId();
+            $preguntas = $encuestaId !== null ? $this->encuestaRepo->findPreguntasByEncuestaId($encuestaId) : [];
+            $creada = $e->getCreatedAt();
+            fputcsv($output, [
+                $encuestaId,
+                $e->getTitulo(),
+                $e->getDescripcion() ?? '',
+                count($preguntas),
+                $e->isActiva() ? 'Activa' : 'Inactiva',
+                $creada ? date('d/m/Y H:i', (int) strtotime($creada)) : '',
+            ], ';');
+        }
+
+        fclose($output);
+        exit;
+    }
 }

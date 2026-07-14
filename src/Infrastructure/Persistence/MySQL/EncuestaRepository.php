@@ -97,6 +97,13 @@ class EncuestaRepository implements EncuestaRepositoryInterface
         return (int) $stmt->fetchColumn();
     }
 
+    public function countRespuestas(): int
+    {
+        /** @var \PDOStatement $stmt */
+        $stmt = $this->pdo->query("SELECT COUNT(DISTINCT sesion_token) FROM respuesta");
+        return (int) $stmt->fetchColumn();
+    }
+
     public function save(Encuesta $encuesta): Encuesta
     {
         $stmt = $this->pdo->prepare(

@@ -11,9 +11,14 @@ $isPaciente = \Elyra\Infrastructure\Service\SessionManager::isPaciente();
             <div class="panel-heading d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-bar-chart me-1"></i> Encuestas</span>
                 <?php if (!$isPaciente): ?>
-                <a href="/encuestas/crear" class="btn btn-primary py-0 px-3" style="font-size: 11px;">
-                    <i class="bi bi-plus-lg me-1"></i> Nueva
-                </a>
+                <div class="d-flex gap-1">
+                    <a href="/encuestas/exportar" class="btn py-0 px-3" style="font-size: 11px;" aria-label="Exportar encuestas a CSV">
+                        <i class="bi bi-download me-1"></i> CSV
+                    </a>
+                    <a href="/encuestas/crear" class="btn btn-primary py-0 px-3" style="font-size: 11px;">
+                        <i class="bi bi-plus-lg me-1"></i> Nueva
+                    </a>
+                </div>
                 <?php endif; ?>
             </div>
 

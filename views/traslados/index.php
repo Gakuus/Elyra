@@ -8,6 +8,9 @@
             <div class="panel-heading d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-truck me-1"></i> Traslados en ambulancia</span>
                 <div class="d-flex gap-1">
+                    <a href="/traslados/exportar" class="btn py-0 px-3" style="font-size: 11px;" aria-label="Exportar traslados a CSV">
+                        <i class="bi bi-download me-1"></i> CSV
+                    </a>
                     <a href="/traslados/historial" class="btn py-0 px-3" style="font-size: 11px;">
                         <i class="bi bi-clock-history me-1"></i> Historial
                     </a>

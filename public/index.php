@@ -17,6 +17,19 @@ if (file_exists($envFile)) {
     }
 }
 
+// HTTPS redirect
+if (
+    ($_ENV['APP_ENV'] ?? 'development') === 'production'
+    && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'on')
+    && (!isset($_SERVER['HTTP_X_FORWARDED_PROTO']) || $_SERVER['HTTP_X_FORWARDED_PROTO'] !== 'https')
+    && (!isset($_SERVER['HTTP_X_FORWARDED_SSL']) || $_SERVER['HTTP_X_FORWARDED_SSL'] !== 'on')
+) {
+    $host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+    $uri = $_SERVER['REQUEST_URI'] ?? '/';
+    header('Location: https://' . $host . $uri, 301);
+    exit;
+}
+
 // Error handler
 $debug = ($_ENV['APP_DEBUG'] ?? false) === true;
 if (!$debug) {
