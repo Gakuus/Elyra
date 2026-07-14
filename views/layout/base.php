@@ -21,8 +21,6 @@ $currentUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 ?>
 <body>
 
-<a href="#main-content" class="skip-link">Saltar al contenido principal</a>
-
 <?php if ($currentSess::isAuthenticated()): ?>
 
 <?php

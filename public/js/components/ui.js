@@ -137,8 +137,7 @@
             var el = document.getElementById('qrcode');
             if (!el) return;
             el.innerHTML = '';
-            try { new window.QRCode(el, { text: url, width: 180, height: 180 }); }
-            catch (e) { el.innerHTML = '<p class="text-muted small">Error al generar QR</p>'; }
+            new window.QRCode(el, { text: url, width: 180, height: 180 });
         }
         if (typeof window.QRCode !== 'undefined') {
             loadQR();

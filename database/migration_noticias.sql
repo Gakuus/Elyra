@@ -12,9 +12,8 @@ CREATE TABLE IF NOT EXISTS noticias (
     activo BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_noticias_activo (activo),
+    INDEX idx_noticias_autor (autor_id),
+    INDEX idx_noticias_created (created_at),
     FOREIGN KEY (autor_id) REFERENCES usuario(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE INDEX IF NOT EXISTS idx_noticias_activo ON noticias(activo);
-CREATE INDEX IF NOT EXISTS idx_noticias_autor ON noticias(autor_id);
-CREATE INDEX IF NOT EXISTS idx_noticias_created ON noticias(created_at);

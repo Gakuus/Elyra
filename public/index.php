@@ -122,7 +122,7 @@ if (!method_exists($controller, $route['action'])) {
 }
 
 // Auth check
-$noAuthRoutes = ['/', '/login', '/registro', '/recuperar-contrasena', '/restablecer-contrasena'];
+$noAuthRoutes = ['/', '/login', '/registro', '/recuperar-contrasena', '/restablecer-contrasena', '/offline'];
 $publicPrefixes = ['/publico'];
 
 $isPublic = false;
