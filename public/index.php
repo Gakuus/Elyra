@@ -99,6 +99,18 @@ $router->runMiddleware();
 // Dispatch
 $method = $_SERVER['REQUEST_METHOD'];
 $uri = $_SERVER['REQUEST_URI'];
+
+// Strip base path for subdirectory installs
+$appUrlPath = parse_url($_ENV['APP_URL'] ?? '', PHP_URL_PATH);
+if (is_string($appUrlPath) && $appUrlPath !== '' && $appUrlPath !== '/') {
+    $basePath = rtrim($appUrlPath, '/');
+    $uriPath = parse_url($uri, PHP_URL_PATH);
+    if (is_string($uriPath) && str_starts_with($uriPath, $basePath)) {
+        $stripped = substr($uriPath, strlen($basePath)) ?: '/';
+        $uri = $stripped . (parse_url($uri, PHP_URL_QUERY) !== null ? '?' . parse_url($uri, PHP_URL_QUERY) : '');
+    }
+}
+
 $route = $router->dispatch($method, $uri);
 
 if ($route === null) {
