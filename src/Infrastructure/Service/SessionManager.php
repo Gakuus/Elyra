@@ -29,6 +29,10 @@ class SessionManager
             session_start();
         }
 
+        if (isset($_COOKIE[self::SESSION_NAME]) && $_COOKIE[self::SESSION_NAME] !== session_id()) {
+            setcookie(self::SESSION_NAME, '', ['expires' => time() - 3600, 'path' => '/']);
+        }
+
         self::checkTimeout();
     }
 
