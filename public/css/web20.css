@@ -1140,7 +1140,7 @@ img {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(rgb(0 0 0 / 45%), rgb(0 0 0 / 45%)), url('/img/hospital-de-clinicas.jpg') center/cover no-repeat;
+    background: linear-gradient(rgb(0 0 0 / 45%), rgb(0 0 0 / 45%)) center/cover no-repeat;
     padding: 20px;
 }
 
