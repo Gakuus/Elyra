@@ -9,6 +9,13 @@ class SessionManager
     private const TIMEOUT = 1800;
     private const SESSION_NAME = 'elyra_session';
 
+    private static function isSecure(): bool
+    {
+        return !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'
+            || !empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https'
+            || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on';
+    }
+
     public static function start(): void
     {
         if (session_status() === PHP_SESSION_ACTIVE) {
@@ -17,15 +24,11 @@ class SessionManager
 
         session_name(self::SESSION_NAME);
 
-        $isSecure = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'
-            || !empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https'
-            || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on';
-
         $cookieParams = [
             'lifetime' => 0,
             'path' => '/',
             'domain' => '',
-            'secure' => $isSecure,
+            'secure' => self::isSecure(),
             'httponly' => true,
             'samesite' => 'Lax',
         ];
@@ -50,21 +53,20 @@ class SessionManager
 
         if (ini_get('session.use_cookies')) {
             $sessionName = session_name();
-            if ($sessionName === false) {
-                return;
+            if ($sessionName !== false) {
+                setcookie(
+                    $sessionName,
+                    '',
+                    [
+                        'expires' => time() - 42000,
+                        'path' => '/',
+                        'domain' => '',
+                        'secure' => self::isSecure(),
+                        'httponly' => true,
+                        'samesite' => 'Lax',
+                    ]
+                );
             }
-            setcookie(
-                $sessionName,
-                '',
-                [
-                    'expires' => time() - 42000,
-                    'path' => '/',
-                    'domain' => '',
-                    'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
-                    'httponly' => true,
-                    'samesite' => 'Lax',
-                ]
-            );
         }
 
         session_destroy();
@@ -156,30 +158,6 @@ class SessionManager
         }
 
         $_SESSION['_created_at'] = time();
-
-        if (isset($_SESSION['_session_id'])) {
-            $sid = $_SESSION['_session_id'];
-            if (!is_string($sid)) {
-                return;
-            }
-            $userId = self::getUserId();
-            if ($userId === null) {
-                return;
-            }
-            $file = self::sessionFilePath($userId);
-            if (!file_exists($file)) {
-                return;
-            }
-            $data = @file_get_contents($file);
-            if ($data === false) {
-                return;
-            }
-            $sessions = json_decode($data, true);
-            if (!is_array($sessions) || !in_array($sid, $sessions, true)) {
-                self::destroy();
-                self::start();
-            }
-        }
     }
 
     private static function getUserAgent(): string
@@ -195,93 +173,18 @@ class SessionManager
         $_SESSION['user_id'] = $userId;
         $_SESSION['user_role'] = $role;
         $_SESSION['user_nombre'] = $nombre;
-        $_SESSION['_session_id'] = session_id();
         $_SESSION['_user_agent'] = self::getUserAgent();
 
         unset($_SESSION['_csrf_token']);
-
-        self::saveActiveSession($userId);
     }
 
     public static function logout(): void
     {
-        $userId = self::getUserId();
-        if ($userId !== null) {
-            self::removeActiveSession($userId);
-        }
         self::destroy();
-    }
-
-    private static function sessionsDir(): string
-    {
-        $dir = dirname(__DIR__, 3) . '/storage/sessions';
-        if (!is_dir($dir)) {
-            @mkdir($dir, 0640, true);
-        }
-        return $dir;
-    }
-
-    private static function sessionFilePath(int $userId): string
-    {
-        return self::sessionsDir() . "/user_{$userId}.json";
-    }
-
-    private static function saveActiveSession(int $userId): void
-    {
-        $file = self::sessionFilePath($userId);
-        $currentSessionId = session_id();
-
-        $sessions = [];
-        if (file_exists($file)) {
-            $data = @file_get_contents($file);
-            if ($data !== false) {
-                $sessions = json_decode($data, true);
-            }
-        }
-
-        if (!is_array($sessions)) {
-            $sessions = [];
-        }
-
-        $sessions[] = $currentSessionId;
-
-        @file_put_contents($file, json_encode($sessions), LOCK_EX);
-    }
-
-    private static function removeActiveSession(int $userId): void
-    {
-        $file = self::sessionFilePath($userId);
-        if (!file_exists($file)) {
-            return;
-        }
-
-        $data = @file_get_contents($file);
-        if ($data === false) {
-            return;
-        }
-
-        $sessions = json_decode($data, true);
-        if (!is_array($sessions)) {
-            return;
-        }
-
-        $currentSessionId = session_id();
-        $sessions = array_values(
-            array_filter($sessions, fn ($sid) => $sid !== $currentSessionId)
-        );
-
-        if (empty($sessions)) {
-            @unlink($file);
-        } else {
-            @file_put_contents($file, json_encode($sessions), LOCK_EX);
-        }
     }
 
     public static function destroyAllSessionsForUser(int $userId): void
     {
-        $file = self::sessionFilePath($userId);
-        if (file_exists($file)) {
-            @unlink($file);
-        }
+        self::destroy();
     }
 }
