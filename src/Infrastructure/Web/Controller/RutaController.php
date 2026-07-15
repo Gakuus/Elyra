@@ -37,7 +37,7 @@ class RutaController extends BaseController
             'descripcion' => $r->getDescripcion() ?? '',
         ], $result['rutas']);
 
-        $this->render('rutas/index', [
+        $this->render('rutas/list', [
             'rutas' => $rutas,
             'total' => $result['total'],
         ]);

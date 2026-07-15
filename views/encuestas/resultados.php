@@ -2,7 +2,7 @@
 <?php ob_start(); ?>
 
 <div class="resultados-header">
-    <a href="/encuestas" class="btn btn-sm mb-2"><i class="bi bi-arrow-left me-1"></i> Volver a encuestas</a>
+    <a href="encuestas" class="btn btn-sm mb-2"><i class="bi bi-arrow-left me-1"></i> Volver a encuestas</a>
     <h4 class="fw-semibold"><?= htmlspecialchars($encuesta['titulo']) ?></h4>
     <p class="text-muted small mb-0">
         <span class="badge badge-secondary text-secondary me-2"><?= count($encuesta['preguntas']) ?> preguntas</span>

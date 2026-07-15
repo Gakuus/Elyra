@@ -7,7 +7,7 @@
         </div>
         <div class="login-box-body">
             <div class="login-box-logo">
-                <img src="/img/elyralogo.png" alt="Elyra">
+                <img src="img/elyralogo.png" alt="Elyra">
             </div>
             <div class="login-box-title">Sistema de Gestión Hospitalaria</div>
             <p class="text-muted small text-center mb-3">Ingresá tus credenciales para acceder</p>
@@ -44,10 +44,10 @@
             </form>
 
             <p class="text-center mt-3 mb-0 small">
-                <a href="/recuperar-contrasena">¿Olvidaste tu contraseña?</a>
+                <a href="recuperar-contrasena">¿Olvidaste tu contraseña?</a>
             </p>
             <p class="text-center mt-2 mb-0 small">
-                <a href="/registro">¿No tenés cuenta? Registrate</a>
+                <a href="registro">¿No tenés cuenta? Registrate</a>
             </p>
         </div>
     </div>

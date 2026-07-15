@@ -99,7 +99,7 @@
 
     <div class="d-flex gap-2">
         <button type="submit" class="btn btn-primary">Crear</button>
-        <a href="/conductores" class="btn">Cancelar</a>
+        <a href="conductores" class="btn">Cancelar</a>
     </div>
 </form>
 <?php $contenido = ob_get_clean(); ?>

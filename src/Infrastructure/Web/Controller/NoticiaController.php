@@ -33,7 +33,7 @@ class NoticiaController extends BaseController
 
         $noticias = $this->noticiaRepo->findAll();
 
-        $this->render('noticias/index', [
+        $this->render('noticias/list', [
             'noticias' => array_map(fn (Noticia $n) => $this->noticiaToArray($n), $noticias),
         ]);
     }

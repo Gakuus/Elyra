@@ -28,7 +28,7 @@
         <label class="form-label">Imagen actual</label>
         <?php if ($noticia['imagen']): ?>
             <div class="mb-2">
-                <img src="/uploads/noticias/<?= htmlspecialchars($noticia['imagen']) ?>" alt="" style="max-height:120px;border:1px solid #ddd;border-radius:4px;object-fit:cover;">
+                <img src="uploads/noticias/<?= htmlspecialchars($noticia['imagen']) ?>" alt="" style="max-height:120px;border:1px solid #ddd;border-radius:4px;object-fit:cover;">
             </div>
         <?php else: ?>
             <p class="small text-muted">Sin imagen</p>
@@ -40,7 +40,7 @@
 
     <div class="d-flex gap-2">
         <button type="submit" class="btn btn-primary">Guardar cambios</button>
-        <a href="/noticias" class="btn">Cancelar</a>
+        <a href="noticias" class="btn">Cancelar</a>
     </div>
 </form>
 <?php endif; ?>

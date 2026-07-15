@@ -50,7 +50,7 @@ class FuncionarioController extends BaseController
             'activo' => $activo,
         ]);
 
-        $this->render('funcionarios/index', [
+        $this->render('funcionarios/list', [
             'funcionarios' => $result['items'],
             'total' => $result['total'],
             'activos' => $result['activos'],

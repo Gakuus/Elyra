@@ -15,7 +15,7 @@ $e = $estados[$t['estado']] ?? ['label' => $t['estado'], 'class' => 'secondary']
 <div class="row justify-content-center">
     <div class="col-lg-10">
 
-        <a href="/traslados" class="btn btn-sm mb-3"><i class="bi bi-arrow-left me-1"></i> Volver a traslados</a>
+        <a href="traslados" class="btn btn-sm mb-3"><i class="bi bi-arrow-left me-1"></i> Volver a traslados</a>
 
         <div class="panel mb-4">
             <div class="panel-body">
@@ -138,11 +138,11 @@ $e = $estados[$t['estado']] ?? ['label' => $t['estado'], 'class' => 'secondary']
 
         <div class="d-flex gap-2 mt-4">
             <?php if (in_array($t['estado'], ['pendiente', 'en_curso', 'en_destino', 'en_retorno'], true)): ?>
-                <a href="/traslados/actualizar-estado?id=<?= $t['id'] ?>" class="btn btn-primary">
+                <a href="traslados/actualizar-estado?id=<?= $t['id'] ?>" class="btn btn-primary">
                     <i class="bi bi-arrow-right-circle me-1"></i> Actualizar estado
                 </a>
             <?php endif; ?>
-            <a href="/traslados" class="btn">Volver</a>
+            <a href="traslados" class="btn">Volver</a>
         </div>
 
     </div>

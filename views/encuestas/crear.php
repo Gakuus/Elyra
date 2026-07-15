@@ -46,7 +46,7 @@
 
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary" id="submitBtn"><i class="bi bi-check-lg me-1"></i> Guardar encuesta</button>
-                        <a href="/encuestas" class="btn">Cancelar</a>
+                        <a href="encuestas" class="btn">Cancelar</a>
                     </div>
                 </form>
             </div>

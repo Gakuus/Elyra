@@ -30,7 +30,7 @@
 
     <div class="d-flex gap-2">
         <button type="submit" class="btn btn-primary">Publicar</button>
-        <a href="/noticias" class="btn">Cancelar</a>
+        <a href="noticias" class="btn">Cancelar</a>
     </div>
 </form>
 <?php $contenido = ob_get_clean(); ?>

@@ -7,7 +7,7 @@
     <div class="display-6 text-muted mb-3"><i class="bi bi-file-earmark-x"></i></div>
     <h5 class="fw-semibold">Documento no encontrado</h5>
     <p class="text-muted mb-4">El documento que buscas no existe o fue eliminado.</p>
-    <a href="/documentos" class="btn btn-primary">Volver a documentos</a>
+    <a href="documentos" class="btn btn-primary">Volver a documentos</a>
 </div>
 
 <?php else: ?>
@@ -32,16 +32,16 @@
         </div>
     </div>
     <div class="d-flex gap-2">
-        <a href="/documentos/archivo?id=<?= $doc['id'] ?>&descargar=1" class="btn btn-primary">
+        <a href="documentos/archivo?id=<?= $doc['id'] ?>&descargar=1" class="btn btn-primary">
             <i class="bi bi-download me-1"></i> Descargar PDF
         </a>
         <button type="button" class="btn" onclick="Elyra.verQR(<?= $doc['id'] ?>)" title="Ver QR">
             <i class="bi bi-qr-code"></i>
         </button>
-        <a href="/documentos/editar?id=<?= $doc['id'] ?>" class="btn btn-primary">
+        <a href="documentos/editar?id=<?= $doc['id'] ?>" class="btn btn-primary">
             <i class="bi bi-pencil"></i>
         </a>
-        <a href="/documentos" class="btn">
+        <a href="documentos" class="btn">
             <i class="bi bi-arrow-left"></i>
         </a>
     </div>
@@ -53,7 +53,7 @@
 
 <div class="panel mb-3">
     <div class="panel-body p-0">
-        <embed src="/documentos/archivo?id=<?= $doc['id'] ?>" type="application/pdf" class="w-100" style="height: 75vh; border: none; border-radius: 0.5rem;">
+        <embed src="documentos/archivo?id=<?= $doc['id'] ?>" type="application/pdf" class="w-100" style="height: 75vh; border: none; border-radius: 0.5rem;">
     </div>
 </div>
 
@@ -65,7 +65,7 @@
             <span class="fw-semibold">Encuesta asociada</span>
             <span class="text-muted ms-2 small">Este documento tiene una encuesta de satisfacción.</span>
         </div>
-        <a href="/encuestas/resultados?id=<?= $doc['encuesta_id'] ?>" class="btn btn-primary btn-sm">
+        <a href="encuestas/resultados?id=<?= $doc['encuesta_id'] ?>" class="btn btn-primary btn-sm">
             <i class="bi bi-eye me-1"></i> Ver resultados
         </a>
     </div>

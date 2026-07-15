@@ -144,7 +144,7 @@
 
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i> Registrar traslado</button>
-                        <a href="/traslados" class="btn">Cancelar</a>
+                        <a href="traslados" class="btn">Cancelar</a>
                     </div>
                 </form>
             </div>
@@ -154,6 +154,6 @@
 
 <?php $contenido = ob_get_clean(); ?>
 <?php ob_start(); ?>
-<script nonce="<?= $nonce ?>" src="/js/nuevo-traslado.js" defer></script>
+<script nonce="<?= $nonce ?>" src="js/nuevo-traslado.js" defer></script>
 <?php $scripts = ob_get_clean(); ?>
 <?php require __DIR__ . '/../layout/base.php'; ?>

@@ -106,7 +106,7 @@
             velocidad: speed
         });
 
-        fetch('/api/ubicacion', {
+        fetch((window.BASE_PATH || '') + '/api/ubicacion', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

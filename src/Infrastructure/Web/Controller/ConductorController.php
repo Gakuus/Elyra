@@ -57,7 +57,7 @@ class ConductorController extends BaseController
             'rol' => $c->getRol()->value(),
         ], $result['conductores']);
 
-        $this->render('conductores/index', [
+        $this->render('conductores/list', [
             'conductores' => $conductores,
             'total' => $result['total'],
             'activos' => $result['activos'],

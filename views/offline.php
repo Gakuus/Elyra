@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <base href="<?= rtrim((string)(parse_url($_ENV['APP_URL'] ?? '', PHP_URL_PATH) ?: ''), '/') ?>/">
     <title>Sin conexión — Elyra</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="/css/web20.css" rel="stylesheet">
+    <link href="css/web20.css" rel="stylesheet">
     <style>
         .offline-page { min-height:100vh; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#E9EAED,#D8DDE3); padding:20px; }
         .offline-box { background:#FFF; border:2px solid #3B5998; padding:40px; text-align:center; max-width:440px; width:100%; box-shadow:0 8px 30px rgba(0,0,0,0.2); }

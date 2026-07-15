@@ -7,7 +7,7 @@
         </div>
         <div class="login-box-body">
             <div class="login-box-logo">
-                <img src="/img/elyralogo.png" alt="Elyra">
+                <img src="img/elyralogo.png" alt="Elyra">
             </div>
             <div class="login-box-title">Establecer nueva contraseña</div>
             <p class="text-muted small text-center mb-3">Ingresá tu nueva contraseña</p>
@@ -25,7 +25,7 @@
                     <span><?= htmlspecialchars($exito) ?></span>
                 </div>
                 <p class="text-center mt-3 mb-0 small">
-                    <a href="/login">Ir al inicio de sesión</a>
+                    <a href="login">Ir al inicio de sesión</a>
                 </p>
             <?php else: ?>
             <form method="post">
@@ -55,7 +55,7 @@
             <?php endif; ?>
 
             <p class="text-center mt-3 mb-0 small">
-                <a href="/login">Volver al inicio de sesión</a>
+                <a href="login">Volver al inicio de sesión</a>
             </p>
         </div>
     </div>

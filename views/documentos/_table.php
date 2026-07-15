@@ -45,11 +45,11 @@ $isPaciente = $isPaciente ?? \Elyra\Infrastructure\Service\SessionManager::isPac
                     <td class="text-muted small"><?= htmlspecialchars($doc['subido']) ?></td>
                     <td>
                         <div class="d-flex gap-1">
-                            <a href="/documentos/ver?id=<?= $doc['id'] ?>" class="btn btn-sm" title="Ver detalle">
+                            <a href="documentos/ver?id=<?= $doc['id'] ?>" class="btn btn-sm" title="Ver detalle">
                                 <i class="bi bi-eye"></i>
                             </a>
                             <?php if (!$isPaciente): ?>
-                            <a href="/documentos/editar?id=<?= $doc['id'] ?>" class="btn btn-sm" title="Editar">
+                            <a href="documentos/editar?id=<?= $doc['id'] ?>" class="btn btn-sm" title="Editar">
                                 <i class="bi bi-pencil"></i>
                             </a>
                             <?php endif; ?>
@@ -90,9 +90,9 @@ $isPaciente = $isPaciente ?? \Elyra\Infrastructure\Service\SessionManager::isPac
             </div>
             <div class="card-item-actions">
                 <button class="btn btn-sm" onclick="Elyra.verQR(<?= $doc['id'] ?>)"><i class="bi bi-qr-code"></i></button>
-                <a href="/documentos/ver?id=<?= $doc['id'] ?>" class="btn btn-sm"><i class="bi bi-eye"></i></a>
+                <a href="documentos/ver?id=<?= $doc['id'] ?>" class="btn btn-sm"><i class="bi bi-eye"></i></a>
                 <?php if (!$isPaciente): ?>
-                <a href="/documentos/editar?id=<?= $doc['id'] ?>" class="btn btn-sm"><i class="bi bi-pencil"></i></a>
+                <a href="documentos/editar?id=<?= $doc['id'] ?>" class="btn btn-sm"><i class="bi bi-pencil"></i></a>
                 <?php endif; ?>
                 <button class="btn btn-sm" onclick="Elyra.copiarEnlace(<?= $doc['id'] ?>, this)"><i class="bi bi-link-45deg"></i></button>
                 <?php if (!$isPaciente): ?>

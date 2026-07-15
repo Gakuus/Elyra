@@ -2,7 +2,7 @@
 <?php ob_start(); ?>
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="m-0">Funcionarios</h4>
-    <a href="/funcionarios/crear" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Nuevo funcionario</a>
+    <a href="funcionarios/crear" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Nuevo funcionario</a>
 </div>
 
 <?php if (isset($_GET['creado'])): ?>
@@ -101,9 +101,9 @@
                     </td>
                     <td>
                         <?php if ($f['tipo'] === 'funcionario'): ?>
-                            <a href="/funcionarios/editar?id=<?= $f['id'] ?>" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></a>
+                            <a href="funcionarios/editar?id=<?= $f['id'] ?>" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></a>
                         <?php else: ?>
-                            <a href="/pacientes/editar?id=<?= $f['id'] ?>" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></a>
+                            <a href="pacientes/editar?id=<?= $f['id'] ?>" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></a>
                         <?php endif; ?>
                         <?php if ($f['activo']): ?>
                             <button type="button" class="btn btn-sm btn-outline-danger" title="Desactivar"
@@ -135,7 +135,7 @@
             <p class="small" style="color:#666">No podrá iniciar sesión hasta que sea reactivado.</p>
         </div>
         <div class="modal-footer">
-            <form method="post" action="/funcionarios/desactivar">
+            <form method="post" action="funcionarios/desactivar">
                 <input type="hidden" name="_csrf_token" value="<?= \Elyra\Infrastructure\Service\SessionManager::getCsrfToken() ?>">
                 <input type="hidden" name="id" id="idFuncionario" value="">
                 <button type="submit" class="btn btn-danger btn-sm">Desactivar</button>
@@ -155,7 +155,7 @@
             <p>¿Deseas reactivar a <strong id="nombreFuncionarioReactivar"></strong>?</p>
         </div>
         <div class="modal-footer">
-            <form method="post" action="/funcionarios/reactivar">
+            <form method="post" action="funcionarios/reactivar">
                 <input type="hidden" name="_csrf_token" value="<?= \Elyra\Infrastructure\Service\SessionManager::getCsrfToken() ?>">
                 <input type="hidden" name="id" id="idFuncionarioReactivar" value="">
                 <button type="submit" class="btn btn-success btn-sm">Reactivar</button>

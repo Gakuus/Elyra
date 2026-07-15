@@ -7,7 +7,7 @@
         </div>
         <div class="login-box-body">
             <div class="login-box-logo">
-                <img src="/img/elyralogo.png" alt="Elyra">
+                <img src="img/elyralogo.png" alt="Elyra">
             </div>
             <div class="login-box-title">Crear cuenta de usuario</div>
             <p class="text-muted small text-center mb-3">Completá tus datos para registrarte</p>
@@ -83,7 +83,7 @@
             </form>
 
             <p class="text-center mt-3 mb-0 small">
-                <a href="/login">¿Ya tenés cuenta? Iniciá sesión</a>
+                <a href="login">¿Ya tenés cuenta? Iniciá sesión</a>
             </p>
         </div>
     </div>

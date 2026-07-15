@@ -160,7 +160,8 @@ foreach ($publicPrefixes as $prefix) {
 
 if (!$isPublic && !in_array(parse_url($uri, PHP_URL_PATH), $noAuthRoutes, true)) {
     if (!\Elyra\Infrastructure\Service\SessionManager::isAuthenticated()) {
-        header('Location: /login');
+        $bp = rtrim(parse_url($_ENV['APP_URL'] ?? '', PHP_URL_PATH) ?: '', '/');
+        header('Location: ' . $bp . '/login');
         exit;
     }
 }

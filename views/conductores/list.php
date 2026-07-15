@@ -2,7 +2,7 @@
 <?php ob_start(); ?>
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="m-0">Conductores</h4>
-    <a href="/conductores/crear" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Nuevo conductor</a>
+    <a href="conductores/crear" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Nuevo conductor</a>
 </div>
 
 <?php if (isset($_GET['creado'])): ?>
@@ -78,7 +78,7 @@
                         <?php endif; ?>
                     </td>
                     <td>
-                        <a href="/conductores/editar?id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></a>
+                        <a href="conductores/editar?id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></a>
                         <?php if ($c['activo']): ?>
                             <button type="button" class="btn btn-sm btn-outline-danger" title="Desactivar"
                                 onclick="abrirModalDesactivar(<?= $c['id'] ?>, '<?= htmlspecialchars($c['apellido'] . ', ' . $c['nombre'], ENT_QUOTES) ?>')">
@@ -109,7 +109,7 @@
             <p class="small" style="color:#666">No podrá ser asignado a traslados hasta que sea reactivado.</p>
         </div>
         <div class="modal-footer">
-            <form method="post" id="formDesactivar" action="/conductores/desactivar">
+            <form method="post" id="formDesactivar" action="conductores/desactivar">
                 <input type="hidden" name="_csrf_token" value="<?= \Elyra\Infrastructure\Service\SessionManager::getCsrfToken() ?>">
                 <input type="hidden" name="id" id="idConductor" value="">
                 <button type="submit" class="btn btn-danger btn-sm">Desactivar</button>
@@ -129,7 +129,7 @@
             <p>¿Deseas reactivar a <strong id="nombreConductorReactivar"></strong>?</p>
         </div>
         <div class="modal-footer">
-            <form method="post" id="formReactivar" action="/conductores/reactivar">
+            <form method="post" id="formReactivar" action="conductores/reactivar">
                 <input type="hidden" name="_csrf_token" value="<?= \Elyra\Infrastructure\Service\SessionManager::getCsrfToken() ?>">
                 <input type="hidden" name="id" id="idConductorReactivar" value="">
                 <button type="submit" class="btn btn-success btn-sm">Reactivar</button>

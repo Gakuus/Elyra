@@ -8,6 +8,17 @@ use Elyra\Infrastructure\Service\SessionManager;
 
 abstract class BaseController
 {
+    protected static ?string $basePath = null;
+
+    protected static function basePath(): string
+    {
+        if (self::$basePath === null) {
+            $path = parse_url((string)($_ENV['APP_URL'] ?? ''), PHP_URL_PATH) ?: '';
+            self::$basePath = rtrim($path, '/');
+        }
+        return self::$basePath;
+    }
+
     /** @param array<string, mixed> $data */
     protected function render(string $view, array $data = []): void
     {
@@ -26,6 +37,9 @@ abstract class BaseController
 
     protected function redirect(string $url): void
     {
+        if ($url !== '' && $url[0] === '/' && !str_starts_with($url, '//')) {
+            $url = self::basePath() . $url;
+        }
         header("Location: {$url}");
         exit;
     }

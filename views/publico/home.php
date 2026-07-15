@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <base href="<?= rtrim((string)(parse_url($_ENV['APP_URL'] ?? '', PHP_URL_PATH) ?: ''), '/') ?>/">
     <title>Elyra — Hospital de Clínicas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="/css/web20.css" rel="stylesheet">
-    <link rel="manifest" href="/manifest.json">
+    <link href="css/web20.css" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#3B5998">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Elyra">
-    <link rel="apple-touch-icon" href="/img/icon-192.png">
+    <link rel="apple-touch-icon" href="img/icon-192.png">
     <meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['_csrf_token'] ?? '') ?>">
+    <script>window.BASE_PATH = '<?= rtrim((string)(parse_url($_ENV['APP_URL'] ?? '', PHP_URL_PATH) ?: ''), '/') ?>';</script>
     <style>
         body { background: #fff; }
         .public-nav { background:#3B5998; border-bottom:2px solid #2A4780; }
@@ -22,7 +24,7 @@
         .public-nav-links { display:flex; align-items:center; gap:26px; list-style:none; margin:0; padding:0; }
         .public-nav-links a { color:#CCD9F0; text-decoration:none; font-size:16px; }
         .public-nav-links a:hover { color:#fff; text-decoration:underline; }
-        .hero-section { background:url('/img/hospital-de-clinicas.jpg') center/cover no-repeat; padding:140px 0; text-align:center; color:#fff; border-bottom:2px solid #2A4780; position:relative; }
+        .hero-section { background:url('img/hospital-de-clinicas.jpg') center/cover no-repeat; padding:140px 0; text-align:center; color:#fff; border-bottom:2px solid #2A4780; position:relative; }
         .hero-section::before { content:''; position:absolute; inset:0; background:rgba(0,0,0,0.45); }
         .hero-section .container { position:relative; z-index:1; }
         .hero-section h1 { font-size:44px; font-weight:bold; margin:14px 0; }
@@ -47,18 +49,18 @@
 
 <div class="public-nav">
     <div class="container public-nav-inner">
-        <a class="public-nav-brand" href="/">
-            <img src="/img/elyralogo.png" alt="Elyra" height="28">
+        <a class="public-nav-brand" href="">
+            <img src="img/elyralogo.png" alt="Elyra" height="28">
             Elyra
         </a>
         <ul class="public-nav-links">
-            <li><a href="/">Inicio</a></li>
+            <li><a href="">Inicio</a></li>
             <li><a href="#noticias">Noticias</a></li>
             <li><a href="#servicios">Servicios</a></li>
             <li><a href="#acerca">Acerca</a></li>
             <li><a href="#contacto">Contacto</a></li>
             <li>
-                <a class="btn btn-primary btn-sm" href="/login">
+                <a class="btn btn-primary btn-sm" href="login">
                     <i class="bi bi-person"></i> Acceso interno
                 </a>
             </li>
@@ -68,11 +70,11 @@
 
 <div class="hero-section">
     <div class="container">
-        <img src="/img/elyralogo.png" alt="Elyra" height="90">
+        <img src="img/elyralogo.png" alt="Elyra" height="90">
         <h1>Hospital de Clínicas</h1>
         <p class="lead">Sistema de gestión hospitalaria — Elyra</p>
         <div class="d-flex justify-content-center gap-3" style="margin-top:16px;">
-            <a href="/login" class="btn btn-primary btn-lg" style="font-size:14px;padding:8px 24px;">
+            <a href="login" class="btn btn-primary btn-lg" style="font-size:14px;padding:8px 24px;">
                 <i class="bi bi-person-badge"></i> Acceso al sistema
             </a>
             <a href="#noticias-semana" class="btn btn-lg" style="font-size:14px;padding:8px 24px;background:rgba(255,255,255,0.12);color:#fff;border-color:rgba(255,255,255,0.3);">
@@ -114,7 +116,7 @@
         <div id="noticiasCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000" style="position:relative;">
             <div class="carousel-inner">
                 <?php foreach ($noticiasSemanaArr as $i => $n): 
-                    $imgBg = $n['imagen'] ? 'background-image:url(\'/uploads/noticias/' . rawurlencode($n['imagen']) . '\')' : 'background:linear-gradient(135deg,#1a1a2e,#16213e)';
+                    $imgBg = $n['imagen'] ? 'background-image:url(\'uploads/noticias/' . rawurlencode($n['imagen']) . '\')' : 'background:linear-gradient(135deg,#1a1a2e,#16213e)';
                 ?>
                 <div class="carousel-item <?= $i === 0 ? 'active' : '' ?>">
                     <div class="car-slide" style="<?= $imgBg ?>">
@@ -203,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 <div class="col-md-4">
                     <div class="service-card" style="text-align:left;padding:16px;">
                         <div style="text-align:center;margin-bottom:10px;">
-                            <img src="/img/elyralogo.png" alt="Elyra" height="48">
+                            <img src="img/elyralogo.png" alt="Elyra" height="48">
                         </div>
                         <h6 class="fw-semibold" style="font-size:13px;margin:0 0 6px 0;color:#3B5998;">Elyra</h6>
                         <p class="small text-muted mb-2" style="font-size:11px;">
@@ -292,9 +294,9 @@ document.addEventListener('DOMContentLoaded', function(){
             <div class="col-md-6">
                 <div class="section-title" style="margin-bottom:12px;">Accesos directos</div>
                 <div class="row g-2">
-                    <div class="col-6"><a href="/login" class="quick-link"><i class="bi bi-box-arrow-in-right"></i> Acceso interno</a></div>
-                    <div class="col-6"><a href="/publico/doc" class="quick-link"><i class="bi bi-file-earmark"></i> Documento por QR</a></div>
-                    <div class="col-6"><a href="/publico/encuesta" class="quick-link"><i class="bi bi-chat-square-text"></i> Encuesta pública</a></div>
+                    <div class="col-6"><a href="login" class="quick-link"><i class="bi bi-box-arrow-in-right"></i> Acceso interno</a></div>
+                    <div class="col-6"><a href="publico/doc" class="quick-link"><i class="bi bi-file-earmark"></i> Documento por QR</a></div>
+                    <div class="col-6"><a href="publico/encuesta" class="quick-link"><i class="bi bi-chat-square-text"></i> Encuesta pública</a></div>
                 </div>
             </div>
         </div>
@@ -308,7 +310,7 @@ document.addEventListener('DOMContentLoaded', function(){
 </div>
 
 <script nonce="<?= \Elyra\Infrastructure\Service\SessionManager::getNonce() ?>" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
-<script nonce="<?= \Elyra\Infrastructure\Service\SessionManager::getNonce() ?>" src="/js/elyra.js" defer></script>
-<script nonce="<?= \Elyra\Infrastructure\Service\SessionManager::getNonce() ?>" src="/js/components/ui.js" defer></script>
+<script nonce="<?= \Elyra\Infrastructure\Service\SessionManager::getNonce() ?>" src="js/elyra.js" defer></script>
+<script nonce="<?= \Elyra\Infrastructure\Service\SessionManager::getNonce() ?>" src="js/components/ui.js" defer></script>
 </body>
 </html>
