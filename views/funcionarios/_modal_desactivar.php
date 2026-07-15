@@ -10,7 +10,7 @@
                 <p class="text-muted small">El funcionario no podrá iniciar sesión hasta que sea reactivado.</p>
             </div>
             <div class="modal-footer">
-                <form method="post" id="formDesactivar" action="/funcionarios/desactivar">
+                <form method="post" id="formDesactivar" action="funcionarios/desactivar">
                     <input type="hidden" name="_csrf_token" value="<?= \Elyra\Infrastructure\Service\SessionManager::getCsrfToken() ?>">
                     <input type="hidden" name="id" id="idFuncionario" value="">
                     <button type="submit" class="btn btn-danger">Desactivar</button>

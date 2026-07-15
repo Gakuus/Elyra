@@ -8,13 +8,13 @@
             <div class="panel-heading d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-truck me-1"></i> Traslados en ambulancia</span>
                 <div class="d-flex gap-1">
-                    <a href="/traslados/exportar" class="btn py-0 px-3" style="font-size: 11px;" aria-label="Exportar traslados a CSV">
+                    <a href="traslados/exportar" class="btn py-0 px-3" style="font-size: 11px;" aria-label="Exportar traslados a CSV">
                         <i class="bi bi-download me-1"></i> CSV
                     </a>
-                    <a href="/traslados/historial" class="btn py-0 px-3" style="font-size: 11px;">
+                    <a href="traslados/historial" class="btn py-0 px-3" style="font-size: 11px;">
                         <i class="bi bi-clock-history me-1"></i> Historial
                     </a>
-                    <a href="/traslados/nuevo" class="btn btn-primary py-0 px-3" style="font-size: 11px;">
+                    <a href="traslados/nuevo" class="btn btn-primary py-0 px-3" style="font-size: 11px;">
                         <i class="bi bi-plus-circle me-1"></i> Nuevo
                     </a>
                 </div>
@@ -87,7 +87,7 @@
                                     <td class=""><?= htmlspecialchars($t['salida']) ?></td>
                                     <td>
                                         <div class="d-flex gap-1">
-                                            <a href="/traslados/ver?id=<?= $t['id'] ?>" class="btn btn-sm" title="Ver detalle">
+                                            <a href="traslados/ver?id=<?= $t['id'] ?>" class="btn btn-sm" title="Ver detalle">
                                                 <i class="bi bi-eye"></i>
                                             </a>
                                         </div>

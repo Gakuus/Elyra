@@ -3,7 +3,7 @@
 
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
     <h4 class="fw-semibold mb-0">Historial de traslados</h4>
-    <a href="/traslados/nuevo" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i> Nuevo traslado</a>
+    <a href="traslados/nuevo" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i> Nuevo traslado</a>
 </div>
 
 <div class="panel mb-4">
@@ -38,7 +38,7 @@
             </div>
             <div class="col-md-3 d-flex gap-2">
                 <button type="submit" class="btn btn-primary btn-sm flex-grow-1"><i class="bi bi-funnel me-1"></i> Filtrar</button>
-                <a href="/traslados/historial" class="btn btn-sm"><i class="bi bi-x-circle"></i></a>
+                <a href="traslados/historial" class="btn btn-sm"><i class="bi bi-x-circle"></i></a>
             </div>
         </form>
     </div>
@@ -84,7 +84,7 @@
                                 <td><?= htmlspecialchars($t['conductor'] ?? '-') ?></td>
                                 <td class="text-nowrap"><?= htmlspecialchars($t['fecha'] ?? '') ?></td>
                                 <td><span class="badge badge-<?= htmlspecialchars($t['estado']) ?>"><?= htmlspecialchars($estadosList[$t['estado']] ?? $t['estado']) ?></span></td>
-                                <td class="text-end"><a href="/traslados/ver?id=<?= $t['id'] ?>" class="btn btn-sm"><i class="bi bi-eye"></i></a></td>
+                                <td class="text-end"><a href="traslados/ver?id=<?= $t['id'] ?>" class="btn btn-sm"><i class="bi bi-eye"></i></a></td>
                             </tr>
                         <?php endforeach; ?>
                     <?php endif; ?>

@@ -110,7 +110,8 @@ final class SubirDocumentoUseCase
 
         $saved = $this->documentoRepo->save($doc);
 
-        $qrData = '/publico/doc?token=' . ($saved->getId() ?? 0);
+        $bp = rtrim(parse_url((string)($_ENV['APP_URL'] ?? ''), PHP_URL_PATH) ?: '', '/');
+        $qrData = $bp . '/publico/doc?token=' . ($saved->getId() ?? 0);
         $qrFilename = 'qr_' . ($saved->getId() ?? 0) . '_' . bin2hex(random_bytes(4)) . '.png';
         $qrPath = $this->qrService->generate($qrData, $qrFilename);
 

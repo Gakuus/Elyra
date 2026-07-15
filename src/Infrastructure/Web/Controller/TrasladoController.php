@@ -59,7 +59,7 @@ class TrasladoController extends BaseController
         $this->requireRole('admin', 'superadmin', 'conductor', 'copiloto');
 
         if (SessionManager::isPaciente()) {
-            $this->render('traslados/index', [
+            $this->render('traslados/list', [
                 'isPaciente' => true,
                 'traslados' => [],
                 'pendientes' => 0,
@@ -81,7 +81,7 @@ class TrasladoController extends BaseController
 
         $trasladosMapped = array_map(fn(Traslado $t) => $this->mapTraslado($t), $totalResult['traslados']);
 
-        $this->render('traslados/index', [
+        $this->render('traslados/list', [
             'isPaciente' => false,
             'traslados' => $trasladosMapped,
             'pendientes' => $pendientes,

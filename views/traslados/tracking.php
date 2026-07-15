@@ -192,7 +192,7 @@ var TRACKING_CONFIG = {
     ubicacionActual: <?= json_encode($ubicacion_actual, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
 };
 </script>
-<script nonce="<?= $nonce ?>" src="/js/tracking-conductor.js?v=1"></script>
+<script nonce="<?= $nonce ?>" src="js/tracking-conductor.js?v=1"></script>
 
 <?php $contenido = ob_get_clean(); ?>
 <?php require __DIR__ . '/../layout/base.php'; ?>

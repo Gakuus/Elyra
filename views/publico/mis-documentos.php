@@ -9,9 +9,10 @@ $titulo = 'Mis documentos';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <base href="<?= rtrim((string)(parse_url($_ENV['APP_URL'] ?? '', PHP_URL_PATH) ?: ''), '/') ?>/">
     <title><?= htmlspecialchars($titulo) ?> — Elyra</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="/css/web20.css">
+    <link rel="stylesheet" href="css/web20.css">
 </head>
 <body style="background:#f2f2f2;">
 
@@ -46,7 +47,7 @@ $titulo = 'Mis documentos';
                     <?php endif; ?>
                     <div class="mt-auto d-flex justify-content-between align-items-center">
                         <small class="text-muted"><?= htmlspecialchars($doc['subido']) ?></small>
-                        <a href="/publico/doc?id=<?= $doc['id'] ?>" class="btn btn-primary btn-sm">
+                        <a href="publico/doc?id=<?= $doc['id'] ?>" class="btn btn-primary btn-sm">
                             <i class="bi bi-eye me-1"></i> Ver
                         </a>
                     </div>

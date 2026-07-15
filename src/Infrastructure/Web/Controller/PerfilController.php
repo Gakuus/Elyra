@@ -29,7 +29,7 @@ class PerfilController extends BaseController
         }
         $user = $this->usuarioRepo->findById($userId);
 
-        $this->render('perfil/index', [
+        $this->render('perfil/profile', [
             'user' => $user,
         ]);
     }
@@ -58,12 +58,12 @@ class PerfilController extends BaseController
         $telefono = trim($telefono);
 
         if ($telefono !== '' && !preg_match('/^[0-9]{8,9}$/', $telefono)) {
-            $this->render('perfil/index', ['error' => 'El teléfono debe tener 8 o 9 dígitos.', 'user' => $user]);
+            $this->render('perfil/profile', ['error' => 'El teléfono debe tener 8 o 9 dígitos.', 'user' => $user]);
             return;
         }
 
         if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $this->render('perfil/index', ['error' => 'Email inválido.', 'user' => $user]);
+            $this->render('perfil/profile', ['error' => 'Email inválido.', 'user' => $user]);
             return;
         }
 
@@ -78,7 +78,7 @@ class PerfilController extends BaseController
         $ci = trim($ci);
         if ($ci !== '' && $user->getDocumentoIdentidad() === null) {
             if (!preg_match('/^\d{8}$/', $ci)) {
-                $this->render('perfil/index', ['error' => 'La cédula debe tener exactamente 8 dígitos.', 'user' => $user]);
+                $this->render('perfil/profile', ['error' => 'La cédula debe tener exactamente 8 dígitos.', 'user' => $user]);
                 return;
             }
             $user->setDocumentoIdentidad($ci);
@@ -91,11 +91,11 @@ class PerfilController extends BaseController
 
         if ($password !== '') {
             if (strlen($password) < 6) {
-                $this->render('perfil/index', ['error' => 'La contraseña debe tener al menos 6 caracteres.', 'user' => $user]);
+                $this->render('perfil/profile', ['error' => 'La contraseña debe tener al menos 6 caracteres.', 'user' => $user]);
                 return;
             }
             if ($password !== $password2) {
-                $this->render('perfil/index', ['error' => 'Las contraseñas no coinciden.', 'user' => $user]);
+                $this->render('perfil/profile', ['error' => 'Las contraseñas no coinciden.', 'user' => $user]);
                 return;
             }
             if ($user instanceof Paciente || $user instanceof Funcionario) {
@@ -114,7 +114,7 @@ class PerfilController extends BaseController
             if (str_contains($th->getMessage(), 'Duplicate entry')) {
                 $msg = 'Ese valor ya está registrado por otro usuario (cédula o email duplicado).';
             }
-            $this->render('perfil/index', ['error' => $msg, 'user' => $user]);
+            $this->render('perfil/profile', ['error' => $msg, 'user' => $user]);
             return;
         }
 
@@ -124,7 +124,7 @@ class PerfilController extends BaseController
             if ($fotoFile['error'] === UPLOAD_ERR_OK) {
                 $error = $this->validarFoto($fotoFile);
                 if ($error) {
-                    $this->render('perfil/index', ['error' => $error, 'user' => $user]);
+                    $this->render('perfil/profile', ['error' => $error, 'user' => $user]);
                     return;
                 }
 
@@ -137,7 +137,7 @@ class PerfilController extends BaseController
 
         $_SESSION['user_nombre'] = $user->getNombreCompleto();
 
-        $this->render('perfil/index', ['success' => 'Datos actualizados correctamente.', 'user' => $user]);
+        $this->render('perfil/profile', ['success' => 'Datos actualizados correctamente.', 'user' => $user]);
     }
 
     /**

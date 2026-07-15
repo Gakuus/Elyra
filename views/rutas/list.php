@@ -2,7 +2,7 @@
 <?php ob_start(); ?>
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="m-0">Rutas</h4>
-    <a href="/rutas/crear" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Nueva ruta</a>
+    <a href="rutas/crear" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Nueva ruta</a>
 </div>
 
 <?php if (isset($_GET['creada'])): ?>

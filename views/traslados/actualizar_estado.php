@@ -7,7 +7,7 @@ $eActual = $estados[$t['estado']];
 <div class="row justify-content-center">
     <div class="col-lg-8">
 
-        <a href="/traslados/ver?id=<?= $t['id'] ?>" class="btn btn-sm mb-3"><i class="bi bi-arrow-left me-1"></i> Volver al detalle</a>
+        <a href="traslados/ver?id=<?= $t['id'] ?>" class="btn btn-sm mb-3"><i class="bi bi-arrow-left me-1"></i> Volver al detalle</a>
 
         <div class="panel">
             <div class="panel-body">
@@ -25,7 +25,7 @@ $eActual = $estados[$t['estado']];
                 <?php if (empty($allowed)): ?>
                     <div class="alert alert-info mb-0">Este traslado ya está en su estado final. No hay acciones disponibles.</div>
                 <?php else: ?>
-                    <form method="POST" action="/traslados/actualizar-estado" class="row g-3">
+                    <form method="POST" action="traslados/actualizar-estado" class="row g-3">
                         <div style="position:absolute;left:-9999px" aria-hidden="true">
                             <input type="text" name="website" tabindex="-1" autocomplete="off" value="">
                         </div>

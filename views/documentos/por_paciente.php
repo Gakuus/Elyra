@@ -54,8 +54,8 @@ $frontendLimit = 8;
                         <span class="panel-inset px-3 py-1" style="font-size: 11px;">
                             <i class="bi bi-file-text me-1"></i> <?= $total ?> documento(s)
                         </span>
-                        <a href="/documentos/paciente" class="btn">Limpiar</a>
-                        <a href="/documentos/subir" class="btn btn-primary">Subir</a>
+                        <a href="documentos/paciente" class="btn">Limpiar</a>
+                        <a href="documentos/subir" class="btn btn-primary">Subir</a>
                     </div>
                 </div>
             </div>

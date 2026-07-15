@@ -57,7 +57,8 @@ class CsrfMiddleware
                 echo json_encode(['error' => 'CSRF token inválido o expirado']);
             } else {
                 $_SESSION['error'] = 'CSRF token inválido o expirado. Intente de nuevo.';
-                header('Location: /dashboard');
+                $bp = rtrim(parse_url((string)($_ENV['APP_URL'] ?? ''), PHP_URL_PATH) ?: '', '/');
+                header('Location: ' . $bp . '/dashboard');
             }
             exit;
         }

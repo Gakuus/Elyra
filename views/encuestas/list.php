@@ -12,10 +12,10 @@ $isPaciente = \Elyra\Infrastructure\Service\SessionManager::isPaciente();
                 <span><i class="bi bi-bar-chart me-1"></i> Encuestas</span>
                 <?php if (!$isPaciente): ?>
                 <div class="d-flex gap-1">
-                    <a href="/encuestas/exportar" class="btn py-0 px-3" style="font-size: 11px;" aria-label="Exportar encuestas a CSV">
+                    <a href="encuestas/exportar" class="btn py-0 px-3" style="font-size: 11px;" aria-label="Exportar encuestas a CSV">
                         <i class="bi bi-download me-1"></i> CSV
                     </a>
-                    <a href="/encuestas/crear" class="btn btn-primary py-0 px-3" style="font-size: 11px;">
+                    <a href="encuestas/crear" class="btn btn-primary py-0 px-3" style="font-size: 11px;">
                         <i class="bi bi-plus-lg me-1"></i> Nueva
                     </a>
                 </div>
@@ -27,7 +27,7 @@ $isPaciente = \Elyra\Infrastructure\Service\SessionManager::isPaciente();
                     <i class="bi bi-bar-chart fs-1 d-block mb-2"></i>
                     <p class="mb-2">No hay encuestas.</p>
                     <?php if (!$isPaciente): ?>
-                    <a href="/encuestas/crear" class="btn btn-primary">Crear primera encuesta</a>
+                    <a href="encuestas/crear" class="btn btn-primary">Crear primera encuesta</a>
                     <?php endif; ?>
                 </div>
             <?php else: ?>
@@ -63,7 +63,7 @@ $isPaciente = \Elyra\Infrastructure\Service\SessionManager::isPaciente();
                                     <td><?= htmlspecialchars($e['creada']) ?></td>
                                     <td>
                                         <div class="d-flex gap-1">
-                                            <a href="/encuestas/resultados?id=<?= $e['id'] ?>" class="btn btn-sm" title="Ver resultados">
+                                            <a href="encuestas/resultados?id=<?= $e['id'] ?>" class="btn btn-sm" title="Ver resultados">
                                                 <i class="bi bi-bar-chart"></i>
                                             </a>
                                             <button type="button" class="btn btn-sm" title="Copiar enlace" onclick="Elyra.copiarEnlaceEncuesta(<?= $e['id'] ?>, this)">

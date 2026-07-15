@@ -5,7 +5,7 @@ $titulo = 'Mis Documentos';
 
 <div class="d-flex justify-content-between align-items-center mb-2">
     <h4 class="mb-0">Mis Documentos</h4>
-    <a href="/documentos/exportar" class="btn py-0 px-3" style="font-size: 11px;" aria-label="Exportar documentos a CSV">
+    <a href="documentos/exportar" class="btn py-0 px-3" style="font-size: 11px;" aria-label="Exportar documentos a CSV">
         <i class="bi bi-download me-1"></i> CSV
     </a>
 </div>

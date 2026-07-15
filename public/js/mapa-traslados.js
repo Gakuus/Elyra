@@ -103,7 +103,7 @@
         if (routeCache[key]) {
             return Promise.resolve(routeCache[key]);
         }
-        var url = '/api/ruta/real?origen_lat=' + oLat + '&origen_lng=' + oLng +
+        var url = (window.BASE_PATH || '') + '/api/ruta/real?origen_lat=' + oLat + '&origen_lng=' + oLng +
                   '&destino_lat=' + dLat + '&destino_lng=' + dLng;
         return fetch(url)
             .then(function (r) { return r.json(); })
@@ -262,7 +262,7 @@
     }
 
     function fetchTraslados() {
-        fetch('/api/traslados/activos')
+        fetch((window.BASE_PATH || '') + '/api/traslados/activos')
             .then(function (r) { return r.json(); })
             .then(function (traslados) {
                 renderTraslados(traslados);
@@ -274,7 +274,7 @@
     }
 
     function fetchUbicaciones() {
-        fetch('/api/ubicaciones/activas')
+        fetch((window.BASE_PATH || '') + '/api/ubicaciones/activas')
             .then(function (r) { return r.json(); })
             .then(function (ubicaciones) {
                 renderConductores(ubicaciones);

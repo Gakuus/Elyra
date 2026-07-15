@@ -5,7 +5,7 @@
     <h3 class="fw-bold mt-2">Página no encontrada</h3>
     <p class="text-muted mb-4">La página que buscas no existe o fue movida.</p>
     <div class="d-flex justify-content-center gap-2">
-        <a href="/dashboard" class="btn btn-primary"><i class="bi bi-house-door me-1"></i> Volver al inicio</a>
+        <a href="dashboard" class="btn btn-primary"><i class="bi bi-house-door me-1"></i> Volver al inicio</a>
         <button onclick="history.back()" class="btn"><i class="bi bi-arrow-left me-1"></i> Regresar</button>
     </div>
 </div>

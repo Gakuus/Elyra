@@ -130,7 +130,7 @@
         var modal = document.getElementById('qrModal');
         if (!modal) return;
         var body = document.getElementById('qrModalBody');
-        var url = window.location.origin + '/publico/doc?id=' + id;
+        var url = (window.BASE_PATH || '') + '/publico/doc?id=' + id;
         body.innerHTML = '<div class="mb-3"><div id="qrcode"></div></div><p class="small text-muted mb-2">Escanear para ver el documento</p><button class="btn btn-sm btn-primary me-1" data-qr-copy="' + id + '"><i class="bi bi-clipboard me-1"></i>Copiar enlace</button><button class="btn btn-sm" onclick="window.print()"><i class="bi bi-printer me-1"></i>Imprimir</button>';
         openModal(modal);
         function loadQR() {
@@ -299,7 +299,7 @@
     });
 
     window.Elyra.copiarEnlace = function (id, btn) {
-        var url = window.location.origin + '/publico/doc?id=' + id;
+        var url = (window.BASE_PATH || '') + '/publico/doc?id=' + id;
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(url).then(function () {
                 var original = btn.innerHTML;
@@ -324,11 +324,11 @@
     };
 
     window.Elyra.actualizarEstado = function (id, estadoActual) {
-        window.location.href = '/traslados/actualizar-estado?id=' + id + '&estado=' + estadoActual;
+        window.location.href = (window.BASE_PATH || '') + '/traslados/actualizar-estado?id=' + id + '&estado=' + estadoActual;
     };
 
     window.Elyra.copiarEnlaceEncuesta = function (id, btn) {
-        var url = window.location.origin + '/publico/encuesta?id=' + id;
+        var url = (window.BASE_PATH || '') + '/publico/encuesta?id=' + id;
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(url).then(function () {
                 var original = btn.innerHTML;
@@ -360,7 +360,7 @@
         titleEl.textContent = titulo;
         embedEl.src = '';
         openModal(modalEl);
-        embedEl.src = '/publico/archivo?id=' + id;
+        embedEl.src = (window.BASE_PATH || '') + '/publico/archivo?id=' + id;
     };
 
     window.Elyra.verDocumento = function (id, titulo, categoria, especialidad, subido) {
@@ -381,8 +381,8 @@
         badges += '<small class="text-muted">Subido el ' + escapeHtml(subido) + '</small>';
         metaEl.innerHTML = badges;
 
-        embedEl.src = '/documentos/archivo?id=' + id;
-        downloadEl.href = '/documentos/archivo?id=' + id + '&descargar=1';
+        embedEl.src = (window.BASE_PATH || '') + '/documentos/archivo?id=' + id;
+        downloadEl.href = (window.BASE_PATH || '') + '/documentos/archivo?id=' + id + '&descargar=1';
 
         var modal = document.getElementById('docPreviewModal');
         if (modal) openModal(modal);

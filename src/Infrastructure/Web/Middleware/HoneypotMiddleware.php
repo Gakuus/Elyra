@@ -14,7 +14,8 @@ final class HoneypotMiddleware
 
         $honeypot = $_POST['website'] ?? '';
         if (is_string($honeypot) && $honeypot !== '') {
-            return '/';
+            $bp = rtrim(parse_url((string)($_ENV['APP_URL'] ?? ''), PHP_URL_PATH) ?: '', '/');
+            return $bp . '/';
         }
 
         return null;

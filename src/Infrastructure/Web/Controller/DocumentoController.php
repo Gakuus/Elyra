@@ -74,7 +74,7 @@ class DocumentoController extends BaseController
             'page' => $page,
         ]);
 
-        $this->render('documentos/index', [
+        $this->render('documentos/list', [
             'documentos' => array_map(fn(Documento $d) => $this->docToArray($d), $result['documentos']),
             'tiposDocumento' => $this->categoriaArray($this->categoriaRepo->findByTipo('tipo_documento')),
             'total' => $result['total'],
@@ -254,7 +254,8 @@ class DocumentoController extends BaseController
 
         \Elyra\Infrastructure\Service\AuditLogger::logCreate('documento', null, ['titulo' => $tituloPost]);
         if ($isJson) {
-            $this->json(['success' => true, 'redirect' => '/documentos/generales']);
+            $bp = self::basePath();
+            $this->json(['success' => true, 'redirect' => $bp . '/documentos/generales']);
         } else {
             $this->redirect('/documentos/generales?subido=1');
         }
@@ -336,7 +337,8 @@ class DocumentoController extends BaseController
         }
 
         if ($isJson) {
-            $this->json(['success' => true, 'redirect' => '/documentos/generales']);
+            $bp = self::basePath();
+            $this->json(['success' => true, 'redirect' => $bp . '/documentos/generales']);
         } else {
             $this->redirect('/documentos/generales?editado=1');
         }

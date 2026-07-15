@@ -118,7 +118,7 @@
                         <button type="submit" class="btn btn-primary" id="submitBtn">
                             <i class="bi bi-cloud-upload me-1"></i> Subir documento
                         </button>
-                        <a href="/documentos" class="btn">Cancelar</a>
+                        <a href="documentos" class="btn">Cancelar</a>
                     </div>
                 </form>
             </div>

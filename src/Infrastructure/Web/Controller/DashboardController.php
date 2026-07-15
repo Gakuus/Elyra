@@ -70,7 +70,7 @@ class DashboardController extends BaseController
         $docsPorCategoria = $this->docRepo->countByCategoria();
         $trasladosPorMes = $this->trasladoRepo->countByMonth();
 
-        $this->render('dashboard/index', [
+        $this->render('dashboard/home', [
             'totalDocs' => $totalDocs,
             'totalGenerales' => $totalGenerales,
             'totalEncuestas' => $totalEncuestas,

@@ -49,7 +49,7 @@ class EncuestaController extends BaseController
             ];
         }
 
-        $this->render('encuestas/index', [
+        $this->render('encuestas/list', [
             'encuestas' => $lista,
         ]);
     }

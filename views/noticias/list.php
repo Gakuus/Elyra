@@ -2,7 +2,7 @@
 <?php ob_start(); ?>
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="m-0">Noticias</h4>
-    <a href="/noticias/crear" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Nueva noticia</a>
+    <a href="noticias/crear" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Nueva noticia</a>
 </div>
 
 <?php if (empty($noticias)): ?>
@@ -34,7 +34,7 @@
                         <?php endif; ?>
                     </td>
                     <td>
-                        <form method="post" action="/noticias/toggle" class="d-inline">
+                        <form method="post" action="noticias/toggle" class="d-inline">
                             <input type="hidden" name="id" value="<?= $n['id'] ?>">
                             <input type="hidden" name="_csrf_token" value="<?= \Elyra\Infrastructure\Service\SessionManager::getCsrfToken() ?>">
                             <button type="submit" class="btn btn-sm p-0 border-0 bg-transparent text-decoration-none">
@@ -47,8 +47,8 @@
                         </form>
                     </td>
                     <td>
-                        <a href="/noticias/editar?id=<?= $n['id'] ?>" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></a>
-                        <form method="post" action="/noticias/eliminar" class="d-inline" onsubmit="return confirm('¿Eliminar esta noticia?')">
+                        <a href="noticias/editar?id=<?= $n['id'] ?>" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></a>
+                        <form method="post" action="noticias/eliminar" class="d-inline" onsubmit="return confirm('¿Eliminar esta noticia?')">
                             <input type="hidden" name="id" value="<?= $n['id'] ?>">
                             <input type="hidden" name="_csrf_token" value="<?= \Elyra\Infrastructure\Service\SessionManager::getCsrfToken() ?>">
                             <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar"><i class="bi bi-trash"></i></button>

@@ -215,7 +215,7 @@
     </div>
 </div>
 
-<script nonce="<?= $nonce ?>" src="/js/mapa-traslados.js?v=1"></script>
+<script nonce="<?= $nonce ?>" src="js/mapa-traslados.js?v=1"></script>
 
 <?php $contenido = ob_get_clean(); ?>
 <?php require __DIR__ . '/../layout/base.php'; ?>

@@ -10,7 +10,7 @@ $frontendLimit = 8;
         <div class="panel mb-2">
             <div class="panel-heading d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-globe me-1"></i> Documentos Generales</span>
-                <a href="/documentos/subir" class="btn btn-primary py-0 px-3" style="font-size: 11px;">
+                <a href="documentos/subir" class="btn btn-primary py-0 px-3" style="font-size: 11px;">
                     <i class="bi bi-upload me-1"></i> Subir
                 </a>
             </div>
