@@ -214,15 +214,47 @@ class TrasladoController extends BaseController
             /** @var string $pacienteIdRaw */
             $pacienteIdRaw = $_POST['paciente_id'] ?? '0';
             $pacienteId = (int) $pacienteIdRaw;
+
             if ($pacienteId <= 0) {
-                $this->render('traslados/nuevo', ['error' => 'Seleccion&aacute; un paciente v&aacute;lido.'] + $formDefaults);
-                return;
-            }
-            $pacientes = $this->usuarioRepo->findAllPacientes();
-            foreach ($pacientes as $p) {
-                if ($p->getId() === $pacienteId) {
-                    $descripcion = $p->getApellido() . ', ' . $p->getNombre();
-                    break;
+                /** @var string $nombreRaw */
+                $nombreRaw = $_POST['paciente_nombre'] ?? '';
+                $nombre = trim($nombreRaw);
+                /** @var string $apellidoRaw */
+                $apellidoRaw = $_POST['paciente_apellido'] ?? '';
+                $apellido = trim($apellidoRaw);
+                /** @var string $documentoRaw */
+                $documentoRaw = $_POST['paciente_documento'] ?? '';
+                $documento = trim($documentoRaw);
+
+                if ($nombre === '' || $apellido === '' || $documento === '') {
+                    $this->render('traslados/nuevo', ['error' => 'Seleccion&aacute; un paciente existente o complet&aacute; nombre, apellido y documento para crear uno nuevo.'] + $formDefaults);
+                    return;
+                }
+
+                $existing = $this->usuarioRepo->findByDocumentoIdentidad($documento);
+                if ($existing !== null) {
+                    $pacienteId = $existing->getId() ?? 0;
+                    $descripcion = $existing->getApellido() . ', ' . $existing->getNombre();
+                } else {
+                    $tokenAcceso = bin2hex(random_bytes(32));
+                    $nuevoPaciente = new \Elyra\Domain\Entity\Paciente(
+                        id: null,
+                        nombre: $nombre,
+                        apellido: $apellido,
+                        documentoIdentidad: $documento,
+                        tokenAcceso: $tokenAcceso,
+                    );
+                    $savedPaciente = $this->usuarioRepo->savePaciente($nuevoPaciente);
+                    $pacienteId = $savedPaciente->getId() ?? 0;
+                    $descripcion = $apellido . ', ' . $nombre;
+                }
+            } else {
+                $pacientes = $this->usuarioRepo->findAllPacientes();
+                foreach ($pacientes as $p) {
+                    if ($p->getId() === $pacienteId) {
+                        $descripcion = $p->getApellido() . ', ' . $p->getNombre();
+                        break;
+                    }
                 }
             }
         } elseif ($tipo === 'organo') {
@@ -745,5 +777,49 @@ class TrasladoController extends BaseController
     private function redirectBack(string $url, string $error): void
     {
         $this->render('traslados/nuevo', ['error' => $error] + $this->getFormData());
+    }
+
+    public function exportar(): void
+    {
+        $this->requireAuth();
+        $this->requireRole('admin', 'superadmin');
+
+        $result = $this->listarTraslados->execute(['estado' => '']);
+
+        header('Content-Type: text/csv; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="traslados_' . date('Y-m-d') . '.csv"');
+
+        $output = fopen('php://output', 'w');
+        if ($output === false) {
+            return;
+        }
+        fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+        fputcsv($output, ['Código', 'Conductor', 'Origen', 'Destino', 'Estado', 'Fecha registro', 'Hora salida estimada'], ';');
+
+        foreach ($result['traslados'] as $t) {
+            fputcsv($output, [
+                $t->getCodigo(),
+                $this->getConductorNombre($t->getConductorId()),
+                $t->getOrigen(),
+                $t->getDestino(),
+                $t->getEstado()->value(),
+                $t->getCreatedAt() ? date('d/m/Y H:i', (int) strtotime($t->getCreatedAt())) : '',
+                $t->getHoraSalidaEstimada() ?? '',
+            ], ';');
+        }
+
+        fclose($output);
+        exit;
+    }
+
+    private function getConductorNombre(int $conductorId): string
+    {
+        $conductor = $this->listarConductores->execute(['activo' => null])['conductores'] ?? [];
+        foreach ($conductor as $c) {
+            if ($c->getId() === $conductorId) {
+                return $c->getApellido() . ', ' . $c->getNombre();
+            }
+        }
+        return '#{$conductorId}';
     }
 }

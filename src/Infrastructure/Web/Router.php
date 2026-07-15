@@ -59,6 +59,16 @@ class Router
             $uri = '/';
         }
 
+        /** @var string $appUrlRaw */
+        $appUrlRaw = $_ENV['APP_URL'] ?? '';
+        $appUrl = parse_url($appUrlRaw, PHP_URL_PATH);
+        if (is_string($appUrl) && $appUrl !== '' && $appUrl !== '/') {
+            $basePath = rtrim($appUrl, '/');
+            if (str_starts_with($uri, $basePath)) {
+                $uri = substr($uri, strlen($basePath)) ?: '/';
+            }
+        }
+
         foreach ($this->routes as $route) {
             if ($route['method'] !== $method) {
                 continue;

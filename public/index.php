@@ -17,6 +17,19 @@ if (file_exists($envFile)) {
     }
 }
 
+// HTTPS redirect
+if (
+    ($_ENV['APP_ENV'] ?? 'development') === 'production'
+    && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'on')
+    && (!isset($_SERVER['HTTP_X_FORWARDED_PROTO']) || $_SERVER['HTTP_X_FORWARDED_PROTO'] !== 'https')
+    && (!isset($_SERVER['HTTP_X_FORWARDED_SSL']) || $_SERVER['HTTP_X_FORWARDED_SSL'] !== 'on')
+) {
+    $host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+    $uri = $_SERVER['REQUEST_URI'] ?? '/';
+    header('Location: https://' . $host . $uri, 301);
+    exit;
+}
+
 // Error handler
 $debug = ($_ENV['APP_DEBUG'] ?? false) === true;
 if (!$debug) {
@@ -86,6 +99,18 @@ $router->runMiddleware();
 // Dispatch
 $method = $_SERVER['REQUEST_METHOD'];
 $uri = $_SERVER['REQUEST_URI'];
+
+// Strip base path for subdirectory installs
+$appUrlPath = parse_url($_ENV['APP_URL'] ?? '', PHP_URL_PATH);
+if (is_string($appUrlPath) && $appUrlPath !== '' && $appUrlPath !== '/') {
+    $basePath = rtrim($appUrlPath, '/');
+    $uriPath = parse_url($uri, PHP_URL_PATH);
+    if (is_string($uriPath) && str_starts_with($uriPath, $basePath)) {
+        $stripped = substr($uriPath, strlen($basePath)) ?: '/';
+        $uri = $stripped . (parse_url($uri, PHP_URL_QUERY) !== null ? '?' . parse_url($uri, PHP_URL_QUERY) : '');
+    }
+}
+
 $route = $router->dispatch($method, $uri);
 
 if ($route === null) {

@@ -29,21 +29,22 @@ class DocumentoController extends BaseController
     private VerDocumentoUseCase $verDocumento;
     private CategoriaRepository $categoriaRepo;
     private UsuarioRepository $usuarioRepo;
+    private DocumentoRepository $docRepo;
 
     public function __construct()
     {
-        $docRepo = new DocumentoRepository();
+        $this->docRepo = new DocumentoRepository();
         $this->categoriaRepo = new CategoriaRepository();
         $this->usuarioRepo = new UsuarioRepository();
 
         $fileStorage = new FileStorageService();
         $qrService = new QRGeneratorService();
 
-        $this->listarDocumentos = new ListarDocumentosUseCase($docRepo);
-        $this->subirDocumento = new SubirDocumentoUseCase($docRepo, $fileStorage, $qrService);
-        $this->editarDocumento = new EditarDocumentoUseCase($docRepo);
-        $this->eliminarDocumento = new EliminarDocumentoUseCase($docRepo);
-        $this->verDocumento = new VerDocumentoUseCase($docRepo);
+        $this->listarDocumentos = new ListarDocumentosUseCase($this->docRepo);
+        $this->subirDocumento = new SubirDocumentoUseCase($this->docRepo, $fileStorage, $qrService);
+        $this->editarDocumento = new EditarDocumentoUseCase($this->docRepo);
+        $this->eliminarDocumento = new EliminarDocumentoUseCase($this->docRepo);
+        $this->verDocumento = new VerDocumentoUseCase($this->docRepo);
     }
 
     public function index(): void
@@ -499,5 +500,37 @@ class DocumentoController extends BaseController
             'id' => $p->getId(),
             'nombre' => $p->getApellido() . ', ' . $p->getNombre(),
         ], $pacientes));
+    }
+
+    public function exportar(): void
+    {
+        $this->requireAuth();
+        $this->requireRole('admin', 'superadmin');
+
+        $docs = $this->docRepo->findAll(null, null, null, 1, 9999);
+
+        header('Content-Type: text/csv; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="documentos_' . date('Y-m-d') . '.csv"');
+
+        $output = fopen('php://output', 'w');
+        if ($output === false) {
+            return;
+        }
+        fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+        fputcsv($output, ['ID', 'Título', 'Categoría', 'Paciente', 'Estado', 'Fecha'], ';');
+
+        foreach ($docs as $d) {
+            fputcsv($output, [
+                $d->getId(),
+                $d->getTitulo(),
+                $d->getCategoriaNombre() ?? '',
+                $d->getPacienteNombre() ?? 'General',
+                $d->isActivo() ? 'Activo' : 'Inactivo',
+                $d->getCreatedAt() ? date('d/m/Y H:i', (int) strtotime($d->getCreatedAt())) : '',
+            ], ';');
+        }
+
+        fclose($output);
+        exit;
     }
 }

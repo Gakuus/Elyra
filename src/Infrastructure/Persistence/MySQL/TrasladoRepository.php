@@ -161,6 +161,24 @@ class TrasladoRepository implements TrasladoRepositoryInterface
         return (int) $stmt->fetchColumn();
     }
 
+    /**
+     * @return list<array{mes: string, total: int}>
+     */
+    public function countByMonth(): array
+    {
+        /** @var \PDOStatement $stmt */
+        $stmt = $this->pdo->query(
+            "SELECT DATE_FORMAT(created_at, '%Y-%m') AS mes, COUNT(*) AS total
+             FROM traslado
+             WHERE created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+             GROUP BY mes
+             ORDER BY mes ASC"
+        );
+        /** @var list<array{mes: string, total: int}> $rows */
+        $rows = $stmt->fetchAll();
+        return $rows;
+    }
+
     public function save(Traslado $traslado): Traslado
     {
         $stmt = $this->pdo->prepare("

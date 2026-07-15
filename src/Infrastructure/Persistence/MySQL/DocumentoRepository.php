@@ -147,6 +147,25 @@ class DocumentoRepository implements DocumentoRepositoryInterface
         return (int) $stmt->fetchColumn();
     }
 
+    /**
+     * @return list<array{categoria: string, total: int}>
+     */
+    public function countByCategoria(): array
+    {
+        /** @var \PDOStatement $stmt */
+        $stmt = $this->pdo->query(
+            "SELECT COALESCE(c.nombre, 'Sin categor&iacute;a') AS categoria, COUNT(*) AS total
+             FROM documento d
+             LEFT JOIN categoria c ON c.id = d.categoria_id
+             WHERE d.activo = TRUE
+             GROUP BY c.nombre
+             ORDER BY total DESC"
+        );
+        /** @var list<array{categoria: string, total: int}> $rows */
+        $rows = $stmt->fetchAll();
+        return $rows;
+    }
+
     public function findGenerales(?int $categoriaId = null, ?string $busqueda = null, int $page = 1, int $perPage = 20): array
     {
         $sql = "SELECT " . self::SELECT_COLS . " FROM documento d" . self::JOIN_CATEGORIA . self::JOIN_ESPECIALIDAD . self::JOIN_PACIENTE . " WHERE d.paciente_id IS NULL";
