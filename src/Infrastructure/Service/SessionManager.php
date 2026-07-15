@@ -18,6 +18,7 @@ class SessionManager
         session_name(self::SESSION_NAME);
 
         $cookieParams = [
+            'path' => '/',
             'httponly' => true,
             'secure' => isset($_SERVER['HTTPS']),
             'samesite' => 'Strict',
