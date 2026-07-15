@@ -17,20 +17,22 @@ class SessionManager
 
         session_name(self::SESSION_NAME);
 
+        $isSecure = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'
+            || !empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https'
+            || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on';
+
         $cookieParams = [
+            'lifetime' => 0,
             'path' => '/',
+            'domain' => '',
+            'secure' => $isSecure,
             'httponly' => true,
-            'secure' => isset($_SERVER['HTTPS']),
-            'samesite' => 'Strict',
+            'samesite' => 'Lax',
         ];
 
         if (PHP_SESSION_NONE === session_status()) {
             session_set_cookie_params($cookieParams);
             session_start();
-        }
-
-        if (isset($_COOKIE[self::SESSION_NAME]) && $_COOKIE[self::SESSION_NAME] !== session_id()) {
-            setcookie(self::SESSION_NAME, '', ['expires' => time() - 3600, 'path' => '/']);
         }
 
         self::checkTimeout();
@@ -51,15 +53,17 @@ class SessionManager
             if ($sessionName === false) {
                 return;
             }
-            $params = session_get_cookie_params();
             setcookie(
                 $sessionName,
                 '',
-                time() - 42000,
-                $params['path'],
-                $params['domain'],
-                $params['secure'],
-                $params['httponly']
+                [
+                    'expires' => time() - 42000,
+                    'path' => '/',
+                    'domain' => '',
+                    'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+                    'httponly' => true,
+                    'samesite' => 'Lax',
+                ]
             );
         }
 
