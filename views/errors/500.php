@@ -12,7 +12,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="img/icon-192.png">
-    <script>window.BASE_PATH = '<?= rtrim((string)(parse_url($_ENV['APP_URL'] ?? '', PHP_URL_PATH) ?: ''), '/') ?>';</script>
+    <script nonce="<?= \Elyra\Infrastructure\Service\SessionManager::getNonce() ?>">window.BASE_PATH = '<?= rtrim((string)(parse_url($_ENV['APP_URL'] ?? '', PHP_URL_PATH) ?: ''), '/') ?>';</script>
 </head>
 <body class="error-page">
     <div class="error-box">
