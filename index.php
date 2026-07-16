@@ -17,6 +17,39 @@ if (file_exists($envFile)) {
     }
 }
 
+// Serve static files (nginx routes everything through PHP)
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$appUrlPath = parse_url((string)($_ENV['APP_URL'] ?? ''), PHP_URL_PATH);
+$staticBase = rtrim(is_string($appUrlPath) ? $appUrlPath : '', '/');
+$staticRel = $staticBase !== '' ? substr($uri, strlen($staticBase)) : $uri;
+if ($staticRel !== '' && $staticRel !== '/') {
+    $staticFile = __DIR__ . '/public' . $staticRel;
+    if (is_file($staticFile)) {
+        $ext = strtolower(pathinfo($staticFile, PATHINFO_EXTENSION));
+        $mime = match ($ext) {
+            'css'  => 'text/css',
+            'js'   => 'application/javascript',
+            'json' => 'application/json',
+            'png'  => 'image/png',
+            'jpg', 'jpeg' => 'image/jpeg',
+            'gif'  => 'image/gif',
+            'webp' => 'image/webp',
+            'svg'  => 'image/svg+xml',
+            'ico'  => 'image/x-icon',
+            'woff' => 'font/woff',
+            'woff2'=> 'font/woff2',
+            'ttf'  => 'font/ttf',
+            default => null,
+        };
+        if ($mime !== null) {
+            header('Content-Type: ' . $mime);
+            header('Cache-Control: public, max-age=3600');
+            readfile($staticFile);
+            exit;
+        }
+    }
+}
+
 // HTTPS redirect
 if (
     ($_ENV['APP_ENV'] ?? 'development') === 'production'
