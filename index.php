@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 // .env
-$envFile = __DIR__ . '/../.env';
+$envFile = __DIR__ . '/.env';
 if (file_exists($envFile)) {
     $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
@@ -40,12 +40,12 @@ if (!$debug) {
 
 // Session
 \Elyra\Infrastructure\Service\SessionManager::start();
-\Elyra\Infrastructure\Service\RateLimiter::setStorageDir(__DIR__ . '/../storage/rate-limit');
+\Elyra\Infrastructure\Service\RateLimiter::setStorageDir(__DIR__ . '/storage/rate-limit');
 
 // Router
 $router = new \Elyra\Infrastructure\Web\Router();
 
-$routeDefinitions = require __DIR__ . '/../src/Infrastructure/Web/Routes/web.php';
+$routeDefinitions = require __DIR__ . '/src/Infrastructure/Web/Routes/web.php';
 $router->loadRoutes($routeDefinitions);
 
 // Middleware: rate limiting (public routes)
@@ -116,7 +116,7 @@ $route = $router->dispatch($method, $uri);
 if ($route === null) {
     http_response_code(404);
     $nonce = \Elyra\Infrastructure\Service\SessionManager::getNonce();
-    require __DIR__ . '/../views/errors/404.php';
+    require __DIR__ . '/views/errors/404.php';
     exit;
 }
 
@@ -128,7 +128,7 @@ if (!class_exists($controllerClass)) {
         echo htmlspecialchars("Controller {$controllerClass} no encontrado.", ENT_QUOTES, 'UTF-8');
     } else {
         $nonce = \Elyra\Infrastructure\Service\SessionManager::getNonce();
-        require __DIR__ . '/../views/errors/500.php';
+        require __DIR__ . '/views/errors/500.php';
     }
     exit;
 }
@@ -141,7 +141,7 @@ if (!method_exists($controller, $route['action'])) {
         echo htmlspecialchars("Método {$route['action']} no encontrado en {$route['controller']}.", ENT_QUOTES, 'UTF-8');
     } else {
         $nonce = \Elyra\Infrastructure\Service\SessionManager::getNonce();
-        require __DIR__ . '/../views/errors/500.php';
+        require __DIR__ . '/views/errors/500.php';
     }
     exit;
 }
