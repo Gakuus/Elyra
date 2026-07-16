@@ -1,5 +1,5 @@
 var CACHE = 'elyra-v2';
-var BASE = new URL('../', self.location.href).pathname.replace(/\/$/, '');
+var BASE = new URL('./', self.location.href).pathname.replace(/\/$/, '');
 
 var STATIC = [
     BASE + '/',
