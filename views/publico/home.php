@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-title" content="Elyra">
     <link rel="apple-touch-icon" href="img/icon-192.png">
     <meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['_csrf_token'] ?? '') ?>">
-    <script>window.BASE_PATH = '<?= rtrim((string)(parse_url($_ENV['APP_URL'] ?? '', PHP_URL_PATH) ?: ''), '/') ?>';</script>
+    <script nonce="<?= \Elyra\Infrastructure\Service\SessionManager::getNonce() ?>">window.BASE_PATH = '<?= rtrim((string)(parse_url($_ENV['APP_URL'] ?? '', PHP_URL_PATH) ?: ''), '/') ?>';</script>
     <style>
         body { background: #fff; }
         .public-nav { background:#3B5998; border-bottom:2px solid #2A4780; }
