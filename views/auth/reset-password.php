@@ -1,6 +1,7 @@
 <?php $titulo = 'Nueva contraseña'; ?>
+<?php $bgUrl = rtrim(parse_url((string)($_ENV['APP_URL'] ?? ''), PHP_URL_PATH) ?: '', '/'); ?>
 <?php ob_start(); ?>
-<div class="login-page">
+<div class="login-page" style="background-image: linear-gradient(rgb(0 0 0 / 45%), rgb(0 0 0 / 45%)), url('<?= htmlspecialchars($bgUrl, ENT_QUOTES) ?>/img/hospital-de-clinicas.jpg'); background-position: center; background-size: cover; background-repeat: no-repeat;">
     <div class="login-box">
         <div class="login-box-header">
             Hospital de Clínicas
