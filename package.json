@@ -4,7 +4,7 @@
     "type": "module",
     "devDependencies": {
         "eslint": "^10.7.0",
-        "globals": "^17.7.0",
+        "globals": "^17.8.0",
         "stylelint": "^17.14.1",
         "stylelint-config-standard": "^40.0.0"
     },
